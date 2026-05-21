@@ -186,7 +186,7 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
                 <div className="drawer-section">
                   <h4>活動</h4>
                   <div className="timeline">
-                    {card.activity.map((entry, i) => (
+                    {c.activity.map((entry, i) => (
                       <div key={i} className="tl-row">
                         <div className="tl-dot" />
                         <div className="tl-msg">
