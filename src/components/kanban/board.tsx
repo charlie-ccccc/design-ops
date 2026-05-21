@@ -4,6 +4,10 @@ import {
   DndContext,
   DragOverlay,
   closestCorners,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
   type DragStartEvent,
   type DragEndEvent,
   type DragOverEvent,
@@ -38,6 +42,11 @@ export default function KanbanBoard({
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+  );
 
   // Filter cards
   const filtered = cards.filter((c) => {
@@ -108,6 +117,7 @@ export default function KanbanBoard({
 
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
