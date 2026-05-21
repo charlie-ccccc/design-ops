@@ -314,6 +314,15 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .layout-pick button { appearance: none; border: 0; background: transparent; padding: 4px 10px; height: 24px; font-size: 11.5px; font-weight: 500; color: var(--muted); cursor: pointer; border-radius: 5px; font-family: inherit; white-space: nowrap; }
 .layout-pick button[data-on="1"] { background: var(--ink); color: var(--bg); }
 
+/* ── History detail ──────────────────────────────────────────── */
+.archive-card.clickable { transition: border-color 0.12s, box-shadow 0.12s; }
+.archive-card.clickable:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+.history-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.history-detail-meta { display: flex; gap: 28px; padding: 14px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+.history-detail-meta .stat-item { display: flex; flex-direction: column; gap: 4px; }
+.history-detail-meta .stat-item .l { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.history-detail-meta .stat-item .v { font: 600 15px/1 var(--font-mono), monospace; letter-spacing: -0.01em; color: var(--ink); }
+
 /* Scrollbars */
 .body::-webkit-scrollbar, .kcol-body::-webkit-scrollbar, .xtab-wrap::-webkit-scrollbar, .drawer-body::-webkit-scrollbar { width: 10px; height: 10px; }
 .body::-webkit-scrollbar-thumb, .kcol-body::-webkit-scrollbar-thumb, .xtab-wrap::-webkit-scrollbar-thumb, .drawer-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }

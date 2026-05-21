@@ -56,10 +56,11 @@ export interface HistoryMonth {
   cards: number;
   totalEst: number;
   totalActual: number;
-  capacity: number;
+  capacity: number;       // raw available hours (not a percentage)
   topDept: string;
   deptTotals: Record<string, number>;
   memberTotals: Record<string, number>;
+  cardList: Card[];
 }
 
 export interface ChartDataItem {

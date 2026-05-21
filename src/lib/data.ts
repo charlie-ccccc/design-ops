@@ -1,4 +1,4 @@
-import type { Card, Member, Status, LeaveEntry, HistoryMonth } from './types';
+import type { Card, CardStatus, Member, Status, LeaveEntry, HistoryMonth } from './types';
 import { formatId } from './utils';
 
 export const DEPTS = [
@@ -95,24 +95,60 @@ export const CURRENT_CARDS: Card[] = SEED.map((c, i) => ({
   activity: seedActivity(c),
 }));
 
+function makeHistoryCards(month: string, count: number, seed: number): Card[] {
+  const prefix = month.replace('/', '');
+  const [, mon] = month.split('/');
+  return Array.from({ length: count }, (_, i) => {
+    const s = SEED[i % SEED.length];
+    const r = (seed * 31 + i * 17) % 100;
+    const est = Math.max(4, Math.round(s.est * (0.7 + (r % 5) * 0.08)));
+    const actual = Math.max(1, Math.round(s.actual > 0 ? s.actual * (0.65 + (r % 4) * 0.1) : est * 0.8));
+    const status: CardStatus = i % 7 === 0 ? 'pending' : 'done';
+    const owner = MEMBER_BY_ID[s.owner].name;
+    return {
+      ...s,
+      id: `${prefix}-${formatId(i + 1)}`,
+      month,
+      status,
+      est,
+      actual,
+      desc: s.cat === 'UIUX'
+        ? '本單為 UIUX 設計需求，交付物含 Figma 原型、規格、互動 demo 影片。'
+        : '本單為平面視覺需求，交付物含主視覺、延伸 SocialKV、可編輯原始檔。',
+      attach: 2 + (i % 4),
+      activity: [
+        { who: '系統', msg: `${owner} 接下此單`, t: `${mon}/06 10:12` },
+        { who: owner, msg: `回報實際工時 +${Math.round(actual * 0.6)}h`, t: `${mon}/14 15:20` },
+        { who: owner, msg: '送出審核', t: `${mon}/22 09:48` },
+        status === 'done'
+          ? { who: 'Lead', msg: '結案，已存入結算', t: `${mon}/28 17:05` }
+          : { who: '系統', msg: '需求單位取消需求，移至 Pending 保留工時', t: `${mon}/28 11:20` },
+      ],
+    };
+  });
+}
+
 export const HISTORY: HistoryMonth[] = [
   {
-    month: '2026/04', cards: 31, totalEst: 412, totalActual: 438, capacity: 96,
+    month: '2026/04', cards: 31, totalEst: 412, totalActual: 438, capacity: 1008,
     topDept: '金融事業群-Money錢',
     deptTotals: { '金融事業群-Money錢': 78, '金融事業群-流量事業-同學會': 56, '全球金融事業群-海外券商': 48, '金融事業群-大眾事業': 42, '總經理室': 36, '消費事業群': 34, '產品部': 28, '人力資源部': 22, '通用工程': 18, '金融事業群-流量事業-網站': 16, '合作夥伴事業群-法人事業': 14, '合作夥伴事業群-保險事業': 12, '金融事業群-大眾事業(券商)': 8 },
     memberTotals: { mia: 88, annie: 76, charlie: 62, shujuan: 78, baoxuan: 60, sunny: 74 },
+    cardList: makeHistoryCards('2026/04', 31, 7),
   },
   {
-    month: '2026/03', cards: 28, totalEst: 396, totalActual: 372, capacity: 88,
+    month: '2026/03', cards: 28, totalEst: 396, totalActual: 372, capacity: 984,
     topDept: '金融事業群-大眾事業',
     deptTotals: { '金融事業群-大眾事業': 64, '金融事業群-Money錢': 58, '產品部': 48, '全球金融事業群-海外券商': 42, '總經理室': 36, '消費事業群': 32, '金融事業群-流量事業-網站': 30, '人力資源部': 24, '通用工程': 22, '金融事業群-大眾事業(券商)': 14, '合作夥伴事業群-法人事業': 12, '合作夥伴事業群-保險事業': 8 },
     memberTotals: { mia: 82, annie: 68, charlie: 58, shujuan: 64, baoxuan: 54, sunny: 70 },
+    cardList: makeHistoryCards('2026/03', 28, 13),
   },
   {
-    month: '2026/02', cards: 24, totalEst: 334, totalActual: 318, capacity: 81,
+    month: '2026/02', cards: 24, totalEst: 334, totalActual: 318, capacity: 936,
     topDept: '金融事業群-Money錢',
     deptTotals: { '金融事業群-Money錢': 62, '金融事業群-流量事業-同學會': 52, '金融事業群-大眾事業': 44, '產品部': 38, '總經理室': 32, '消費事業群': 28, '通用工程': 20, '人力資源部': 18, '金融事業群-流量事業-網站': 16, '合作夥伴事業群-法人事業': 10, '全球金融事業群-海外券商': 14 },
     memberTotals: { mia: 68, annie: 60, charlie: 48, shujuan: 56, baoxuan: 48, sunny: 54 },
+    cardList: makeHistoryCards('2026/02', 24, 3),
   },
 ];
 

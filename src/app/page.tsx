@@ -6,7 +6,7 @@ import {
   Search, Bell, Settings, Plus, Download,
   ChevronLeft, ChevronRight, Filter,
 } from 'lucide-react';
-import type { Card, LeaveEntry, DashLayout, ChartType, CardStatus } from '@/lib/types';
+import type { Card, HistoryMonth, LeaveEntry, DashLayout, ChartType, CardStatus } from '@/lib/types';
 import {
   MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_BASE,
@@ -40,6 +40,7 @@ export default function App() {
   const [filterDept, setFilterDept] = useState('');
   const [baseHours, setBaseHours] = useState<Record<string, number>>(DEFAULT_BASE);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
+  const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -106,6 +107,32 @@ export default function App() {
     setCards(cs => [nc, ...cs]);
   };
 
+  const onArchive = () => {
+    const archiveStatuses: CardStatus[] = ['done', 'pending'];
+    const toArchive = cards.filter(c => archiveStatuses.includes(c.status));
+    if (toArchive.length === 0) return;
+    const toRollover = cards.filter(c => !archiveStatuses.includes(c.status));
+    const totalEst = sum(toArchive.map(c => c.est));
+    const totalActual = sum(toArchive.map(c => c.actual));
+    const byDept = groupBy(toArchive, 'dept');
+    const topDept = Object.entries(byDept)
+      .map(([d, xs]) => [d, sum(xs.map(c => c.est))] as [string, number])
+      .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+    const newMonth: HistoryMonth = {
+      month,
+      cards: toArchive.length,
+      totalEst,
+      totalActual,
+      capacity: totalCapacity,
+      topDept,
+      deptTotals: Object.fromEntries(Object.entries(byDept).map(([d, xs]) => [d, sum(xs.map(c => c.est))])),
+      memberTotals: Object.fromEntries(MEMBERS.map(m => [m.id, sum(toArchive.filter(c => c.owner === m.id).map(c => c.actual))])),
+      cardList: toArchive,
+    };
+    setHistory(h => [newMonth, ...h]);
+    setCards(toRollover);
+  };
+
   const currentSnapshot = useMemo(() => {
     const totalEst = sum(cards.map(c => c.est));
     const totalActual = sum(cards.map(c => c.actual));
@@ -118,7 +145,7 @@ export default function App() {
       cards: cards.length,
       totalEst,
       totalActual,
-      capacity: Math.round((totalEst / totalCapacity) * 100) || 0,
+      capacity: totalCapacity,
       topDept,
     };
   }, [cards, totalCapacity]);
@@ -127,7 +154,7 @@ export default function App() {
     { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: cards.length },
     { id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> },
     ...(showAdmin ? [{ id: 'capacity' as Page, name: '量能管理', icon: <TrendingUp size={15} />, tag: 'Admin' }] : []),
-    { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} />, count: HISTORY.length },
+    { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} />, count: history.length },
   ];
 
   return (
@@ -238,7 +265,7 @@ export default function App() {
               </div>
             )}
 
-            {page !== 'history' && (
+            {(page === 'dashboard' || page === 'capacity') && (
               <div className="month-pill">
                 <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
                 <span className="month-pill-val">{month}</span>
@@ -247,10 +274,15 @@ export default function App() {
             )}
 
             {page === 'kanban' && (
-              <button className="btn btn-primary"
-                      onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                <Plus size={14} /> 新需求單
-              </button>
+              <>
+                <button className="btn" onClick={onArchive} title="將設計完成與 Pending 卡片封存到歷史">
+                  <Archive size={14} /> 封存本月
+                </button>
+                <button className="btn btn-primary"
+                        onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
+                  <Plus size={14} /> 新需求單
+                </button>
+              </>
             )}
             {page === 'dashboard' && (
               <button className="btn"><Download size={14} /> 匯出</button>
@@ -263,7 +295,7 @@ export default function App() {
         <div className="body">
           {page === 'kanban' && (
             <KanbanBoard
-              cards={monthCards}
+              cards={cards}
               query={query}
               filterMember={filterMember}
               filterDept={filterDept}
@@ -292,7 +324,7 @@ export default function App() {
             />
           )}
           {page === 'history' && (
-            <History archives={HISTORY} currentSnapshot={currentSnapshot} />
+            <History archives={history} currentSnapshot={currentSnapshot} onArchive={onArchive} />
           )}
         </div>
       </main>
