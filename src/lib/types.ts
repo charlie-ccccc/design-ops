@@ -1,4 +1,4 @@
-export type CardStatus = 'todo' | 'progress' | 'review' | 'done';
+export type CardStatus = 'belog' | 'todo' | 'designing' | 'reviewing' | 'done' | 'pending';
 export type Cat = 'UIUX' | '平面視覺';
 export type Priority = 'high' | 'normal' | 'low';
 export type DashLayout = 'classic' | 'focus' | 'grid';

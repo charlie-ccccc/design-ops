@@ -74,7 +74,7 @@ export default function Admin({
     { lbl: '總承接工時', val: `${totalLoad}h` },
     { lbl: '總請假工時', val: `${totalLeave}h` },
     { lbl: '已完成工單', val: `${cards.filter((c) => c.status === 'done').length} 張` },
-    { lbl: '進行中工單', val: `${cards.filter((c) => c.status === 'progress').length} 張` },
+    { lbl: '設計中工單', val: `${cards.filter((c) => c.status === 'designing').length} 張` },
   ];
 
   function addLeave() {

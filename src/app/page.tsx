@@ -34,7 +34,7 @@ export default function App() {
   const [cards, setCards] = useState<Card[]>(CURRENT_CARDS);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
-  const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('todo');
+  const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
   const [query, setQuery] = useState('');
   const [filterMember, setFilterMember] = useState('');
   const [filterDept, setFilterDept] = useState('');
@@ -248,7 +248,7 @@ export default function App() {
 
             {page === 'kanban' && (
               <button className="btn btn-primary"
-                      onClick={() => { setNewCardDefaultStatus('todo'); setNewCardOpen(true); }}>
+                      onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
                 <Plus size={14} /> 新需求單
               </button>
             )}

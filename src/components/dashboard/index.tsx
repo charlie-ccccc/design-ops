@@ -57,7 +57,7 @@ export default function Dashboard({
   const totalEst = sum(cards.map((c) => c.est));
   const totalActual = sum(cards.map((c) => c.actual));
   const doneCount = cards.filter((c) => c.status === 'done').length;
-  const inProgressCount = cards.filter((c) => c.status === 'progress').length;
+  const inProgressCount = cards.filter((c) => c.status === 'designing').length;
 
   const capPct = totalCapacity > 0 ? Math.round((totalEst / totalCapacity) * 100) : 0;
 

@@ -36,48 +36,51 @@ export const MEMBERS: Member[] = [
 export const MEMBER_BY_ID: Record<string, Member> = Object.fromEntries(MEMBERS.map(m => [m.id, m]));
 
 export const STATUSES: Status[] = [
-  { id: 'todo',     name: '待處理',  dot: 'var(--muted-2)' },
-  { id: 'progress', name: '進行中',  dot: 'var(--st-progress)' },
-  { id: 'review',   name: '待審核',  dot: 'var(--st-review)' },
-  { id: 'done',     name: '已完成',  dot: 'var(--st-done)' },
+  { id: 'belog',     name: 'Belog',   dot: 'var(--hue-c3)' },
+  { id: 'todo',      name: '待處理',  dot: 'var(--muted-2)' },
+  { id: 'designing', name: '設計中',  dot: 'var(--st-progress)' },
+  { id: 'reviewing', name: '審核中',  dot: 'var(--st-review)' },
+  { id: 'done',      name: '設計完成', dot: 'var(--st-done)' },
+  { id: 'pending',   name: 'Pending', dot: 'var(--st-block)' },
 ];
 
 export const PRIORITY_LABEL: Record<string, string> = { high: '高', normal: '中', low: '低' };
 
 const SEED: Omit<Card, 'id' | 'month' | 'desc' | 'attach' | 'activity'>[] = [
-  { title: 'Money錢 APP 全新導覽流程 v2', dept: '金融事業群-Money錢', cat: 'UIUX', owner: 'mia', est: 32, actual: 18, status: 'progress', prio: 'high', due: '05/28' },
-  { title: '海外券商新客戶收款頁面改版', dept: '全球金融事業群-海外券商', cat: 'UIUX', owner: 'annie', est: 24, actual: 22, status: 'review', prio: 'high', due: '05/22' },
-  { title: '同學會社群 Profile 頁改版', dept: '金融事業群-流量事業-同學會', cat: 'UIUX', owner: 'charlie', est: 20, actual: 6, status: 'progress', prio: 'normal', due: '05/30' },
-  { title: '大眾事業 退休模擬器 互動', dept: '金融事業群-大眾事業', cat: 'UIUX', owner: 'mia', est: 16, actual: 0, status: 'todo', prio: 'normal', due: '06/03' },
-  { title: '產品部 後台權限管理 IA 重構', dept: '產品部', cat: 'UIUX', owner: 'charlie', est: 12, actual: 14, status: 'done', prio: 'normal', due: '05/14' },
-  { title: 'Money錢 訂閱頁 A/B 測試版', dept: '金融事業群-Money錢', cat: 'UIUX', owner: 'annie', est: 8, actual: 4, status: 'progress', prio: 'low', due: '05/26' },
-  { title: '通用工程 內部工單系統 v1', dept: '通用工程', cat: 'UIUX', owner: 'mia', est: 18, actual: 0, status: 'todo', prio: 'normal', due: '06/06' },
-  { title: '網站事業群 SEO 選股頁改版', dept: '金融事業群-流量事業-網站', cat: 'UIUX', owner: 'annie', est: 14, actual: 13, status: 'done', prio: 'normal', due: '05/10' },
-  { title: '消費事業群 電商服務中心', dept: '消費事業群', cat: 'UIUX', owner: 'charlie', est: 22, actual: 8, status: 'progress', prio: 'high', due: '05/29' },
-  { title: '5 月季報 KV 主視覺', dept: '總經理室', cat: '平面視覺', owner: 'shujuan', est: 12, actual: 11, status: 'review', prio: 'high', due: '05/22' },
-  { title: '海外券商 EDM 系列 (6 套)', dept: '全球金融事業群-海外券商', cat: '平面視覺', owner: 'sunny', est: 18, actual: 9, status: 'progress', prio: 'normal', due: '05/27' },
-  { title: 'Money錢 SocialKV - 聯名合作版', dept: '金融事業群-Money錢', cat: '平面視覺', owner: 'baoxuan', est: 8, actual: 8, status: 'done', prio: 'normal', due: '05/12' },
-  { title: '人資 員工離退流程海報組', dept: '人力資源部', cat: '平面視覺', owner: 'shujuan', est: 10, actual: 4, status: 'progress', prio: 'normal', due: '05/28' },
-  { title: '金融大眾 季刊封面 + 拉頁', dept: '金融事業群-大眾事業', cat: '平面視覺', owner: 'sunny', est: 16, actual: 0, status: 'todo', prio: 'normal', due: '06/02' },
-  { title: '同學會 線上馬拉松主視覺', dept: '金融事業群-流量事業-同學會', cat: '平面視覺', owner: 'baoxuan', est: 14, actual: 14, status: 'review', prio: 'high', due: '05/21' },
-  { title: '保險事業 新書宣傳長版', dept: '合作夥伴事業群-保險事業', cat: '平面視覺', owner: 'shujuan', est: 12, actual: 13, status: 'done', prio: 'low', due: '05/15' },
-  { title: '法人事業 簡報模板 重製', dept: '合作夥伴事業群-法人事業', cat: '平面視覺', owner: 'sunny', est: 20, actual: 7, status: 'progress', prio: 'normal', due: '05/30' },
-  { title: '券商 週年紀念 行銷貼圖', dept: '金融事業群-大眾事業(券商)', cat: '平面視覺', owner: 'baoxuan', est: 6, actual: 5, status: 'review', prio: 'normal', due: '05/22' },
-  { title: '消費事業群 KOL 合作貼文模板', dept: '消費事業群', cat: '平面視覺', owner: 'baoxuan', est: 10, actual: 0, status: 'todo', prio: 'low', due: '06/05' },
-  { title: '網站 首頁 Banner 改版 (6 款)', dept: '金融事業群-流量事業-網站', cat: '平面視覺', owner: 'sunny', est: 14, actual: 0, status: 'todo', prio: 'normal', due: '06/04' },
-  { title: 'Money錢 數位徽章  16 款', dept: '金融事業群-Money錢', cat: '平面視覺', owner: 'shujuan', est: 24, actual: 12, status: 'progress', prio: 'normal', due: '05/31' },
-  { title: '通用工程 Onboarding 文宣', dept: '通用工程', cat: '平面視覺', owner: 'baoxuan', est: 8, actual: 0, status: 'todo', prio: 'low', due: '06/06' },
-  { title: '總經理室 年中策略會議 ppt', dept: '總經理室', cat: '平面視覺', owner: 'sunny', est: 16, actual: 6, status: 'progress', prio: 'high', due: '05/29' },
-  { title: '產品部 ProductCon 活動視覺', dept: '產品部', cat: '平面視覺', owner: 'shujuan', est: 14, actual: 0, status: 'todo', prio: 'normal', due: '06/02' },
-  { title: '海外券商 6 月主題日曆組', dept: '全球金融事業群-海外券商', cat: '平面視覺', owner: 'baoxuan', est: 10, actual: 4, status: 'progress', prio: 'normal', due: '05/28' },
+  { title: 'Money錢 APP 全新導覽流程 v2',     dept: '金融事業群-Money錢',            cat: 'UIUX',   owner: 'mia',     est: 32, actual: 18, status: 'designing', prio: 'high',   due: '05/28' },
+  { title: '海外券商新客戶收款頁面改版',       dept: '全球金融事業群-海外券商',       cat: 'UIUX',   owner: 'annie',   est: 24, actual: 22, status: 'reviewing', prio: 'high',   due: '05/22' },
+  { title: '同學會社群 Profile 頁改版',        dept: '金融事業群-流量事業-同學會',    cat: 'UIUX',   owner: 'charlie', est: 20, actual: 6,  status: 'designing', prio: 'normal', due: '05/30' },
+  { title: '大眾事業 退休模擬器 互動',         dept: '金融事業群-大眾事業',           cat: 'UIUX',   owner: 'mia',     est: 16, actual: 0,  status: 'belog',     prio: 'normal', due: '06/03' },
+  { title: '產品部 後台權限管理 IA 重構',      dept: '產品部',                        cat: 'UIUX',   owner: 'charlie', est: 12, actual: 14, status: 'done',      prio: 'normal', due: '05/14' },
+  { title: 'Money錢 訂閱頁 A/B 測試版',       dept: '金融事業群-Money錢',            cat: 'UIUX',   owner: 'annie',   est: 8,  actual: 4,  status: 'designing', prio: 'low',    due: '05/26' },
+  { title: '通用工程 內部工單系統 v1',         dept: '通用工程',                      cat: 'UIUX',   owner: 'mia',     est: 18, actual: 0,  status: 'belog',     prio: 'normal', due: '06/06' },
+  { title: '網站事業群 SEO 選股頁改版',        dept: '金融事業群-流量事業-網站',      cat: 'UIUX',   owner: 'annie',   est: 14, actual: 13, status: 'done',      prio: 'normal', due: '05/10' },
+  { title: '消費事業群 電商服務中心',          dept: '消費事業群',                    cat: 'UIUX',   owner: 'charlie', est: 22, actual: 8,  status: 'designing', prio: 'high',   due: '05/29' },
+  { title: '5 月季報 KV 主視覺',              dept: '總經理室',                      cat: '平面視覺', owner: 'shujuan', est: 12, actual: 11, status: 'reviewing', prio: 'high',   due: '05/22' },
+  { title: '海外券商 EDM 系列 (6 套)',         dept: '全球金融事業群-海外券商',       cat: '平面視覺', owner: 'sunny',   est: 18, actual: 9,  status: 'designing', prio: 'normal', due: '05/27' },
+  { title: 'Money錢 SocialKV - 聯名合作版',  dept: '金融事業群-Money錢',            cat: '平面視覺', owner: 'baoxuan', est: 8,  actual: 8,  status: 'done',      prio: 'normal', due: '05/12' },
+  { title: '人資 員工離退流程海報組',          dept: '人力資源部',                    cat: '平面視覺', owner: 'shujuan', est: 10, actual: 4,  status: 'designing', prio: 'normal', due: '05/28' },
+  { title: '金融大眾 季刊封面 + 拉頁',        dept: '金融事業群-大眾事業',           cat: '平面視覺', owner: 'sunny',   est: 16, actual: 0,  status: 'belog',     prio: 'normal', due: '06/02' },
+  { title: '同學會 線上馬拉松主視覺',          dept: '金融事業群-流量事業-同學會',    cat: '平面視覺', owner: 'baoxuan', est: 14, actual: 14, status: 'reviewing', prio: 'high',   due: '05/21' },
+  { title: '保險事業 新書宣傳長版',            dept: '合作夥伴事業群-保險事業',       cat: '平面視覺', owner: 'shujuan', est: 12, actual: 13, status: 'pending',   prio: 'low',    due: '05/15' },
+  { title: '法人事業 簡報模板 重製',           dept: '合作夥伴事業群-法人事業',       cat: '平面視覺', owner: 'sunny',   est: 20, actual: 7,  status: 'designing', prio: 'normal', due: '05/30' },
+  { title: '券商 週年紀念 行銷貼圖',           dept: '金融事業群-大眾事業(券商)',     cat: '平面視覺', owner: 'baoxuan', est: 6,  actual: 5,  status: 'reviewing', prio: 'normal', due: '05/22' },
+  { title: '消費事業群 KOL 合作貼文模板',      dept: '消費事業群',                    cat: '平面視覺', owner: 'baoxuan', est: 10, actual: 0,  status: 'todo',      prio: 'low',    due: '06/05' },
+  { title: '網站 首頁 Banner 改版 (6 款)',    dept: '金融事業群-流量事業-網站',      cat: '平面視覺', owner: 'sunny',   est: 14, actual: 0,  status: 'todo',      prio: 'normal', due: '06/04' },
+  { title: 'Money錢 數位徽章 16 款',          dept: '金融事業群-Money錢',            cat: '平面視覺', owner: 'shujuan', est: 24, actual: 12, status: 'designing', prio: 'normal', due: '05/31' },
+  { title: '通用工程 Onboarding 文宣',         dept: '通用工程',                      cat: '平面視覺', owner: 'baoxuan', est: 8,  actual: 0,  status: 'todo',      prio: 'low',    due: '06/06' },
+  { title: '總經理室 年中策略會議 ppt',        dept: '總經理室',                      cat: '平面視覺', owner: 'sunny',   est: 16, actual: 6,  status: 'designing', prio: 'high',   due: '05/29' },
+  { title: '產品部 ProductCon 活動視覺',       dept: '產品部',                        cat: '平面視覺', owner: 'shujuan', est: 14, actual: 0,  status: 'todo',      prio: 'normal', due: '06/02' },
+  { title: '海外券商 6 月主題日曆組',          dept: '全球金融事業群-海外券商',       cat: '平面視覺', owner: 'baoxuan', est: 10, actual: 4,  status: 'designing', prio: 'normal', due: '05/28' },
 ];
 
 function seedActivity(card: Omit<Card, 'id' | 'month' | 'desc' | 'attach' | 'activity'>) {
   const owner = MEMBER_BY_ID[card.owner].name;
   const out = [{ who: '系統', msg: `${owner} 接下此單`, t: '5/06 10:12' }];
   if (card.actual > 0) out.push({ who: owner, msg: `回報實際工時 +${Math.round(card.actual * 0.6)}h`, t: '5/12 14:30' });
-  if (card.status === 'review' || card.status === 'done') out.push({ who: owner, msg: '送出審核', t: '5/19 09:48' });
+  if (card.status === 'reviewing' || card.status === 'done' || card.status === 'pending') out.push({ who: owner, msg: '送出審核', t: '5/19 09:48' });
   if (card.status === 'done') out.push({ who: 'Lead', msg: '結案，已存入 5 月結算', t: '5/20 17:05' });
+  if (card.status === 'pending') out.push({ who: '系統', msg: '需求單位取消需求，移至 Pending 保留工時', t: '5/20 11:20' });
   return out;
 }
 
