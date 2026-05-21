@@ -155,18 +155,6 @@ export default function App() {
           ))}
         </div>
 
-        <div className="sb-group">
-          <div className="sb-group-h">篩選 · 成員</div>
-          {MEMBERS.map(m => (
-            <button key={m.id} className="sb-item" data-on={filterMember === m.id ? '1' : '0'}
-                    onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)}>
-              <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>
-              <span>{m.name}</span>
-              <span className="sb-item-tag">{m.cat === 'UIUX' ? 'UI' : '視'}</span>
-            </button>
-          ))}
-        </div>
-
         <div className="sb-bottom">
           <div className="sb-avatar">設</div>
           <div>
@@ -201,13 +189,36 @@ export default function App() {
 
           <div className="tb-tools">
             {page === 'kanban' && (
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-2)', pointerEvents: 'none' }}>
-                  <Search size={13} />
-                </span>
-                <input className="input" placeholder="搜尋" style={{ paddingLeft: 26, width: 130 }}
-                       value={query} onChange={e => setQuery(e.target.value)} />
-              </div>
+              <>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  {MEMBERS.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)}
+                      title={m.name}
+                      style={{
+                        appearance: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                        borderRadius: '50%', background: 'transparent',
+                        opacity: filterMember && filterMember !== m.id ? 0.3 : 1,
+                        boxShadow: filterMember === m.id
+                          ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}`
+                          : 'none',
+                        transition: 'opacity 0.15s, box-shadow 0.15s',
+                      }}
+                    >
+                      <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>
+                    </button>
+                  ))}
+                </div>
+                <div style={{ width: 1, height: 18, background: 'var(--border)', margin: '0 2px' }} />
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-2)', pointerEvents: 'none' }}>
+                    <Search size={13} />
+                  </span>
+                  <input className="input" placeholder="搜尋" style={{ paddingLeft: 26, width: 130 }}
+                         value={query} onChange={e => setQuery(e.target.value)} />
+                </div>
+              </>
             )}
 
             {(page === 'kanban' || page === 'dashboard') && (
