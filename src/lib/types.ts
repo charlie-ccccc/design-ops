@@ -1,0 +1,70 @@
+export type CardStatus = 'todo' | 'progress' | 'review' | 'done';
+export type Cat = 'UIUX' | '平面視覺';
+export type Priority = 'high' | 'normal' | 'low';
+export type DashLayout = 'classic' | 'focus' | 'grid';
+export type ChartType = 'donut' | 'pie' | 'bars';
+
+export interface ActivityEntry {
+  who: string;
+  msg: string;
+  t: string;
+}
+
+export interface Card {
+  id: string;
+  month: string;
+  title: string;
+  dept: string;
+  cat: Cat;
+  owner: string;
+  est: number;
+  actual: number;
+  status: CardStatus;
+  prio: Priority;
+  due: string;
+  desc: string;
+  attach: number;
+  activity: ActivityEntry[];
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  alias: string;
+  initial: string;
+  cat: Cat;
+  hue: number;
+  base: number;
+}
+
+export interface Status {
+  id: CardStatus;
+  name: string;
+  dot: string;
+}
+
+export interface LeaveEntry {
+  id: string;
+  member: string;
+  date: string;
+  hours: number;
+  reason?: string;
+}
+
+export interface HistoryMonth {
+  month: string;
+  cards: number;
+  totalEst: number;
+  totalActual: number;
+  capacity: number;
+  topDept: string;
+  deptTotals: Record<string, number>;
+  memberTotals: Record<string, number>;
+}
+
+export interface ChartDataItem {
+  name: string;
+  full?: string;
+  value: number;
+  color: string;
+}
