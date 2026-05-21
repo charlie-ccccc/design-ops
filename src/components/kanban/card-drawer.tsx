@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Card } from '@/lib/types';
 import { STATUSES, MEMBER_BY_ID, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
@@ -12,16 +12,31 @@ interface CardDrawerProps {
 }
 
 export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps) {
-  const isOpen = card !== null;
-  const owner = card ? MEMBER_BY_ID[card.owner] : null;
+  const [isOpen, setIsOpen] = useState(false);
+  const [displayCard, setDisplayCard] = useState<Card | null>(null);
 
-  const pct = card && card.est > 0 ? Math.min(1, card.actual / card.est) * 100 : 0;
-  const isOver = card ? card.actual > card.est : false;
-  const overPct = isOver && card
-    ? ((card.actual - card.est) / card.est) * 100
+  useEffect(() => {
+    if (card) {
+      setDisplayCard(card);
+      const raf = requestAnimationFrame(() => setIsOpen(true));
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsOpen(false);
+      const t = window.setTimeout(() => setDisplayCard(null), 280);
+      return () => window.clearTimeout(t);
+    }
+  }, [card]);
+
+  const c = displayCard;
+  const owner = c ? MEMBER_BY_ID[c.owner] : null;
+
+  const pct = c && c.est > 0 ? Math.min(1, c.actual / c.est) * 100 : 0;
+  const isOver = c ? c.actual > c.est : false;
+  const overPct = isOver && c
+    ? ((c.actual - c.est) / c.est) * 100
     : 0;
 
-  const deptColor = card ? hue(DEPT_HUE[card.dept] || 1) : 'var(--muted-2)';
+  const deptColor = c ? hue(DEPT_HUE[c.dept] || 1) : 'var(--muted-2)';
 
   const priorityLabel: Record<string, string> = { high: '高', normal: '中', low: '低' };
 
@@ -32,14 +47,14 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
         onClick={onClose}
       />
       <div className={`drawer${isOpen ? ' open' : ''}`} role="dialog" aria-modal="true">
-        {card && (
+        {c && (
           <>
             <div className="drawer-h">
               <div>
                 <div className="drawer-h-id">
-                  {card.id} · {card.month}
+                  {c.id} · {c.month}
                 </div>
-                <div className="drawer-h-title">{card.title}</div>
+                <div className="drawer-h-title">{c.title}</div>
               </div>
               <button className="drawer-close" onClick={onClose} aria-label="關閉">
                 <X size={16} />
@@ -48,17 +63,17 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
             <div className="drawer-body">
               {/* Tags row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span className="kcard-cat" data-cat={card.cat}>
-                  {card.cat}
+                <span className="kcard-cat" data-cat={c.cat}>
+                  {c.cat}
                 </span>
                 <span className="dept-pill">
                   <span className="chip-dot" style={{ background: deptColor }} />
-                  {DEPT_SHORT[card.dept] || card.dept}
+                  {DEPT_SHORT[c.dept] || c.dept}
                 </span>
                 <select
                   className="input"
-                  value={card.status}
-                  onChange={(e) => onUpdate(card.id, { status: e.target.value as Card['status'] })}
+                  value={c.status}
+                  onChange={(e) => onUpdate(c.id, { status: e.target.value as Card['status'] })}
                   style={{ marginLeft: 'auto' }}
                 >
                   {STATUSES.map((s) => (
@@ -96,12 +111,12 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
                 <dt>到期日</dt>
                 <dd>
                   <span className="mono tnum" style={{ fontSize: 12.5 }}>
-                    {card.due}
+                    {c.due}
                   </span>
                 </dd>
 
                 <dt>優先級</dt>
-                <dd>{priorityLabel[card.prio] || card.prio}</dd>
+                <dd>{priorityLabel[c.prio] || c.prio}</dd>
 
                 <dt>建立時間</dt>
                 <dd>
@@ -117,19 +132,19 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
                 <div className="drawer-hours">
                   <div className="cell">
                     <div className="lbl">原始預估</div>
-                    <div className="val">{card.est}</div>
+                    <div className="val">{c.est}</div>
                     <div className="delta">小時</div>
                   </div>
                   <div className="cell">
                     <div className="lbl">實際消耗</div>
                     <div className="val" style={isOver ? { color: 'var(--st-block)' } : {}}>
-                      {card.actual}
+                      {c.actual}
                     </div>
                     <div className={`delta${isOver ? ' over' : ' under'}`}>
                       {isOver
-                        ? `超出 ${card.actual - card.est}h`
-                        : card.est > 0
-                        ? `剩餘 ${card.est - card.actual}h`
+                        ? `超出 ${c.actual - c.est}h`
+                        : c.est > 0
+                        ? `剩餘 ${c.est - c.actual}h`
                         : '尚未回報'}
                     </div>
                   </div>
@@ -152,22 +167,22 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10.5, color: 'var(--muted)' }}>
                   <span>0h</span>
-                  <span>{card.est}h</span>
+                  <span>{c.est}h</span>
                 </div>
               </div>
 
               {/* Description section */}
-              {card.desc && (
+              {c.desc && (
                 <div className="drawer-section">
                   <h4>說明</h4>
                   <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>
-                    {card.desc}
+                    {c.desc}
                   </p>
                 </div>
               )}
 
               {/* Activity section */}
-              {card.activity && card.activity.length > 0 && (
+              {c.activity && c.activity.length > 0 && (
                 <div className="drawer-section">
                   <h4>活動</h4>
                   <div className="timeline">
