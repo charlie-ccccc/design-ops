@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive,
-  Search, Bell, Settings, Plus, Download,
-  ChevronLeft, ChevronRight, Filter,
+  Search, Bell, Settings, Plus, Download, X,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import type { Card, HistoryMonth, LeaveEntry, DashLayout, ChartType, CardStatus } from '@/lib/types';
 import {
@@ -41,6 +41,8 @@ export default function App() {
   const [baseHours, setBaseHours] = useState<Record<string, number>>(DEFAULT_BASE);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+  const [archiveMonthInput, setArchiveMonthInput] = useState('2026/05');
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -107,7 +109,7 @@ export default function App() {
     setCards(cs => [nc, ...cs]);
   };
 
-  const onArchive = () => {
+  const onArchive = (archiveMonth: string) => {
     const archiveStatuses: CardStatus[] = ['done', 'pending'];
     const toArchive = cards.filter(c => archiveStatuses.includes(c.status));
     if (toArchive.length === 0) return;
@@ -119,7 +121,7 @@ export default function App() {
       .map(([d, xs]) => [d, sum(xs.map(c => c.est))] as [string, number])
       .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
     const newMonth: HistoryMonth = {
-      month,
+      month: archiveMonth,
       cards: toArchive.length,
       totalEst,
       totalActual,
@@ -275,7 +277,7 @@ export default function App() {
 
             {page === 'kanban' && (
               <>
-                <button className="btn" onClick={onArchive} title="將設計完成與 Pending 卡片封存到歷史">
+                <button className="btn" onClick={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }} title="將設計完成與 Pending 卡片封存到歷史">
                   <Archive size={14} /> 封存本月
                 </button>
                 <button className="btn btn-primary"
@@ -324,7 +326,7 @@ export default function App() {
             />
           )}
           {page === 'history' && (
-            <History archives={history} currentSnapshot={currentSnapshot} onArchive={onArchive} />
+            <History archives={history} currentSnapshot={currentSnapshot} onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }} />
           )}
         </div>
       </main>
@@ -336,6 +338,54 @@ export default function App() {
         onCreate={onCreate}
         defaultStatus={newCardDefaultStatus}
       />
+
+      {/* ── Archive confirm modal ── */}
+      {archiveModalOpen && (() => {
+        const toArchive = cards.filter(c => c.status === 'done' || c.status === 'pending');
+        return (
+          <div className="modal-scrim open" onClick={e => e.target === e.currentTarget && setArchiveModalOpen(false)}>
+            <div className="modal">
+              <div className="modal-h">
+                <span className="modal-h-title">封存月份</span>
+                <span style={{ flex: 1 }} />
+                <button className="drawer-close" onClick={() => setArchiveModalOpen(false)} type="button">
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="form-row">
+                  <label>封存月份</label>
+                  <input
+                    className="input"
+                    style={{ width: '100%' }}
+                    placeholder="YYYY/MM"
+                    value={archiveMonthInput}
+                    onChange={e => setArchiveMonthInput(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>
+                  將封存 <strong style={{ color: 'var(--ink)' }}>{toArchive.length} 張</strong>「設計完成」與「Pending」卡片到歷史。
+                  {cards.length - toArchive.length > 0 && (
+                    <> 其餘 <strong style={{ color: 'var(--ink)' }}>{cards.length - toArchive.length} 張</strong> 繼續留在看板。</>
+                  )}
+                </p>
+              </div>
+              <div className="modal-f">
+                <button type="button" className="btn btn-ghost" onClick={() => setArchiveModalOpen(false)}>取消</button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={!archiveMonthInput.trim() || toArchive.length === 0}
+                  onClick={() => { onArchive(archiveMonthInput.trim()); setArchiveModalOpen(false); }}
+                >
+                  <Archive size={14} /> 確認封存
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
