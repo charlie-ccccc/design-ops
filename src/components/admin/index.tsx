@@ -110,7 +110,6 @@ export default function Admin({
                 <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
               ))}
             </div>
-            <span className="tag" style={{ marginLeft: 8 }}>{month}</span>
           </div>
 
           {/* Big % + bar */}
