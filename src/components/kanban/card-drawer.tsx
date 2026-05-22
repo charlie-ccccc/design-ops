@@ -11,6 +11,15 @@ interface CardDrawerProps {
   onUpdate: (id: string, patch: Partial<Card>) => void;
 }
 
+const URL_RE = /(https?:\/\/[^\s]+)/g;
+function renderWithLinks(text: string) {
+  return text.split(URL_RE).map((part, i) =>
+    URL_RE.test(part)
+      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', wordBreak: 'break-all' }}>{part}</a>
+      : part
+  );
+}
+
 export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
@@ -175,8 +184,8 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
               {c.desc && (
                 <div className="drawer-section">
                   <h4>說明</h4>
-                  <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>
-                    {c.desc}
+                  <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                    {renderWithLinks(c.desc)}
                   </p>
                 </div>
               )}
