@@ -69,6 +69,14 @@ export default function App() {
     r.setProperty('--accent-soft', dark ? p.darkSoft : p.soft);
   }, [accent, dark]);
 
+  useEffect(() => {
+    const year = month.split('/')[0];
+    fetch(`/api/holidays?year=${year}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then((data: PublicHoliday[]) => { if (data.length > 0) setPublicHolidays(data); })
+      .catch(() => {});
+  }, [month.split('/')[0]]);
+
   const monthCards = useMemo(() => {
     if (month === '2026/05') return cards;
     const seed = month.charCodeAt(month.length - 1);
@@ -338,7 +346,6 @@ export default function App() {
               leave={leave}
               setLeave={setLeave}
               publicHolidays={publicHolidays}
-              setPublicHolidays={setPublicHolidays}
               month={month}
               defaultWorkDays={defaultWorkDays}
             />

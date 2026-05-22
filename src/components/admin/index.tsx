@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import type { Card, LeaveEntry, PublicHoliday, Cat } from '@/lib/types';
 import { MEMBERS, MEMBER_BY_ID, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
 import { sum, hue } from '@/lib/utils';
@@ -16,7 +16,6 @@ interface AdminProps {
   leave: LeaveEntry[];
   setLeave: (l: LeaveEntry[]) => void;
   publicHolidays: PublicHoliday[];
-  setPublicHolidays: (h: PublicHoliday[]) => void;
   month: string;
   defaultWorkDays: number;
 }
@@ -32,13 +31,86 @@ function capColor(pct: number) {
   return 'var(--accent)';
 }
 
+// ── Mini calendar ────────────────────────────────────────────
+function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect }: {
+  month: string;
+  leave: LeaveEntry[];
+  publicHolidays: PublicHoliday[];
+  selectedDate: string | null;
+  onSelect: (d: string | null) => void;
+}) {
+  const [y, mo] = month.split('/').map(Number);
+  const daysInMonth = new Date(y, mo, 0).getDate();
+  const firstDow = new Date(y, mo - 1, 1).getDay(); // 0=Sun
+  const offset = (firstDow + 6) % 7; // Mon-first: 0=Mon…6=Sun
+
+  const holSet = new Set(publicHolidays.map(h => h.date));
+  const leaveByDate: Record<string, string[]> = {};
+  for (const l of leave) {
+    (leaveByDate[l.date] ??= []).push(l.member);
+  }
+
+  const today = new Date();
+  const isThisMonth = today.getFullYear() === y && today.getMonth() + 1 === mo;
+  const todayKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+
+  const cells = [...Array(offset).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  while (cells.length % 7) cells.push(null);
+
+  return (
+    <div className="cal-grid">
+      {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+        <div key={d} className="cal-hdr">{d}</div>
+      ))}
+      {cells.map((day, i) => {
+        if (!day) return <div key={i} />;
+        const col = i % 7;
+        const isWeekend = col >= 5;
+        const dateKey = `${String(mo).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        const isHoliday = holSet.has(dateKey);
+        const isToday = isThisMonth && dateKey === todayKey;
+        const isSel = selectedDate === dateKey;
+        const members = leaveByDate[dateKey] ?? [];
+
+        const cls = ['cal-day',
+          isWeekend ? 'weekend' : 'clickable',
+          isToday ? 'today' : '',
+          isSel ? 'selected' : '',
+          isHoliday && !isWeekend ? 'holiday' : '',
+        ].filter(Boolean).join(' ');
+
+        return (
+          <div key={i} className={cls}
+               onClick={() => !isWeekend && onSelect(isSel ? null : dateKey)}>
+            <div className="cal-n">{day}</div>
+            {members.length > 0 && (
+              <div className="cal-dots">
+                {members.slice(0, 4).map((mid, j) => {
+                  const mb = MEMBER_BY_ID[mid];
+                  return (
+                    <div key={j} style={{
+                      width: 4, height: 4, borderRadius: '50%', flexShrink: 0,
+                      background: mb ? hue(mb.hue) : 'var(--muted-2)',
+                    }} />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────
 export default function Admin({
   cards, memberRatios, setMemberRatios, memberDays, setMemberDays,
-  leave, setLeave, publicHolidays, setPublicHolidays, month, defaultWorkDays,
+  leave, setLeave, publicHolidays, month, defaultWorkDays,
 }: AdminProps) {
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [newLeave, setNewLeave] = useState({ member: MEMBERS[0].id, date: '', hours: 8 });
-  const [newHoliday, setNewHoliday] = useState({ date: '', name: '' });
 
   const leaveByMember = useMemo(() =>
     Object.fromEntries(MEMBERS.map(m => [m.id,
@@ -55,10 +127,8 @@ export default function Admin({
     return { m, days, ratio, lv, monthHours, load, pct };
   }), [memberDays, memberRatios, leaveByMember, cards, defaultWorkDays]);
 
-  // ── Filtered by catFilter ────────────────────────────────────────
   const filteredRows = catFilter === 'all' ? memberRows : memberRows.filter(r => r.m.cat === catFilter);
   const filteredCards = catFilter === 'all' ? cards : cards.filter(c => c.cat === catFilter);
-
   const filteredMonthHours = sum(filteredRows.map(r => r.monthHours));
   const filteredLoad = sum(filteredCards.map(c => c.est));
   const filteredLeave = sum(filteredRows.map(r => r.lv));
@@ -69,16 +139,12 @@ export default function Admin({
   const deptLoads = Object.entries(deptMap).sort((a, b) => b[1] - a[1]);
   const maxDeptLoad = Math.max(...deptLoads.map(d => d[1]), 1);
 
-  // Totals for member table footer
   const totalMonthHours = sum(memberRows.map(r => r.monthHours));
   const totalLoad = sum(memberRows.map(r => r.load));
   const totalLeaveHours = sum(memberRows.map(r => r.lv));
   const totalPct = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
 
-  const [, mo] = month.split('/').map(Number);
-  const monthPrefix = `${String(mo).padStart(2, '0')}/`;
-  const monthHolidays = publicHolidays.filter(h => h.date.startsWith(monthPrefix));
-
+  const visibleLeave = selectedDate ? leave.filter(l => l.date === selectedDate) : leave;
   const catLabel = catFilter === 'all' ? '整體' : catFilter === 'UIUX' ? 'UIUX' : '平面視覺';
 
   function addLeave() {
@@ -87,21 +153,12 @@ export default function Admin({
     setNewLeave(p => ({ ...p, date: '', hours: 8 }));
   }
 
-  function addHoliday() {
-    if (!newHoliday.date.trim() || !newHoliday.name.trim()) return;
-    const updated = [...publicHolidays, { date: newHoliday.date, name: newHoliday.name }]
-      .sort((a, b) => a.date.localeCompare(b.date));
-    setPublicHolidays(updated);
-    setNewHoliday({ date: '', name: '' });
-  }
-
   return (
     <div className="cap-grid" style={{ gridTemplateColumns: '1fr 1.6fr' }}>
 
-      {/* ── Left: 設計量能 big card ── */}
+      {/* ── Left: 設計量能 ── */}
       <div className="cap-side">
         <div className="panel">
-          {/* Header with tab toggle */}
           <div className="panel-h">
             <span className="panel-h-title">設計量能</span>
             <span className="panel-h-spacer" />
@@ -112,7 +169,6 @@ export default function Admin({
             </div>
           </div>
 
-          {/* Big % + bar */}
           <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ font: `600 48px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
@@ -123,8 +179,6 @@ export default function Admin({
             <div style={{ height: 8, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden' }}>
               <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
             </div>
-
-            {/* Stats: 可用工時 | 本月承接 | 請假工時 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
               {[
                 { l: '可用工時', v: `${filteredMonthHours}h` },
@@ -139,7 +193,6 @@ export default function Admin({
             </div>
           </div>
 
-          {/* Divider + 承接分佈 */}
           <div style={{ borderTop: '1px solid var(--divider)', margin: '16px 0 0' }} />
           <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>承接分佈</span>
@@ -166,7 +219,7 @@ export default function Admin({
         </div>
       </div>
 
-      {/* ── Right: member table + leave + holidays ── */}
+      {/* ── Right: member table + leave calendar ── */}
       <div className="cap-side">
         <div className="panel">
           <div className="panel-h">
@@ -201,18 +254,13 @@ export default function Admin({
                       </div>
                     </td>
                     <td>
-                      <input
-                        className="num-input" type="number" min={0} max={31}
-                        value={days}
-                        onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })}
-                      />
+                      <input className="num-input" type="number" min={0} max={31} value={days}
+                             onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
                     </td>
                     <td>
-                      <select
-                        className="num-input" style={{ width: 66, textAlign: 'left', cursor: 'pointer' }}
-                        value={ratio}
-                        onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })}
-                      >
+                      <select className="num-input" style={{ width: 66, textAlign: 'left', cursor: 'pointer' }}
+                              value={ratio}
+                              onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })}>
                         <option value={0.875}>0.875</option>
                         <option value={0.625}>0.625</option>
                       </select>
@@ -234,8 +282,7 @@ export default function Admin({
               <tfoot>
                 <tr>
                   <td style={{ fontFamily: 'inherit', fontWeight: 600 }}>合計</td>
-                  <td>—</td>
-                  <td>—</td>
+                  <td>—</td><td>—</td>
                   <td>{totalLeaveHours}</td>
                   <td style={{ fontWeight: 600 }}>{totalMonthHours}</td>
                   <td>{totalLoad}</td>
@@ -253,16 +300,36 @@ export default function Admin({
           </div>
         </div>
 
+        {/* ── 請假記錄 + calendar ── */}
         <div className="panel">
           <div className="panel-h">
             <span className="panel-h-title">請假記錄</span>
             <span className="panel-h-spacer" />
-            <span className="tag">{leave.length} 筆</span>
+            {selectedDate && (
+              <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px', gap: 4 }}
+                      onClick={() => setSelectedDate(null)}>
+                {selectedDate} <X size={11} />
+              </button>
+            )}
+            <span className="tag">{visibleLeave.length} 筆</span>
           </div>
+
+          <MiniCalendar
+            month={month}
+            leave={leave}
+            publicHolidays={publicHolidays}
+            selectedDate={selectedDate}
+            onSelect={setSelectedDate}
+          />
+
+          <div style={{ borderTop: '1px solid var(--divider)' }} />
+
           <div className="leave-list">
-            {leave.length === 0 ? (
-              <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>尚無請假記錄</div>
-            ) : leave.map(entry => {
+            {visibleLeave.length === 0 ? (
+              <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>
+                {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
+              </div>
+            ) : visibleLeave.map(entry => {
               const mb = MEMBER_BY_ID[entry.member];
               return (
                 <div key={entry.id} className="leave-row">
@@ -279,44 +346,19 @@ export default function Admin({
               );
             })}
           </div>
+
           <div className="leave-add">
-            <select className="input" value={newLeave.member} onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
+            <select className="input" value={newLeave.member}
+                    onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
               {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
-            <input className="input" type="text" placeholder="MM/DD" value={newLeave.date} onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
-            <input className="input" type="number" min={1} max={160} value={newLeave.hours} onChange={e => setNewLeave(p => ({ ...p, hours: Number(e.target.value) }))} />
+            <input className="input" type="text" placeholder="MM/DD"
+                   value={newLeave.date}
+                   onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
+            <input className="input" type="number" min={1} max={160}
+                   value={newLeave.hours}
+                   onChange={e => setNewLeave(p => ({ ...p, hours: Number(e.target.value) }))} />
             <button className="btn btn-primary" onClick={addLeave}>新增</button>
-          </div>
-        </div>
-
-        <div className="panel">
-          <div className="panel-h">
-            <span className="panel-h-title">國定假日</span>
-            <span className="panel-h-sub">影響工作天數計算</span>
-            <span className="panel-h-spacer" />
-            <span className="tag">{monthHolidays.length > 0 ? `本月 ${monthHolidays.length} 天` : '本月無假日'}</span>
-          </div>
-          <div className="leave-list">
-            {publicHolidays.length === 0 ? (
-              <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>尚無假日設定</div>
-            ) : publicHolidays.map(h => (
-              <div key={h.date} className="leave-row">
-                <div className="who">
-                  <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11.5, color: 'var(--muted)', minWidth: 44 }}>{h.date}</span>
-                  <span>{h.name}</span>
-                </div>
-                <span />
-                <span />
-                <button className="del" onClick={() => setPublicHolidays(publicHolidays.filter(x => x.date !== h.date))} title="刪除">
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '100px 1fr auto', gap: 8, borderTop: '1px solid var(--divider)', alignItems: 'center' }}>
-            <input className="input" type="text" placeholder="MM/DD" value={newHoliday.date} onChange={e => setNewHoliday(p => ({ ...p, date: e.target.value }))} />
-            <input className="input" type="text" placeholder="節日名稱" value={newHoliday.name} onChange={e => setNewHoliday(p => ({ ...p, name: e.target.value }))} />
-            <button className="btn btn-primary" onClick={addHoliday}>新增</button>
           </div>
         </div>
       </div>
