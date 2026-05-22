@@ -7,6 +7,23 @@ import { sum, hue } from '@/lib/utils';
 
 type CatFilter = 'all' | Cat;
 
+// 08:30 → 18:00, 30-min slots
+const TIME_SLOTS: { label: string; min: number }[] = [];
+for (let m = 8 * 60 + 30; m <= 18 * 60; m += 30) {
+  TIME_SLOTS.push({
+    label: `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`,
+    min: m,
+  });
+}
+
+// Lunch 12:00–13:30 excluded
+function calcLeaveHours(startMin: number, endMin: number): number {
+  if (startMin >= endMin) return 0;
+  const morning = Math.max(0, Math.min(endMin, 720) - startMin);
+  const afternoon = Math.max(0, endMin - Math.max(startMin, 810));
+  return Math.round((morning + afternoon) / 60 * 10) / 10;
+}
+
 interface AdminProps {
   cards: Card[];
   memberRatios: Record<string, number>;
@@ -31,7 +48,7 @@ function capColor(pct: number) {
   return 'var(--accent)';
 }
 
-// ── Mini calendar ────────────────────────────────────────────
+// ── Mini calendar (Sun-first) ────────────────────────────────
 function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect }: {
   month: string;
   leave: LeaveEntry[];
@@ -41,39 +58,37 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect }: 
 }) {
   const [y, mo] = month.split('/').map(Number);
   const daysInMonth = new Date(y, mo, 0).getDate();
-  const firstDow = new Date(y, mo - 1, 1).getDay(); // 0=Sun
-  const offset = (firstDow + 6) % 7; // Mon-first: 0=Mon…6=Sun
+  const firstDow = new Date(y, mo - 1, 1).getDay(); // 0=Sun (Sun-first → offset = firstDow)
 
   const holSet = new Set(publicHolidays.map(h => h.date));
   const leaveByDate: Record<string, string[]> = {};
-  for (const l of leave) {
-    (leaveByDate[l.date] ??= []).push(l.member);
-  }
+  for (const l of leave) (leaveByDate[l.date] ??= []).push(l.member);
 
   const today = new Date();
   const isThisMonth = today.getFullYear() === y && today.getMonth() + 1 === mo;
   const todayKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
 
-  const cells = [...Array(offset).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const cells = [...Array(firstDow).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   while (cells.length % 7) cells.push(null);
 
   return (
     <div className="cal-grid">
-      {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+      {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
         <div key={d} className="cal-hdr">{d}</div>
       ))}
       {cells.map((day, i) => {
         if (!day) return <div key={i} />;
         const col = i % 7;
-        const isWeekend = col >= 5;
+        const isWeekend = col === 0 || col === 6; // Sun=0, Sat=6
         const dateKey = `${String(mo).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
         const isHoliday = holSet.has(dateKey);
+        const isNonWorking = isWeekend || isHoliday;
         const isToday = isThisMonth && dateKey === todayKey;
         const isSel = selectedDate === dateKey;
         const members = leaveByDate[dateKey] ?? [];
 
         const cls = ['cal-day',
-          isWeekend ? 'weekend' : 'clickable',
+          isNonWorking ? 'weekend' : 'clickable',
           isToday ? 'today' : '',
           isSel ? 'selected' : '',
           isHoliday && !isWeekend ? 'holiday' : '',
@@ -81,18 +96,13 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect }: 
 
         return (
           <div key={i} className={cls}
-               onClick={() => !isWeekend && onSelect(isSel ? null : dateKey)}>
+               onClick={() => !isNonWorking && onSelect(isSel ? null : dateKey)}>
             <div className="cal-n">{day}</div>
             {members.length > 0 && (
               <div className="cal-dots">
                 {members.slice(0, 4).map((mid, j) => {
                   const mb = MEMBER_BY_ID[mid];
-                  return (
-                    <div key={j} style={{
-                      width: 4, height: 4, borderRadius: '50%', flexShrink: 0,
-                      background: mb ? hue(mb.hue) : 'var(--muted-2)',
-                    }} />
-                  );
+                  return <div key={j} style={{ width: 4, height: 4, borderRadius: '50%', flexShrink: 0, background: mb ? hue(mb.hue) : 'var(--muted-2)' }} />;
                 })}
               </div>
             )}
@@ -110,7 +120,9 @@ export default function Admin({
 }: AdminProps) {
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [newLeave, setNewLeave] = useState({ member: MEMBERS[0].id, date: '', hours: 8 });
+  const [newLeave, setNewLeave] = useState({ member: MEMBERS[0].id, date: '', startMin: 510, endMin: 1080 });
+
+  const newLeaveHours = calcLeaveHours(newLeave.startMin, newLeave.endMin);
 
   const leaveByMember = useMemo(() =>
     Object.fromEntries(MEMBERS.map(m => [m.id,
@@ -144,13 +156,15 @@ export default function Admin({
   const totalLeaveHours = sum(memberRows.map(r => r.lv));
   const totalPct = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
 
-  const visibleLeave = selectedDate ? leave.filter(l => l.date === selectedDate) : leave;
+  const visibleLeave = (selectedDate ? leave.filter(l => l.date === selectedDate) : leave)
+    .slice().sort((a, b) => a.date.localeCompare(b.date));
+
   const catLabel = catFilter === 'all' ? '整體' : catFilter === 'UIUX' ? 'UIUX' : '平面視覺';
 
   function addLeave() {
-    if (!newLeave.date.trim() || newLeave.hours <= 0) return;
-    setLeave([...leave, { id: `lv${Date.now()}`, member: newLeave.member, date: newLeave.date, hours: newLeave.hours }]);
-    setNewLeave(p => ({ ...p, date: '', hours: 8 }));
+    if (!newLeave.date.trim() || newLeaveHours <= 0) return;
+    setLeave([...leave, { id: `lv${Date.now()}`, member: newLeave.member, date: newLeave.date, hours: newLeaveHours }]);
+    setNewLeave(p => ({ ...p, date: '', startMin: 510, endMin: 1080 }));
   }
 
   return (
@@ -347,18 +361,41 @@ export default function Admin({
             })}
           </div>
 
-          <div className="leave-add">
-            <select className="input" value={newLeave.member}
-                    onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
-              {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
-            <input className="input" type="text" placeholder="MM/DD"
-                   value={newLeave.date}
-                   onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
-            <input className="input" type="number" min={1} max={160}
-                   value={newLeave.hours}
-                   onChange={e => setNewLeave(p => ({ ...p, hours: Number(e.target.value) }))} />
-            <button className="btn btn-primary" onClick={addLeave}>新增</button>
+          {/* ── New leave form ── */}
+          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--divider)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
+              <select className="input" value={newLeave.member}
+                      onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
+                {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+              <input className="input" type="text" placeholder="MM/DD"
+                     value={newLeave.date}
+                     onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <select className="input" style={{ flex: 1 }}
+                      value={newLeave.startMin}
+                      onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
+                {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+              </select>
+              <span style={{ fontSize: 11, color: 'var(--muted)', flexShrink: 0 }}>→</span>
+              <select className="input" style={{ flex: 1 }}
+                      value={newLeave.endMin}
+                      onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
+                {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+              </select>
+              <span style={{
+                fontFamily: 'var(--font-mono), monospace', fontSize: 12.5, fontWeight: 600,
+                color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)',
+                minWidth: 34, textAlign: 'right', flexShrink: 0,
+              }}>
+                {newLeaveHours > 0 ? `${newLeaveHours}h` : '—'}
+              </span>
+              <button className="btn btn-primary" onClick={addLeave}
+                      disabled={!newLeave.date.trim() || newLeaveHours <= 0}>
+                新增
+              </button>
+            </div>
           </div>
         </div>
       </div>
