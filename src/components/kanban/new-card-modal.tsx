@@ -41,12 +41,25 @@ interface NewCardModalProps {
 
 const DEFAULT_FORM = {
   title: '',
-  dept: DEPTS[0],
-  cat: 'UIUX' as Cat,
-  prio: 'normal' as Priority,
+  dept: '' as string,
+  cat: '' as Cat | '',
+  prio: '' as Priority | '',
   due: '',
   desc: DESC_TEMPLATE,
 };
+
+// MM/DD → YYYY-MM-DD for date input value
+function toDateInputVal(mmdd: string): string {
+  if (!mmdd) return '';
+  const year = new Date().getFullYear();
+  return `${year}-${mmdd.replace('/', '-')}`;
+}
+
+// YYYY-MM-DD → MM/DD for storage
+function fromDateInput(val: string): string {
+  if (!val) return '';
+  return val.slice(5).replace('-', '/');
+}
 
 export default function NewCardModal({ open, onClose, onCreate, defaultStatus }: NewCardModalProps) {
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -61,10 +74,12 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.title.trim()) return;
-    onCreate({ ...form, status: defaultStatus });
+    if (!form.title.trim() || !form.dept || !form.cat || !form.prio) return;
+    onCreate({ ...form, cat: form.cat as Cat, prio: form.prio as Priority, status: defaultStatus });
     onClose();
   }
+
+  const canSubmit = form.title.trim() && form.dept && form.cat && form.prio;
 
   return (
     <div className={`modal-scrim${open ? ' open' : ''}`} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -94,16 +109,30 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
             <div className="form-grid">
               {/* 需求發起單位 */}
               <div className="form-row">
-                <label>需求發起單位</label>
+                <label>需求發起單位 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.dept} onChange={e => set('dept', e.target.value)}>
+                  <option value="">請選擇</option>
                   {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 
+              {/* 截止日 */}
+              <div className="form-row">
+                <label>截止日</label>
+                <input
+                  className="input"
+                  style={{ width: '100%' }}
+                  type="date"
+                  value={toDateInputVal(form.due)}
+                  onChange={e => set('due', fromDateInput(e.target.value))}
+                />
+              </div>
+
               {/* 需求執行單位 */}
               <div className="form-row">
-                <label>需求執行單位</label>
+                <label>需求執行單位 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.cat} onChange={e => set('cat', e.target.value as Cat)}>
+                  <option value="">請選擇</option>
                   <option value="UIUX">UIUX</option>
                   <option value="平面視覺">平面視覺</option>
                 </select>
@@ -111,24 +140,13 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
 
               {/* 優先級 */}
               <div className="form-row">
-                <label>優先級</label>
+                <label>優先級 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.prio} onChange={e => set('prio', e.target.value as Priority)}>
+                  <option value="">請選擇</option>
                   <option value="high">高</option>
                   <option value="normal">中</option>
                   <option value="low">低</option>
                 </select>
-              </div>
-
-              {/* 截止日 */}
-              <div className="form-row">
-                <label>截止日 (MM/DD)</label>
-                <input
-                  className="input"
-                  style={{ width: '100%' }}
-                  placeholder="06/30"
-                  value={form.due}
-                  onChange={e => set('due', e.target.value)}
-                />
               </div>
             </div>
 
@@ -146,7 +164,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
 
           <div className="modal-f">
             <button type="button" className="btn btn-ghost" onClick={onClose}>取消</button>
-            <button type="submit" className="btn btn-primary">建立需求單</button>
+            <button type="submit" className="btn btn-primary" disabled={!canSubmit}>建立需求單</button>
           </div>
         </form>
       </div>
