@@ -302,7 +302,7 @@ export default function Admin({
           {/* Tab bar */}
           <div className="panel-h" style={{ borderBottom: '1px solid var(--divider)', paddingBottom: 12 }}>
             <div className="layout-pick">
-              <button data-on={rightTab === 'capacity' ? '1' : '0'} onClick={() => setRightTab('capacity')}>量能總覽</button>
+              <button data-on={rightTab === 'capacity' ? '1' : '0'} onClick={() => setRightTab('capacity')}>成員工時表</button>
               <button data-on={rightTab === 'leave' ? '1' : '0'} onClick={() => setRightTab('leave')}>請假記錄</button>
             </div>
             <span className="panel-h-spacer" />
