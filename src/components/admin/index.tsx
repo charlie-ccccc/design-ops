@@ -119,6 +119,7 @@ export default function Admin({
   leave, setLeave, publicHolidays, month, defaultWorkDays,
 }: AdminProps) {
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
+  const [rightTab, setRightTab] = useState<'capacity' | 'leave'>('capacity');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [newLeave, setNewLeave] = useState({ member: MEMBERS[0].id, date: '', startMin: 510, endMin: 1080 });
 
@@ -233,170 +234,182 @@ export default function Admin({
         </div>
       </div>
 
-      {/* ── Right: member table + leave calendar ── */}
-      <div className="cap-side">
-        <div className="panel">
+      {/* ── Right: unified card with two tabs ── */}
+      <div>
+        <div className="panel" style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* Shared header with tab toggle */}
           <div className="panel-h">
-            <span className="panel-h-title">成員量能</span>
-            <span className="panel-h-sub">工作天 × 8 × 工時比例 − 請假</span>
+            <div className="layout-pick">
+              <button data-on={rightTab === 'capacity' ? '1' : '0'} onClick={() => setRightTab('capacity')}>量能總覽</button>
+              <button data-on={rightTab === 'leave' ? '1' : '0'} onClick={() => setRightTab('leave')}>請假記錄</button>
+            </div>
             <span className="panel-h-spacer" />
-            <span className="tag">{defaultWorkDays} 工作天</span>
+            {rightTab === 'capacity' && (
+              <>
+                <span className="panel-h-sub">工作天 × 8 × 工時比例 − 請假</span>
+                <span className="tag">{defaultWorkDays} 工作天</span>
+              </>
+            )}
+            {rightTab === 'leave' && (
+              <>
+                {selectedDate && (
+                  <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px', gap: 4 }}
+                          onClick={() => setSelectedDate(null)}>
+                    {selectedDate} <X size={11} />
+                  </button>
+                )}
+                <span className="tag">{visibleLeave.length} 筆</span>
+              </>
+            )}
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="cap-table">
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left' }}>成員</th>
-                  <th>工作天</th>
-                  <th>工時比例</th>
-                  <th>請假(h)</th>
-                  <th>月工時</th>
-                  <th>承接(h)</th>
-                  <th>量能%</th>
-                </tr>
-              </thead>
-              <tbody>
-                {memberRows.map(({ m, days, ratio, lv, monthHours, load, pct }) => (
-                  <tr key={m.id}>
-                    <td>
-                      <div className="member">
-                        <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>
-                        <div>
-                          <div style={{ fontSize: 13 }}>{m.name}</div>
-                          <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{m.cat}</div>
+
+          {/* ── Tab: 量能總覽 ── */}
+          {rightTab === 'capacity' && (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="cap-table">
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left' }}>成員</th>
+                    <th>工作天</th>
+                    <th>工時比例</th>
+                    <th>請假(h)</th>
+                    <th>月工時</th>
+                    <th>承接(h)</th>
+                    <th>量能%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {memberRows.map(({ m, days, ratio, lv, monthHours, load, pct }) => (
+                    <tr key={m.id}>
+                      <td>
+                        <div className="member">
+                          <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>
+                          <div>
+                            <div style={{ fontSize: 13 }}>{m.name}</div>
+                            <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{m.cat}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <input className="num-input" type="number" min={0} max={31} value={days}
-                             onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
-                    </td>
-                    <td>
-                      <select className="num-input" style={{ width: 66, textAlign: 'left', cursor: 'pointer' }}
-                              value={ratio}
-                              onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })}>
-                        <option value={0.875}>0.875</option>
-                        <option value={0.625}>0.625</option>
-                      </select>
-                    </td>
-                    <td>{lv}</td>
-                    <td style={{ fontWeight: 600 }}>{monthHours}</td>
-                    <td>{load}</td>
+                      </td>
+                      <td>
+                        <input className="num-input" type="number" min={0} max={31} value={days}
+                               onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
+                      </td>
+                      <td>
+                        <select className="num-input" style={{ width: 66, textAlign: 'left', cursor: 'pointer' }}
+                                value={ratio}
+                                onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })}>
+                          <option value={0.875}>0.875</option>
+                          <option value={0.625}>0.625</option>
+                        </select>
+                      </td>
+                      <td>{lv}</td>
+                      <td style={{ fontWeight: 600 }}>{monthHours}</td>
+                      <td>{load}</td>
+                      <td>
+                        <div className="cap-bar">
+                          <div className="track">
+                            <span style={{ width: `${Math.min(pct, 100)}%`, background: capColor(pct) }} />
+                          </div>
+                          <span className={`cap-pct ${capClass(pct)}`}>{pct}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td style={{ fontFamily: 'inherit', fontWeight: 600 }}>合計</td>
+                    <td>—</td><td>—</td>
+                    <td>{totalLeaveHours}</td>
+                    <td style={{ fontWeight: 600 }}>{totalMonthHours}</td>
+                    <td>{totalLoad}</td>
                     <td>
                       <div className="cap-bar">
                         <div className="track">
-                          <span style={{ width: `${Math.min(pct, 100)}%`, background: capColor(pct) }} />
+                          <span style={{ width: `${Math.min(totalPct, 100)}%`, background: capColor(totalPct) }} />
                         </div>
-                        <span className={`cap-pct ${capClass(pct)}`}>{pct}%</span>
+                        <span className={`cap-pct ${capClass(totalPct)}`}>{totalPct}%</span>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td style={{ fontFamily: 'inherit', fontWeight: 600 }}>合計</td>
-                  <td>—</td><td>—</td>
-                  <td>{totalLeaveHours}</td>
-                  <td style={{ fontWeight: 600 }}>{totalMonthHours}</td>
-                  <td>{totalLoad}</td>
-                  <td>
-                    <div className="cap-bar">
-                      <div className="track">
-                        <span style={{ width: `${Math.min(totalPct, 100)}%`, background: capColor(totalPct) }} />
-                      </div>
-                      <span className={`cap-pct ${capClass(totalPct)}`}>{totalPct}%</span>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
+                </tfoot>
+              </table>
+            </div>
+          )}
 
-        {/* ── 請假記錄 + calendar ── */}
-        <div className="panel">
-          <div className="panel-h">
-            <span className="panel-h-title">請假記錄</span>
-            <span className="panel-h-spacer" />
-            {selectedDate && (
-              <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px', gap: 4 }}
-                      onClick={() => setSelectedDate(null)}>
-                {selectedDate} <X size={11} />
-              </button>
-            )}
-            <span className="tag">{visibleLeave.length} 筆</span>
-          </div>
+          {/* ── Tab: 請假記錄 ── */}
+          {rightTab === 'leave' && (
+            <>
+              <MiniCalendar
+                month={month}
+                leave={leave}
+                publicHolidays={publicHolidays}
+                selectedDate={selectedDate}
+                onSelect={setSelectedDate}
+              />
 
-          <MiniCalendar
-            month={month}
-            leave={leave}
-            publicHolidays={publicHolidays}
-            selectedDate={selectedDate}
-            onSelect={setSelectedDate}
-          />
+              <div style={{ borderTop: '1px solid var(--divider)' }} />
 
-          <div style={{ borderTop: '1px solid var(--divider)' }} />
-
-          <div className="leave-list">
-            {visibleLeave.length === 0 ? (
-              <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>
-                {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
-              </div>
-            ) : visibleLeave.map(entry => {
-              const mb = MEMBER_BY_ID[entry.member];
-              return (
-                <div key={entry.id} className="leave-row">
-                  <div className="who">
-                    {mb && <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>}
-                    <span>{mb ? mb.name : entry.member}</span>
+              <div className="leave-list">
+                {visibleLeave.length === 0 ? (
+                  <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>
+                    {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
                   </div>
-                  <span className="date">{entry.date}</span>
-                  <span className="hrs">{entry.hours}h</span>
-                  <button className="del" onClick={() => setLeave(leave.filter(l => l.id !== entry.id))} title="刪除">
-                    <Trash2 size={13} />
+                ) : visibleLeave.map(entry => {
+                  const mb = MEMBER_BY_ID[entry.member];
+                  return (
+                    <div key={entry.id} className="leave-row">
+                      <div className="who">
+                        {mb && <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>}
+                        <span>{mb ? mb.name : entry.member}</span>
+                      </div>
+                      <span className="date">{entry.date}</span>
+                      <span className="hrs">{entry.hours}h</span>
+                      <button className="del" onClick={() => setLeave(leave.filter(l => l.id !== entry.id))} title="刪除">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ padding: '12px 16px', borderTop: '1px solid var(--divider)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
+                  <select className="input" value={newLeave.member}
+                          onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
+                    {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select>
+                  <input className="input" type="text" placeholder="MM/DD"
+                         value={newLeave.date}
+                         onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <select className="input" style={{ flex: 1 }}
+                          value={newLeave.startMin}
+                          onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
+                    {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+                  </select>
+                  <span style={{ fontSize: 11, color: 'var(--muted)', flexShrink: 0 }}>→</span>
+                  <select className="input" style={{ flex: 1 }}
+                          value={newLeave.endMin}
+                          onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
+                    {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+                  </select>
+                  <span style={{
+                    fontFamily: 'var(--font-mono), monospace', fontSize: 12.5, fontWeight: 600,
+                    color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)',
+                    minWidth: 34, textAlign: 'right', flexShrink: 0,
+                  }}>
+                    {newLeaveHours > 0 ? `${newLeaveHours}h` : '—'}
+                  </span>
+                  <button className="btn btn-primary" onClick={addLeave}
+                          disabled={!newLeave.date.trim() || newLeaveHours <= 0}>
+                    新增
                   </button>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* ── New leave form ── */}
-          <div style={{ padding: '12px 16px', borderTop: '1px solid var(--divider)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
-              <select className="input" value={newLeave.member}
-                      onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
-                {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
-              <input className="input" type="text" placeholder="MM/DD"
-                     value={newLeave.date}
-                     onChange={e => setNewLeave(p => ({ ...p, date: e.target.value }))} />
-            </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <select className="input" style={{ flex: 1 }}
-                      value={newLeave.startMin}
-                      onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
-                {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
-              </select>
-              <span style={{ fontSize: 11, color: 'var(--muted)', flexShrink: 0 }}>→</span>
-              <select className="input" style={{ flex: 1 }}
-                      value={newLeave.endMin}
-                      onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
-                {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
-              </select>
-              <span style={{
-                fontFamily: 'var(--font-mono), monospace', fontSize: 12.5, fontWeight: 600,
-                color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)',
-                minWidth: 34, textAlign: 'right', flexShrink: 0,
-              }}>
-                {newLeaveHours > 0 ? `${newLeaveHours}h` : '—'}
-              </span>
-              <button className="btn btn-primary" onClick={addLeave}
-                      disabled={!newLeave.date.trim() || newLeaveHours <= 0}>
-                新增
-              </button>
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
