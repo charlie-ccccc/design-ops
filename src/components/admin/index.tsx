@@ -354,6 +354,7 @@ export default function Admin({
                       </td>
                       <td>
                         <input className="num-input" type="number" min={0.1} max={1} step={0.005}
+                               style={{ width: 68 }}
                                value={ratio}
                                onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })} />
                       </td>
