@@ -6,12 +6,12 @@ import {
   Search, Bell, Settings, Plus, Download, X,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import type { Card, HistoryMonth, LeaveEntry, DashLayout, ChartType, CardStatus } from '@/lib/types';
+import type { Card, HistoryMonth, LeaveEntry, PublicHoliday, DashLayout, ChartType, CardStatus } from '@/lib/types';
 import {
   MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
-  CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_BASE,
+  CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
 } from '@/lib/data';
-import { sum, groupBy, hue, formatId, shiftMonth } from '@/lib/utils';
+import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth } from '@/lib/utils';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
@@ -38,7 +38,9 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [filterMember, setFilterMember] = useState('');
   const [filterDept, setFilterDept] = useState('');
-  const [baseHours, setBaseHours] = useState<Record<string, number>>(DEFAULT_BASE);
+  const [memberRatios, setMemberRatios] = useState<Record<string, number>>({});
+  const [memberDays, setMemberDays] = useState<Record<string, number>>({});
+  const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
@@ -82,9 +84,20 @@ export default function App() {
       sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
     [leave]);
 
+  const defaultWorkDays = useMemo(
+    () => workingDaysInMonth(month, publicHolidays),
+    [month, publicHolidays],
+  );
+
   const totalCapacity = useMemo(() =>
-    MEMBERS.reduce((acc, m) => acc + (baseHours[m.id] ?? m.base) - (leaveByMember[m.id] || 0), 0),
-    [baseHours, leaveByMember]);
+    MEMBERS.reduce((acc, m) => {
+      const days = memberDays[m.id] ?? defaultWorkDays;
+      const ratio = memberRatios[m.id] ?? m.ratio;
+      const lv = leaveByMember[m.id] || 0;
+      return acc + Math.max(0, Math.round(days * 8 * ratio) - lv);
+    }, 0),
+    [memberDays, memberRatios, defaultWorkDays, leaveByMember],
+  );
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
@@ -318,11 +331,16 @@ export default function App() {
           {page === 'capacity' && showAdmin && (
             <Admin
               cards={monthCards}
-              baseHours={baseHours}
-              setBaseHours={setBaseHours}
+              memberRatios={memberRatios}
+              setMemberRatios={setMemberRatios}
+              memberDays={memberDays}
+              setMemberDays={setMemberDays}
               leave={leave}
               setLeave={setLeave}
+              publicHolidays={publicHolidays}
+              setPublicHolidays={setPublicHolidays}
               month={month}
+              defaultWorkDays={defaultWorkDays}
             />
           )}
           {page === 'history' && (

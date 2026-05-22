@@ -1,4 +1,4 @@
-import type { Card, CardStatus, Member, Status, LeaveEntry, HistoryMonth } from './types';
+import type { Card, CardStatus, Member, Status, LeaveEntry, HistoryMonth, PublicHoliday } from './types';
 import { formatId } from './utils';
 
 export const DEPTS = [
@@ -25,12 +25,12 @@ export const DEPT_HUE: Record<string, number> = {
 };
 
 export const MEMBERS: Member[] = [
-  { id: 'mia',     name: '吳奕蓁', alias: 'Mia',         initial: '蓁', cat: 'UIUX',   hue: 1, base: 168 },
-  { id: 'annie',   name: '王映蓉', alias: 'Annie Wang',  initial: '蓉', cat: 'UIUX',   hue: 3, base: 168 },
-  { id: 'shujuan', name: '楊舒娟', alias: 'Shujuan',     initial: '娟', cat: '平面視覺', hue: 5, base: 168 },
-  { id: 'baoxuan', name: '寶萱',   alias: 'Bao',         initial: '寶', cat: '平面視覺', hue: 6, base: 168 },
-  { id: 'charlie', name: '陳巧玲', alias: 'Charlie',     initial: '巧', cat: 'UIUX',   hue: 4, base: 152 },
-  { id: 'sunny',   name: '熊禹晴', alias: 'Sunny',       initial: '禹', cat: '平面視覺', hue: 2, base: 168 },
+  { id: 'mia',     name: '吳奕蓁', alias: 'Mia',         initial: '蓁', cat: 'UIUX',   hue: 1, base: 168, ratio: 0.625 },
+  { id: 'annie',   name: '王映蓉', alias: 'Annie Wang',  initial: '蓉', cat: 'UIUX',   hue: 3, base: 168, ratio: 0.875 },
+  { id: 'shujuan', name: '楊舒娟', alias: 'Shujuan',     initial: '娟', cat: '平面視覺', hue: 5, base: 168, ratio: 0.875 },
+  { id: 'baoxuan', name: '寶萱',   alias: 'Bao',         initial: '寶', cat: '平面視覺', hue: 6, base: 168, ratio: 0.875 },
+  { id: 'charlie', name: '陳巧玲', alias: 'Charlie',     initial: '巧', cat: 'UIUX',   hue: 4, base: 168, ratio: 0.625 },
+  { id: 'sunny',   name: '熊禹晴', alias: 'Sunny',       initial: '禹', cat: '平面視覺', hue: 2, base: 168, ratio: 0.875 },
 ];
 
 export const MEMBER_BY_ID: Record<string, Member> = Object.fromEntries(MEMBERS.map(m => [m.id, m]));
@@ -152,6 +152,20 @@ export const HISTORY: HistoryMonth[] = [
   },
 ];
 
+export const DEFAULT_HOLIDAYS: PublicHoliday[] = [
+  { date: '01/01', name: '元旦' },
+  { date: '02/17', name: '農曆除夕' },
+  { date: '02/18', name: '春節' },
+  { date: '02/19', name: '春節' },
+  { date: '02/20', name: '春節' },
+  { date: '02/27', name: '和平紀念日補假' },
+  { date: '04/03', name: '兒童節補假' },
+  { date: '04/04', name: '兒童節' },
+  { date: '05/01', name: '勞動節' },
+  { date: '06/19', name: '端午節' },
+  { date: '10/10', name: '國慶日' },
+];
+
 export const DEFAULT_LEAVE: LeaveEntry[] = [
   { id: 'lv1', member: 'mia',     date: '05/12', hours: 8,  reason: '特休' },
   { id: 'lv2', member: 'annie',   date: '05/19', hours: 4,  reason: '個人事假' },
@@ -159,4 +173,3 @@ export const DEFAULT_LEAVE: LeaveEntry[] = [
   { id: 'lv4', member: 'charlie', date: '05/22', hours: 8,  reason: '公假 - 教育訓練' },
 ];
 
-export const DEFAULT_BASE: Record<string, number> = Object.fromEntries(MEMBERS.map(m => [m.id, m.base]));

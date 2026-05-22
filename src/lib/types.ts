@@ -35,6 +35,12 @@ export interface Member {
   cat: Cat;
   hue: number;
   base: number;
+  ratio: number; // work hour ratio: 0.625 (manager) or 0.875 (regular)
+}
+
+export interface PublicHoliday {
+  date: string; // MM/DD
+  name: string;
 }
 
 export interface Status {

@@ -20,3 +20,18 @@ export function shiftMonth(month: string, delta: number): string {
   if (nm > 12) { nm = 1; ny += 1; }
   return `${ny}/${String(nm).padStart(2, '0')}`;
 }
+
+export function workingDaysInMonth(month: string, holidays: Array<{ date: string }>): number {
+  const [y, mo] = month.split('/').map(Number);
+  const total = new Date(y, mo, 0).getDate();
+  const holidaySet = new Set(holidays.map(h => h.date));
+  let count = 0;
+  for (let d = 1; d <= total; d++) {
+    const dow = new Date(y, mo - 1, d).getDay();
+    if (dow === 0 || dow === 6) continue;
+    const key = `${String(mo).padStart(2, '0')}/${String(d).padStart(2, '0')}`;
+    if (holidaySet.has(key)) continue;
+    count++;
+  }
+  return count;
+}
