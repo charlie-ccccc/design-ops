@@ -52,7 +52,8 @@ export interface Status {
 export interface LeaveEntry {
   id: string;
   member: string;
-  date: string;
+  date: string;      // start date MM/DD
+  endDate?: string;  // end date MM/DD (omit if same day)
   hours: number;
   reason?: string;
 }
