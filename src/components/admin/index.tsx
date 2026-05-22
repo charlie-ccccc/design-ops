@@ -353,12 +353,9 @@ export default function Admin({
                                onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
                       </td>
                       <td>
-                        <select className="num-input" style={{ width: 84, textAlign: 'left', cursor: 'pointer' }}
-                                value={ratio}
-                                onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })}>
-                          <option value={0.875}>0.875</option>
-                          <option value={0.625}>0.625</option>
-                        </select>
+                        <input className="num-input" type="number" min={0.1} max={1} step={0.005}
+                               value={ratio}
+                               onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })} />
                       </td>
                       <td>{lv}</td>
                       <td style={{ fontWeight: 600 }}>{monthHours}</td>
