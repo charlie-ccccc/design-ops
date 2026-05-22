@@ -55,20 +55,31 @@ export default function Admin({
     return { m, days, ratio, lv, monthHours, load, pct };
   }), [memberDays, memberRatios, leaveByMember, cards, defaultWorkDays]);
 
-  const totalMonthHours = sum(memberRows.map(r => r.monthHours));
-  const totalLoad = sum(memberRows.map(r => r.load));
-  const totalLeaveHours = sum(memberRows.map(r => r.lv));
-  const totalPct = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
-
+  // ── Filtered by catFilter ────────────────────────────────────────
+  const filteredRows = catFilter === 'all' ? memberRows : memberRows.filter(r => r.m.cat === catFilter);
   const filteredCards = catFilter === 'all' ? cards : cards.filter(c => c.cat === catFilter);
+
+  const filteredMonthHours = sum(filteredRows.map(r => r.monthHours));
+  const filteredLoad = sum(filteredCards.map(c => c.est));
+  const filteredLeave = sum(filteredRows.map(r => r.lv));
+  const filteredPct = filteredMonthHours > 0 ? Math.round((filteredLoad / filteredMonthHours) * 100) : 0;
+
   const deptMap: Record<string, number> = {};
   for (const c of filteredCards) deptMap[c.dept] = (deptMap[c.dept] || 0) + c.est;
   const deptLoads = Object.entries(deptMap).sort((a, b) => b[1] - a[1]);
   const maxDeptLoad = Math.max(...deptLoads.map(d => d[1]), 1);
 
+  // Totals for member table footer
+  const totalMonthHours = sum(memberRows.map(r => r.monthHours));
+  const totalLoad = sum(memberRows.map(r => r.load));
+  const totalLeaveHours = sum(memberRows.map(r => r.lv));
+  const totalPct = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
+
   const [, mo] = month.split('/').map(Number);
   const monthPrefix = `${String(mo).padStart(2, '0')}/`;
   const monthHolidays = publicHolidays.filter(h => h.date.startsWith(monthPrefix));
+
+  const catLabel = catFilter === 'all' ? '整體' : catFilter === 'UIUX' ? 'UIUX' : '平面視覺';
 
   function addLeave() {
     if (!newLeave.date.trim() || newLeave.hours <= 0) return;
@@ -86,29 +97,40 @@ export default function Admin({
 
   return (
     <div className="cap-grid" style={{ gridTemplateColumns: '1fr 1.6fr' }}>
-      {/* ── Left: summary + distribution ── */}
+
+      {/* ── Left: 設計量能 big card ── */}
       <div className="cap-side">
         <div className="panel">
+          {/* Header with tab toggle */}
           <div className="panel-h">
             <span className="panel-h-title">設計量能</span>
             <span className="panel-h-spacer" />
-            <span className="tag">{month}</span>
+            <div className="layout-pick">
+              {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面']] as [CatFilter, string][]).map(([v, lbl]) => (
+                <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
+              ))}
+            </div>
+            <span className="tag" style={{ marginLeft: 8 }}>{month}</span>
           </div>
-          <div className="cap-summary">
+
+          {/* Big % + bar */}
+          <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ font: `600 44px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(totalPct) }}>
-                {totalPct}%
+              <div style={{ font: `600 48px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
+                {filteredPct}%
               </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>整體量能使用率</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 5 }}>{catLabel}量能使用率</div>
             </div>
             <div style={{ height: 8, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden' }}>
-              <div style={{ width: `${Math.min(totalPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(totalPct), transition: 'width 0.3s ease' }} />
+              <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
             </div>
+
+            {/* Stats: 可用工時 | 本月承接 | 請假工時 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
               {[
-                { l: '月可用工時', v: `${totalMonthHours}h` },
-                { l: '總承接工時', v: `${totalLoad}h` },
-                { l: '總請假工時', v: `${totalLeaveHours}h` },
+                { l: '可用工時', v: `${filteredMonthHours}h` },
+                { l: '本月承接', v: `${filteredLoad}h` },
+                { l: '請假工時', v: `${filteredLeave}h` },
               ].map((t, i) => (
                 <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '10px 12px' }}>
                   <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>{t.l}</div>
@@ -117,19 +139,14 @@ export default function Admin({
               ))}
             </div>
           </div>
-        </div>
 
-        <div className="panel">
-          <div className="panel-h">
-            <span className="panel-h-title">承接分佈</span>
-            <span className="panel-h-spacer" />
-            <div className="layout-pick">
-              {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面']] as [CatFilter, string][]).map(([v, lbl]) => (
-                <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
-              ))}
-            </div>
+          {/* Divider + 承接分佈 */}
+          <div style={{ borderTop: '1px solid var(--divider)', margin: '16px 0 0' }} />
+          <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>承接分佈</span>
+            <span className="tag" style={{ fontSize: 10 }}>{deptLoads.length} 部門</span>
           </div>
-          <div style={{ padding: '10px 16px 14px' }}>
+          <div style={{ padding: '2px 16px 16px' }}>
             {deptLoads.length === 0 ? (
               <div style={{ fontSize: 12, color: 'var(--muted-2)', padding: '8px 0' }}>無資料</div>
             ) : deptLoads.map(([dept, load]) => {
@@ -278,9 +295,7 @@ export default function Admin({
             <span className="panel-h-title">國定假日</span>
             <span className="panel-h-sub">影響工作天數計算</span>
             <span className="panel-h-spacer" />
-            <span className="tag">
-              {monthHolidays.length > 0 ? `本月 ${monthHolidays.length} 天` : '本月無假日'}
-            </span>
+            <span className="tag">{monthHolidays.length > 0 ? `本月 ${monthHolidays.length} 天` : '本月無假日'}</span>
           </div>
           <div className="leave-list">
             {publicHolidays.length === 0 ? (
