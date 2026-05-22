@@ -115,17 +115,17 @@ export default function App() {
   const onUpdate = (cardId: string, patch: Partial<Card>) => {
     setCards(cs => cs.map(c => c.id === cardId ? { ...c, ...patch } : c));
   };
-  const onCreate = (data: Omit<Card, 'id' | 'month' | 'desc' | 'attach' | 'activity'>) => {
+  const onCreate = (data: import('@/components/kanban/new-card-modal').NewCardData) => {
     const maxN = cards.reduce((m, c) => Math.max(m, Number(c.id.split('-')[1])), 0);
     const nc: Card = {
       ...data,
       id: formatId(maxN + 1),
       month: '2026/05',
-      desc: data.cat === 'UIUX'
-        ? '本單為 UIUX 設計需求，交付物含 Figma 原型、規格、互動 demo 影片。'
-        : '本單為平面視覺需求，交付物含主視覺、延伸 SocialKV、可編輯原始檔。',
-      attach: 2,
-      activity: [{ who: '系統', msg: `${MEMBER_BY_ID[data.owner].name} 接下此單`, t: '5/20 16:30' }],
+      owner: '',
+      est: 0,
+      actual: 0,
+      attach: 0,
+      activity: [],
     };
     setCards(cs => [nc, ...cs]);
   };
