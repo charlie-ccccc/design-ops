@@ -255,6 +255,9 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .cap-table .num-input { width: 100%; box-sizing: border-box; text-align: right; background: transparent; border: 1px solid transparent; border-radius: 5px; padding: 4px 0 4px 6px; font: 500 12px var(--font-mono), monospace; color: var(--ink); font-variant-numeric: tabular-nums; }
 .cap-table .num-input:hover { border-color: var(--border); }
 .cap-table .num-input:focus { border-color: var(--ink-2); outline: none; background: var(--surface); }
+.cap-table .num-input::-webkit-inner-spin-button,
+.cap-table .num-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.cap-table .num-input { -moz-appearance: textfield; }
 .cap-bar { display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
 .cap-bar .track { width: 80px; height: 5px; border-radius: 99px; background: var(--surface-2); position: relative; overflow: hidden; }
 .cap-bar .track span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; }
