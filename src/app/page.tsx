@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  LayoutGrid, BarChart2, TrendingUp, Archive,
+  LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
   Search, Bell, Settings, Plus, Download, X,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
@@ -18,6 +18,7 @@ import NewCardModal from '@/components/kanban/new-card-modal';
 import Dashboard from '@/components/dashboard/index';
 import Admin from '@/components/admin/index';
 import History from '@/components/history/index';
+import Permissions from '@/components/permissions/index';
 
 const ACCENT_PRESETS = {
   violet: { hex: '#6B5BD9', light: 'oklch(0.52 0.14 282)', soft: 'oklch(0.94 0.03 282)', dark: 'oklch(0.74 0.14 282)', darkSoft: 'oklch(0.28 0.05 282)' },
@@ -26,7 +27,7 @@ const ACCENT_PRESETS = {
   ink:    { hex: '#3A3935', light: 'oklch(0.30 0.02 270)', soft: 'oklch(0.94 0.01 270)', dark: 'oklch(0.85 0.01 270)', darkSoft: 'oklch(0.22 0.01 270)' },
 };
 
-type Page = 'kanban' | 'dashboard' | 'capacity' | 'history';
+type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
   const [page, setPage] = useState<Page>('kanban');
@@ -173,11 +174,14 @@ export default function App() {
     };
   }, [cards, totalCapacity]);
 
-  const navPages = [
+  const workspacePages = [
     { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: cards.length },
     { id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> },
-    ...(showAdmin ? [{ id: 'capacity' as Page, name: '量能管理', icon: <TrendingUp size={15} />, tag: 'Admin' }] : []),
     { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} />, count: history.length },
+  ];
+  const adminPages = [
+    { id: 'capacity' as Page,     name: '量能管理', icon: <TrendingUp size={15} /> },
+    { id: 'permissions' as Page,  name: '權限管理', icon: <Shield size={15} /> },
   ];
 
   return (
@@ -194,16 +198,27 @@ export default function App() {
 
         <div className="sb-group">
           <div className="sb-group-h">工作台</div>
-          {navPages.map(p => (
+          {workspacePages.map(p => (
             <button key={p.id} className="sb-item" data-on={page === p.id ? '1' : '0'}
                     onClick={() => setPage(p.id)}>
               {p.icon}
               <span>{p.name}</span>
-              {p.tag && <span className="sb-item-tag" style={{ color: 'var(--accent)', fontWeight: 600 }}>{p.tag}</span>}
               {p.count != null && <span className="sb-item-tag">{p.count}</span>}
             </button>
           ))}
         </div>
+        {showAdmin && (
+          <div className="sb-group">
+            <div className="sb-group-h">管理</div>
+            {adminPages.map(p => (
+              <button key={p.id} className="sb-item" data-on={page === p.id ? '1' : '0'}
+                      onClick={() => setPage(p.id)}>
+                {p.icon}
+                <span>{p.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="sb-bottom">
           <div className="sb-avatar">設</div>
@@ -220,7 +235,7 @@ export default function App() {
         <header className="topbar">
           <div>
             <div className="tb-title">
-              {navPages.find(p => p.id === page)?.name}
+              {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
               {page === 'kanban' && (filterMember || filterDept || query) && (
                 <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginLeft: 8 }}>
                   · 篩選中
@@ -228,10 +243,11 @@ export default function App() {
               )}
             </div>
             <div className="tb-crumb">
-              {page === 'kanban' && `Workspace / 任務看板 / ${month}`}
-              {page === 'dashboard' && `Workspace / Dashboard / ${month}`}
-              {page === 'capacity' && `Admin / 量能管理 / ${month}`}
-              {page === 'history' && 'Workspace / 歷史封存'}
+              {page === 'kanban'      && `工作台 / 任務看板`}
+              {page === 'dashboard'   && `工作台 / Dashboard`}
+              {page === 'history'     && '工作台 / 歷史封存'}
+              {page === 'capacity'    && `管理 / 量能管理 / ${month}`}
+              {page === 'permissions' && '管理 / 權限管理'}
             </div>
           </div>
 
@@ -288,7 +304,7 @@ export default function App() {
               </div>
             )}
 
-            {(page === 'dashboard' || page === 'capacity') && (
+            {page === 'capacity' && (
               <div className="month-pill">
                 <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
                 <span className="month-pill-val">{month}</span>
@@ -352,6 +368,9 @@ export default function App() {
           )}
           {page === 'history' && (
             <History archives={history} currentSnapshot={currentSnapshot} onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }} />
+          )}
+          {page === 'permissions' && showAdmin && (
+            <Permissions />
           )}
         </div>
       </main>
