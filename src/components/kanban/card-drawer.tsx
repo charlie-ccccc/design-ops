@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import type { Card, TimeLog } from '@/lib/types';
-import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
+import type { Card, TimeLog, Comment } from '@/lib/types';
+import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
 
 interface CardDrawerProps {
@@ -26,7 +26,6 @@ function toDateInput(mmdd: string, cardMonth: string): string {
   const year = cardMonth.split('/')[0];
   return `${year}-${mmdd.replace('/', '-')}`;
 }
-
 function fromDateInput(val: string): string {
   if (!val) return '';
   return val.slice(5).replace('-', '/');
@@ -34,9 +33,21 @@ function fromDateInput(val: string): string {
 
 const EMPTY_LOG = { date: '', hours: 0, note: '' };
 
+type BottomTab = 'activity' | 'comments' | 'timelogs';
+
+const tabStyle = (active: boolean): React.CSSProperties => ({
+  appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
+  padding: '8px 14px', fontSize: 12.5, fontFamily: 'inherit',
+  fontWeight: active ? 600 : 400,
+  color: active ? 'var(--ink)' : 'var(--muted)',
+  borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
+  marginBottom: -1, transition: 'color 0.15s',
+});
+
 export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
+  const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
 
   // desc edit state
   const [editingDesc, setEditingDesc] = useState(false);
@@ -45,12 +56,17 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
   // new time log row
   const [newLog, setNewLog] = useState(EMPTY_LOG);
 
+  // new comment
+  const [commentText, setCommentText] = useState('');
+
   useEffect(() => {
     if (card) {
       setDisplayCard(card);
       setEditingDesc(false);
       setDraftDesc(card.desc || '');
       setNewLog(EMPTY_LOG);
+      setCommentText('');
+      setBottomTab('activity');
       const raf = requestAnimationFrame(() => setIsOpen(true));
       return () => cancelAnimationFrame(raf);
     } else {
@@ -64,6 +80,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
   const owner = c ? MEMBER_BY_ID[c.owner] : null;
 
   const timeLogs: TimeLog[] = c?.timeLogs ?? [];
+  const comments: Comment[] = c?.comments ?? [];
   const computedActual = timeLogs.length > 0 ? sum(timeLogs.map(l => l.hours)) : (c?.actual ?? 0);
 
   const pct = c && c.est > 0 ? Math.min(1, computedActual / c.est) * 100 : 0;
@@ -83,7 +100,16 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
   function removeLog(id: string) {
     if (!c) return;
     const updated = timeLogs.filter(l => l.id !== id);
-    onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
+    onUpdate(c.id, { timeLogs: updated, actual: updated.length > 0 ? sum(updated.map(l => l.hours)) : 0 });
+  }
+
+  function addComment() {
+    if (!c || !commentText.trim()) return;
+    const now = new Date();
+    const mmdd = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+    const entry: Comment = { id: Date.now().toString(), author: '主設計師', text: commentText.trim(), t: mmdd };
+    onUpdate(c.id, { comments: [...comments, entry] });
+    setCommentText('');
   }
 
   function saveDesc() {
@@ -129,6 +155,17 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
 
               {/* Meta */}
               <dl className="drawer-meta">
+                <dt>需求發起單位</dt>
+                <dd>
+                  {readOnly ? (
+                    DEPT_SHORT[c.dept] || c.dept
+                  ) : (
+                    <select className="input" value={c.dept} onChange={e => onUpdate(c.id, { dept: e.target.value })}>
+                      {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  )}
+                </dd>
+
                 <dt>受託人</dt>
                 <dd>
                   {readOnly ? (
@@ -169,11 +206,21 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                   )}
                 </dd>
 
+                <dt>委託人</dt>
+                <dd>
+                  {readOnly ? (
+                    c.requester || '—'
+                  ) : (
+                    <input className="input" placeholder="開單人姓名" value={c.requester || ''}
+                      onChange={e => onUpdate(c.id, { requester: e.target.value })} />
+                  )}
+                </dd>
+
                 <dt>建立時間</dt>
                 <dd><span className="mono tnum" style={{ fontSize: 12.5 }}>2026/05/01</span></dd>
               </dl>
 
-              {/* Hours section */}
+              {/* Hours summary */}
               <div className="drawer-section">
                 <h4>工時</h4>
                 <div className="drawer-hours">
@@ -195,103 +242,16 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                     <div className="lbl">實際消耗</div>
                     <div className="val" style={isOver ? { color: 'var(--st-block)' } : {}}>{computedActual}</div>
                     <div className={`delta${isOver ? ' over' : ' under'}`}>
-                      {isOver
-                        ? `超出 ${computedActual - c.est}h`
-                        : c.est > 0
-                        ? `剩餘 ${c.est - computedActual}h`
-                        : '尚未回報'}
+                      {isOver ? `超出 ${computedActual - c.est}h` : c.est > 0 ? `剩餘 ${c.est - computedActual}h` : '尚未回報'}
                     </div>
                   </div>
                 </div>
                 <div className="drawer-progress">
                   <span className="fill" style={{ width: `${isOver ? 100 : pct}%` }} />
-                  {isOver && (
-                    <span className="over-fill" style={{ left: '100%', width: `${Math.min(overPct, 30)}%`, position: 'absolute' }} />
-                  )}
+                  {isOver && <span className="over-fill" style={{ left: '100%', width: `${Math.min(overPct, 30)}%`, position: 'absolute' }} />}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10.5, color: 'var(--muted)' }}>
-                  <span>0h</span>
-                  <span>{c.est}h</span>
-                </div>
-
-                {/* Time log table */}
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
-                    工時記錄
-                  </div>
-
-                  {timeLogs.length > 0 && (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, marginBottom: 8 }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid var(--divider)' }}>
-                          <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
-                          <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
-                          <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
-                          {!readOnly && <th style={{ width: 24 }} />}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {timeLogs.map(l => (
-                          <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)' }}>
-                            <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--ink-2)' }}>{l.date}</td>
-                            <td style={{ padding: '7px 8px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', fontWeight: 600 }}>{l.hours}h</td>
-                            <td style={{ padding: '7px 8px', color: 'var(--ink-2)' }}>{l.note || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
-                            {!readOnly && (
-                              <td style={{ padding: '7px 0 7px 4px' }}>
-                                <button onClick={() => removeLog(l.id)} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 2, borderRadius: 4 }}
-                                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--st-block)')}
-                                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}>
-                                  <Trash2 size={12} />
-                                </button>
-                              </td>
-                            )}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-
-                  {!readOnly && (
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4 }}>
-                      <input
-                        type="date"
-                        className="input"
-                        style={{ width: 130, fontSize: 12 }}
-                        value={newLog.date ? toDateInput(newLog.date, c.month) : ''}
-                        onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))}
-                      />
-                      <input
-                        type="number"
-                        className="input"
-                        placeholder="時數"
-                        min={0.5}
-                        step={0.5}
-                        style={{ width: 70, fontSize: 12 }}
-                        value={newLog.hours || ''}
-                        onChange={e => setNewLog(l => ({ ...l, hours: Number(e.target.value) }))}
-                      />
-                      <input
-                        className="input"
-                        placeholder="工作內容（選填）"
-                        style={{ flex: 1, fontSize: 12 }}
-                        value={newLog.note}
-                        onChange={e => setNewLog(l => ({ ...l, note: e.target.value }))}
-                        onKeyDown={e => e.key === 'Enter' && addLog()}
-                      />
-                      <button
-                        className="btn btn-primary"
-                        style={{ padding: '0 10px', flexShrink: 0 }}
-                        onClick={addLog}
-                        disabled={!newLog.date || newLog.hours <= 0}
-                      >
-                        <Plus size={13} />
-                      </button>
-                    </div>
-                  )}
-
-                  {timeLogs.length === 0 && readOnly && (
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '8px 0' }}>尚無工時記錄</div>
-                  )}
+                  <span>0h</span><span>{c.est}h</span>
                 </div>
               </div>
 
@@ -307,24 +267,15 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                   )}
                   {!readOnly && editingDesc && (
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }}
-                        onClick={() => setEditingDesc(false)}>
-                        取消
-                      </button>
-                      <button className="btn btn-primary" style={{ fontSize: 11.5, padding: '2px 10px' }}
-                        onClick={saveDesc}>
-                        儲存
-                      </button>
+                      <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
+                      <button className="btn btn-primary" style={{ fontSize: 11.5, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
                     </div>
                   )}
                 </div>
                 {editingDesc ? (
-                  <textarea
-                    className="input"
+                  <textarea className="input"
                     style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.6 }}
-                    value={draftDesc}
-                    onChange={e => setDraftDesc(e.target.value)}
-                  />
+                    value={draftDesc} onChange={e => setDraftDesc(e.target.value)} />
                 ) : (
                   <p style={{ fontSize: 13, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                     {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
@@ -332,21 +283,132 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                 )}
               </div>
 
-              {/* Activity section */}
-              {c.activity && c.activity.length > 0 && (
-                <div className="drawer-section">
-                  <h4>活動</h4>
-                  <div className="timeline">
-                    {c.activity.map((entry, i) => (
-                      <div key={i} className="tl-row">
-                        <div className="tl-dot" />
-                        <div className="tl-msg"><strong>{entry.who}</strong> {entry.msg}</div>
-                        <div className="tl-time mono">{entry.t}</div>
-                      </div>
-                    ))}
-                  </div>
+              {/* Bottom tabbed section */}
+              <div className="drawer-section" style={{ paddingBottom: 0 }}>
+                {/* Tab bar */}
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--divider)', marginBottom: 12 }}>
+                  <button style={tabStyle(bottomTab === 'activity')} onClick={() => setBottomTab('activity')}>活動</button>
+                  <button style={tabStyle(bottomTab === 'comments')} onClick={() => setBottomTab('comments')}>
+                    留言{comments.length > 0 && <span style={{ marginLeft: 4, fontSize: 10.5, color: 'var(--muted)' }}>({comments.length})</span>}
+                  </button>
+                  <button style={tabStyle(bottomTab === 'timelogs')} onClick={() => setBottomTab('timelogs')}>
+                    工作時間{timeLogs.length > 0 && <span style={{ marginLeft: 4, fontSize: 10.5, color: 'var(--muted)' }}>({timeLogs.length})</span>}
+                  </button>
                 </div>
-              )}
+
+                {/* 活動 */}
+                {bottomTab === 'activity' && (
+                  c.activity && c.activity.length > 0 ? (
+                    <div className="timeline">
+                      {c.activity.map((entry, i) => (
+                        <div key={i} className="tl-row">
+                          <div className="tl-dot" />
+                          <div className="tl-msg"><strong>{entry.who}</strong> {entry.msg}</div>
+                          <div className="tl-time mono">{entry.t}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無活動記錄</div>
+                  )
+                )}
+
+                {/* 留言 */}
+                {bottomTab === 'comments' && (
+                  <div>
+                    {comments.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+                        {comments.map(cm => (
+                          <div key={cm.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                            <div className="av av-sm" style={{ background: 'var(--accent)', flexShrink: 0 }}>
+                              {cm.author[0]}
+                            </div>
+                            <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <span style={{ fontSize: 12, fontWeight: 600 }}>{cm.author}</span>
+                                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{cm.t}</span>
+                              </div>
+                              <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                                {renderWithLinks(cm.text)}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無留言</div>
+                    )}
+                    {!readOnly && (
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                        <textarea className="input" placeholder="新增留言..." style={{ flex: 1, minHeight: 64, resize: 'vertical', fontFamily: 'inherit', fontSize: 13 }}
+                          value={commentText} onChange={e => setCommentText(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addComment(); }} />
+                        <button className="btn btn-primary" style={{ flexShrink: 0 }} onClick={addComment} disabled={!commentText.trim()}>
+                          送出
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 工作時間紀錄 */}
+                {bottomTab === 'timelogs' && (
+                  <div>
+                    {timeLogs.length > 0 && (
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, marginBottom: 10 }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid var(--divider)' }}>
+                            <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
+                            <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
+                            <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
+                            {!readOnly && <th style={{ width: 24 }} />}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {timeLogs.map(l => (
+                            <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)' }}>
+                              <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--ink-2)' }}>{l.date}</td>
+                              <td style={{ padding: '7px 8px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', fontWeight: 600 }}>{l.hours}h</td>
+                              <td style={{ padding: '7px 8px', color: 'var(--ink-2)' }}>{l.note || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
+                              {!readOnly && (
+                                <td style={{ padding: '7px 0 7px 4px' }}>
+                                  <button onClick={() => removeLog(l.id)} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 2, borderRadius: 4 }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--st-block)')}
+                                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}>
+                                    <Trash2 size={12} />
+                                  </button>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                    {timeLogs.length === 0 && (
+                      <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 10px' }}>尚無工時記錄</div>
+                    )}
+                    {!readOnly && (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <input type="date" className="input" style={{ width: 130, fontSize: 12 }}
+                          value={newLog.date ? toDateInput(newLog.date, c.month) : ''}
+                          onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))} />
+                        <input type="number" className="input" placeholder="時數" min={0.5} step={0.5} style={{ width: 70, fontSize: 12 }}
+                          value={newLog.hours || ''}
+                          onChange={e => setNewLog(l => ({ ...l, hours: Number(e.target.value) }))} />
+                        <input className="input" placeholder="工作內容（選填）" style={{ flex: 1, fontSize: 12 }}
+                          value={newLog.note}
+                          onChange={e => setNewLog(l => ({ ...l, note: e.target.value }))}
+                          onKeyDown={e => e.key === 'Enter' && addLog()} />
+                        <button className="btn btn-primary" style={{ padding: '0 10px', flexShrink: 0 }}
+                          onClick={addLog} disabled={!newLog.date || newLog.hours <= 0}>
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
             </div>
           </>
         )}

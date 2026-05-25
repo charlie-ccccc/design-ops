@@ -10,6 +10,13 @@ export interface ActivityEntry {
   t: string;
 }
 
+export interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  t: string;
+}
+
 export interface TimeLog {
   id: string;
   date: string;   // MM/DD
@@ -26,7 +33,9 @@ export interface Card {
   owner: string;
   est: number;
   actual: number;
+  requester?: string;
   timeLogs?: TimeLog[];
+  comments?: Comment[];
   status: CardStatus;
   prio: Priority;
   due: string;
