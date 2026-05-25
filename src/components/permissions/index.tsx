@@ -1,24 +1,27 @@
 'use client';
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import type { Cat } from '@/lib/types';
 import { DEPTS } from '@/lib/data';
 
 type Role = '一般' | '成員' | 'Admin';
+const ALL_ROLES: Role[] = ['一般', '成員', 'Admin'];
 
 interface SiteUser {
   id: string;
   name: string;
   email: string;
-  role: Role;
+  roles: Role[];
+  cat?: Cat; // 設計類別，只有具備「成員」角色時有意義
 }
 
 const SEED_USERS: SiteUser[] = [
-  { id: '1', name: '吳奕蓁', email: 'mia@cmoney.com.tw',     role: 'Admin' },
-  { id: '2', name: '王映蓉', email: 'annie@cmoney.com.tw',   role: '成員' },
-  { id: '3', name: '楊舒娟', email: 'shujuan@cmoney.com.tw', role: '成員' },
-  { id: '4', name: '寶萱',   email: 'baoxuan@cmoney.com.tw', role: '成員' },
-  { id: '5', name: '陳巧玲', email: 'charlie@cmoney.com.tw', role: 'Admin' },
-  { id: '6', name: '熊禹晴', email: 'sunny@cmoney.com.tw',   role: '成員' },
+  { id: '1', name: '吳奕蓁', email: 'mia@cmoney.com.tw',     roles: ['成員', 'Admin'], cat: 'UIUX' },
+  { id: '2', name: '王映蓉', email: 'annie@cmoney.com.tw',   roles: ['成員'],          cat: 'UIUX' },
+  { id: '3', name: '楊舒娟', email: 'shujuan@cmoney.com.tw', roles: ['成員'],          cat: '平面視覺' },
+  { id: '4', name: '寶萱',   email: 'baoxuan@cmoney.com.tw', roles: ['成員'],          cat: '平面視覺' },
+  { id: '5', name: '陳巧玲', email: 'charlie@cmoney.com.tw', roles: ['成員', 'Admin'], cat: 'UIUX' },
+  { id: '6', name: '熊禹晴', email: 'sunny@cmoney.com.tw',   roles: ['成員'],          cat: '平面視覺' },
 ];
 
 const ROLE_DESC: Record<Role, string> = {
@@ -44,8 +47,18 @@ export default function Permissions() {
     setDepts(prev => prev.filter(x => x !== d));
   }
 
-  function setUserRole(id: string, role: Role) {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u));
+  function toggleRole(id: string, role: Role) {
+    setUsers(prev => prev.map(u => {
+      if (u.id !== id) return u;
+      const has = u.roles.includes(role);
+      const next = has ? u.roles.filter(r => r !== role) : [...u.roles, role];
+      // clear cat if 成員 was removed
+      return { ...u, roles: next, cat: next.includes('成員') ? u.cat : undefined };
+    }));
+  }
+
+  function setUserCat(id: string, cat: Cat) {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, cat } : u));
   }
 
   return (
@@ -91,7 +104,8 @@ export default function Permissions() {
                 <tr>
                   <th style={{ textAlign: 'left' }}>姓名</th>
                   <th style={{ textAlign: 'left' }}>Email</th>
-                  <th>權限角色</th>
+                  <th style={{ textAlign: 'left' }}>權限角色</th>
+                  <th style={{ textAlign: 'left' }}>設計類別</th>
                 </tr>
               </thead>
               <tbody>
@@ -99,17 +113,37 @@ export default function Permissions() {
                   <tr key={u.id}>
                     <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>{u.name}</td>
                     <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
-                    <td>
-                      <select
-                        className="input"
-                        style={{ width: 90 }}
-                        value={u.role}
-                        onChange={e => setUserRole(u.id, e.target.value as Role)}
-                      >
-                        <option value="一般">一般</option>
-                        <option value="成員">成員</option>
-                        <option value="Admin">Admin</option>
-                      </select>
+                    <td style={{ textAlign: 'left' }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        {ALL_ROLES.map(role => {
+                          const active = u.roles.includes(role);
+                          return (
+                            <button key={role} onClick={() => toggleRole(u.id, role)} style={{
+                              appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                              borderRadius: 6, padding: '3px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+                              background: active ? 'var(--accent-soft)' : 'none',
+                              color: active ? 'var(--accent)' : 'var(--muted)',
+                              fontWeight: active ? 600 : 400,
+                              transition: 'all 0.15s',
+                            }}>
+                              {role}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'left' }}>
+                      {u.roles.includes('成員') ? (
+                        <select className="input" style={{ fontSize: 12 }}
+                          value={u.cat ?? ''}
+                          onChange={e => setUserCat(u.id, e.target.value as Cat)}>
+                          <option value="">請選擇</option>
+                          <option value="UIUX">UIUX</option>
+                          <option value="平面視覺">平面視覺</option>
+                        </select>
+                      ) : (
+                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
