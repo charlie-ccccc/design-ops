@@ -10,6 +10,13 @@ export interface ActivityEntry {
   t: string;
 }
 
+export interface TimeLog {
+  id: string;
+  date: string;   // MM/DD
+  hours: number;
+  note: string;
+}
+
 export interface Card {
   id: string;
   month: string;
@@ -19,6 +26,7 @@ export interface Card {
   owner: string;
   est: number;
   actual: number;
+  timeLogs?: TimeLog[];
   status: CardStatus;
   prio: Priority;
   due: string;
