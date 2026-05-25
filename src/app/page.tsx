@@ -154,7 +154,7 @@ export default function App() {
   const workspacePages = [
     { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: kanbanCards.length },
     { id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> },
-    { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} /> },
+    { id: 'history' as Page,   name: '歷史紀錄', icon: <Archive size={15} /> },
   ];
   const adminPages = [
     { id: 'capacity' as Page,     name: '量能管理', icon: <TrendingUp size={15} /> },
@@ -222,7 +222,7 @@ export default function App() {
             <div className="tb-crumb">
               {page === 'kanban'      && `工作台 / 任務看板`}
               {page === 'dashboard'   && `工作台 / Dashboard`}
-              {page === 'history'     && '工作台 / 歷史封存'}
+              {page === 'history'     && '工作台 / 歷史紀錄'}
               {page === 'capacity'    && `管理 / 量能管理 / ${month}`}
               {page === 'permissions' && '管理 / 權限管理'}
             </div>

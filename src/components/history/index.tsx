@@ -207,7 +207,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
           <ChevronLeft size={14} /> 返回列表
         </button>
         <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
-          {year} 年 {mon} 月{isLive ? '' : '封存'}
+          {year} 年 {mon} 月
         </h2>
         {isLive && (
           <span style={{
@@ -320,7 +320,7 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
       <div className="history">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
-            歷史月份封存
+            歷史紀錄
           </h2>
           <span className="tag">{archives.length + 1} 個月</span>
         </div>
