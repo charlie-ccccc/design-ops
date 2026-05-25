@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import type { Card, TimeLog, Comment } from '@/lib/types';
-import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
+import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
 
 interface CardDrawerProps {
@@ -34,6 +34,74 @@ function fromDateInput(val: string): string {
 const EMPTY_LOG = { date: '', hours: 0, note: '' };
 
 type BottomTab = 'activity' | 'comments' | 'timelogs';
+
+type AnyUser = { id: string; name: string; initial: string; hue: number; sub?: string };
+
+// sub = secondary label (cat for designers, dept for site users)
+function toAnyUser(m: typeof MEMBERS[0]): AnyUser { return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, sub: m.cat }; }
+function siteToAnyUser(u: SiteUser): AnyUser { return { id: u.id, name: u.name, initial: u.initial, hue: u.hue, sub: u.dept }; }
+
+// value is always stored as the user's name string
+function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —' }: {
+  value: string;
+  onChange: (name: string) => void;
+  users: AnyUser[];
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+
+  const selected = users.find(u => u.name === value) ?? null;
+  const filtered = q.trim() ? users.filter(u => u.name.includes(q) || (u.sub ?? '').includes(q)) : users;
+
+  function pick(u: AnyUser) { onChange(u.name); setOpen(false); setQ(''); }
+  function clear() { onChange(''); setOpen(false); setQ(''); }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button onClick={() => { setOpen(o => !o); setQ(''); }}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 13 }}>
+        {selected ? (
+          <>
+            <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>
+            <span style={{ fontWeight: 500 }}>{selected.name}</span>
+            {selected.sub && <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {selected.sub}</span>}
+          </>
+        ) : <span style={{ color: 'var(--muted)' }}>{placeholder}</span>}
+        <span style={{ marginLeft: 4, color: 'var(--muted)', fontSize: 10 }}>▾</span>
+      </button>
+
+      {open && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => { setOpen(false); setQ(''); }} />
+          <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 100, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 240, overflow: 'hidden' }}>
+            <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
+              <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 12.5 }}
+                value={q} onChange={e => setQ(e.target.value)} />
+            </div>
+            <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+              <button onClick={clear} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 13, color: 'var(--muted)' }}>
+                — 未指定 —
+              </button>
+              {filtered.map(u => (
+                <button key={u.id} onClick={() => pick(u)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 13, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}>
+                  <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
+                  <span style={{ fontWeight: 500 }}>{u.name}</span>
+                  {u.sub && <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {u.sub}</span>}
+                </button>
+              ))}
+              {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12.5, color: 'var(--muted)' }}>無符合結果</div>}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const DESIGNER_USERS = MEMBERS.map(toAnyUser);
+const ALL_USERS = SITE_USERS.map(siteToAnyUser);
 
 const tabStyle = (active: boolean): React.CSSProperties => ({
   appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
@@ -87,7 +155,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
   const isOver = c ? computedActual > c.est : false;
   const overPct = isOver && c ? ((computedActual - c.est) / c.est) * 100 : 0;
 
-  const deptColor = c ? hue(DEPT_HUE[c.dept] || 1) : 'var(--muted-2)';
 
   function addLog() {
     if (!c || !newLog.date || newLog.hours <= 0) return;
@@ -138,10 +205,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
               {/* Tags row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
-                <span className="dept-pill">
-                  <span className="chip-dot" style={{ background: deptColor }} />
-                  {DEPT_SHORT[c.dept] || c.dept}
-                </span>
                 <select
                   className="input"
                   value={c.status}
@@ -176,10 +239,14 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                       </div>
                     ) : '—'
                   ) : (
-                    <select className="input" value={c.owner} onChange={e => onUpdate(c.id, { owner: e.target.value })}>
-                      <option value="">— 未指定 —</option>
-                      {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name} · {m.cat}</option>)}
-                    </select>
+                    <MemberPicker
+                      value={owner?.name ?? ''}
+                      users={DESIGNER_USERS}
+                      onChange={name => {
+                        const m = MEMBERS.find(m => m.name === name);
+                        onUpdate(c.id, { owner: m?.id ?? '' });
+                      }}
+                    />
                   )}
                 </dd>
 
@@ -209,10 +276,17 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                 <dt>委託人</dt>
                 <dd>
                   {readOnly ? (
-                    c.requester || '—'
+                    (() => {
+                      const u = ALL_USERS.find(u => u.name === c.requester);
+                      return u ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
+                          <span>{u.name}</span>
+                        </div>
+                      ) : (c.requester || '—');
+                    })()
                   ) : (
-                    <input className="input" placeholder="開單人姓名" value={c.requester || ''}
-                      onChange={e => onUpdate(c.id, { requester: e.target.value })} />
+                    <MemberPicker value={c.requester || ''} users={ALL_USERS} onChange={name => onUpdate(c.id, { requester: name })} placeholder="開單人" />
                   )}
                 </dd>
 

@@ -35,6 +35,27 @@ export const MEMBERS: Member[] = [
 
 export const MEMBER_BY_ID: Record<string, Member> = Object.fromEntries(MEMBERS.map(m => [m.id, m]));
 
+// All platform users (designers + other depts who can log in and open tickets)
+export interface SiteUser { id: string; name: string; initial: string; hue: number; dept: string; }
+export const SITE_USERS: SiteUser[] = [
+  // Design team
+  { id: 'mia',      name: '吳奕蓁', initial: '蓁', hue: 1, dept: '設計部-UIUX' },
+  { id: 'annie',    name: '王映蓉', initial: '蓉', hue: 3, dept: '設計部-UIUX' },
+  { id: 'shujuan',  name: '楊舒娟', initial: '娟', hue: 5, dept: '設計部-平面視覺' },
+  { id: 'baoxuan',  name: '寶萱',   initial: '寶', hue: 6, dept: '設計部-平面視覺' },
+  { id: 'charlie',  name: '陳巧玲', initial: '巧', hue: 4, dept: '設計部-UIUX' },
+  { id: 'sunny',    name: '熊禹晴', initial: '禹', hue: 2, dept: '設計部-平面視覺' },
+  // Other depts
+  { id: 'su1',  name: '林俊宏', initial: '宏', hue: 7, dept: '產品部' },
+  { id: 'su2',  name: '陳怡君', initial: '君', hue: 8, dept: '金融事業群-大眾事業' },
+  { id: 'su3',  name: '王志偉', initial: '偉', hue: 2, dept: '消費事業群' },
+  { id: 'su4',  name: '張雅婷', initial: '婷', hue: 4, dept: '人力資源部' },
+  { id: 'su5',  name: '劉建志', initial: '志', hue: 6, dept: '通用工程' },
+  { id: 'su6',  name: '黃淑芬', initial: '芬', hue: 1, dept: '總經理室' },
+  { id: 'su7',  name: '吳明哲', initial: '哲', hue: 3, dept: '全球金融事業群-海外券商' },
+  { id: 'su8',  name: '李宜蓉', initial: '蓉', hue: 5, dept: '合作夥伴事業群-法人事業' },
+];
+
 export const STATUSES: Status[] = [
   { id: 'belog',     name: 'Belog',   dot: 'var(--hue-c3)' },
   { id: 'todo',      name: '待處理',  dot: 'var(--muted-2)' },
