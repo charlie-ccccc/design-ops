@@ -9,6 +9,7 @@ interface CardDrawerProps {
   card: Card | null;
   onClose: () => void;
   onUpdate: (id: string, patch: Partial<Card>) => void;
+  readOnly?: boolean;
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -20,7 +21,7 @@ function renderWithLinks(text: string) {
   );
 }
 
-export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
 
@@ -141,14 +142,34 @@ export default function CardDrawer({ card, onClose, onUpdate }: CardDrawerProps)
                 <div className="drawer-hours">
                   <div className="cell">
                     <div className="lbl">原始預估</div>
-                    <div className="val">{c.est}</div>
+                    {readOnly ? (
+                      <div className="val">{c.est}</div>
+                    ) : (
+                      <input
+                        type="number"
+                        min={0}
+                        className="val"
+                        style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit', padding: 0, cursor: 'text' }}
+                        value={c.est}
+                        onChange={e => onUpdate(c.id, { est: Math.max(0, Number(e.target.value)) })}
+                      />
+                    )}
                     <div className="delta">小時</div>
                   </div>
                   <div className="cell">
                     <div className="lbl">實際消耗</div>
-                    <div className="val" style={isOver ? { color: 'var(--st-block)' } : {}}>
-                      {c.actual}
-                    </div>
+                    {readOnly ? (
+                      <div className="val" style={isOver ? { color: 'var(--st-block)' } : {}}>{c.actual}</div>
+                    ) : (
+                      <input
+                        type="number"
+                        min={0}
+                        className="val"
+                        style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 'inherit', fontWeight: 'inherit', color: isOver ? 'var(--st-block)' : 'inherit', padding: 0, cursor: 'text' }}
+                        value={c.actual}
+                        onChange={e => onUpdate(c.id, { actual: Math.max(0, Number(e.target.value)) })}
+                      />
+                    )}
                     <div className={`delta${isOver ? ' over' : ' under'}`}>
                       {isOver
                         ? `超出 ${c.actual - c.est}h`
