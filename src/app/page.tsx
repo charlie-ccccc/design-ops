@@ -3,15 +3,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
-  Search, Bell, Settings, Plus, Download, X,
+  Search, Bell, Settings, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import type { Card, HistoryMonth, LeaveEntry, PublicHoliday, DashLayout, ChartType, CardStatus } from '@/lib/types';
+import type { Card, LeaveEntry, PublicHoliday, DashLayout, ChartType, CardStatus } from '@/lib/types';
 import {
   MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
 } from '@/lib/data';
-import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth } from '@/lib/utils';
+import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
@@ -43,10 +43,7 @@ export default function App() {
   const [memberDays, setMemberDays] = useState<Record<string, number>>({});
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
-  const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
-  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
-  const [archiveMonthInput, setArchiveMonthInput] = useState('2026/05');
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -79,15 +76,19 @@ export default function App() {
       .catch(() => {});
   }, [month.split('/')[0]]);
 
-  const monthCards = useMemo(() => {
-    if (month === '2026/05') return cards;
-    const seed = month.charCodeAt(month.length - 1);
-    return cards.slice(0, 14 + (seed % 8)).map((c, i) => ({
-      ...c, month,
-      est: Math.max(4, Math.round(c.est * (0.7 + ((seed + i) % 5) * 0.1))),
-      actual: Math.max(0, Math.round(c.actual * (0.6 + ((seed + i) % 4) * 0.12))),
-    }));
-  }, [cards, month]);
+  const CURRENT_MONTH = '2026/05';
+
+  // Kanban: active cards always visible; done/pending only if due month ≥ current month
+  const kanbanCards = useMemo(() =>
+    cards.filter(c => {
+      if (['belog', 'todo', 'designing', 'reviewing'].includes(c.status)) return true;
+      return dueMonthOf(c) >= CURRENT_MONTH;
+    }), [cards]);
+
+  // Dashboard/Admin: all cards whose due month matches the selected month
+  const monthCards = useMemo(() =>
+    cards.filter(c => dueMonthOf(c) === month),
+    [cards, month]);
 
   const leaveByMember = useMemo(() =>
     Object.fromEntries(MEMBERS.map(m => [m.id,
@@ -132,42 +133,17 @@ export default function App() {
     setCards(cs => [nc, ...cs]);
   };
 
-  const onArchive = (archiveMonth: string) => {
-    const archiveStatuses: CardStatus[] = ['done', 'pending'];
-    const toArchive = cards.filter(c => archiveStatuses.includes(c.status));
-    if (toArchive.length === 0) return;
-    const toRollover = cards.filter(c => !archiveStatuses.includes(c.status));
-    const totalEst = sum(toArchive.map(c => c.est));
-    const totalActual = sum(toArchive.map(c => c.actual));
-    const byDept = groupBy(toArchive, 'dept');
-    const topDept = Object.entries(byDept)
-      .map(([d, xs]) => [d, sum(xs.map(c => c.est))] as [string, number])
-      .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-    const newMonth: HistoryMonth = {
-      month: archiveMonth,
-      cards: toArchive.length,
-      totalEst,
-      totalActual,
-      capacity: totalCapacity,
-      topDept,
-      deptTotals: Object.fromEntries(Object.entries(byDept).map(([d, xs]) => [d, sum(xs.map(c => c.est))])),
-      memberTotals: Object.fromEntries(MEMBERS.map(m => [m.id, sum(toArchive.filter(c => c.owner === m.id).map(c => c.actual))])),
-      cardList: toArchive,
-    };
-    setHistory(h => [newMonth, ...h]);
-    setCards(toRollover);
-  };
-
   const currentSnapshot = useMemo(() => {
-    const totalEst = sum(cards.map(c => c.est));
-    const totalActual = sum(cards.map(c => c.actual));
-    const byDept = groupBy(cards, 'dept');
+    const currentMonthCards = cards.filter(c => dueMonthOf(c) === CURRENT_MONTH);
+    const totalEst = sum(currentMonthCards.map(c => c.est));
+    const totalActual = sum(currentMonthCards.map(c => c.actual));
+    const byDept = groupBy(currentMonthCards, 'dept');
     const topDept = Object.entries(byDept)
       .map(([d, xs]) => [d, sum(xs.map(c => c.est))] as [string, number])
       .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
     return {
-      month: '2026/05',
-      cards: cards.length,
+      month: CURRENT_MONTH,
+      cards: currentMonthCards.length,
       totalEst,
       totalActual,
       capacity: totalCapacity,
@@ -176,9 +152,9 @@ export default function App() {
   }, [cards, totalCapacity]);
 
   const workspacePages = [
-    { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: cards.length },
+    { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: kanbanCards.length },
     { id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> },
-    { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} />, count: history.length },
+    { id: 'history' as Page,   name: '歷史封存', icon: <Archive size={15} /> },
   ];
   const adminPages = [
     { id: 'capacity' as Page,     name: '量能管理', icon: <TrendingUp size={15} /> },
@@ -314,15 +290,10 @@ export default function App() {
             )}
 
             {page === 'kanban' && (
-              <>
-                <button className="btn" onClick={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }} title="將設計完成與 Pending 卡片封存到歷史">
-                  <Archive size={14} /> 封存本月
-                </button>
-                <button className="btn btn-primary"
-                        onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                  <Plus size={14} /> 新需求單
-                </button>
-              </>
+              <button className="btn btn-primary"
+                      onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
+                <Plus size={14} /> 新需求單
+              </button>
             )}
             {page === 'dashboard' && (
               <button className="btn"><Download size={14} /> 匯出</button>
@@ -335,7 +306,7 @@ export default function App() {
         <div className="body">
           {page === 'kanban' && (
             <KanbanBoard
-              cards={cards}
+              cards={kanbanCards}
               query={query}
               filterMember={filterMember}
               filterDept={filterDept}
@@ -369,10 +340,9 @@ export default function App() {
           )}
           {page === 'history' && (
             <History
-              archives={history}
+              archives={HISTORY}
               currentSnapshot={currentSnapshot}
               currentCards={cards}
-              onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }}
               onOpenCard={card => setPreviewCard(card)}
             />
           )}
@@ -391,53 +361,6 @@ export default function App() {
         defaultStatus={newCardDefaultStatus}
       />
 
-      {/* ── Archive confirm modal ── */}
-      {archiveModalOpen && (() => {
-        const toArchive = cards.filter(c => c.status === 'done' || c.status === 'pending');
-        return (
-          <div className="modal-scrim open" onClick={e => e.target === e.currentTarget && setArchiveModalOpen(false)}>
-            <div className="modal">
-              <div className="modal-h">
-                <span className="modal-h-title">封存月份</span>
-                <span style={{ flex: 1 }} />
-                <button className="drawer-close" onClick={() => setArchiveModalOpen(false)} type="button">
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="modal-body">
-                <div className="form-row">
-                  <label>封存月份</label>
-                  <input
-                    className="input"
-                    style={{ width: '100%' }}
-                    placeholder="YYYY/MM"
-                    value={archiveMonthInput}
-                    onChange={e => setArchiveMonthInput(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-                <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 }}>
-                  將封存 <strong style={{ color: 'var(--ink)' }}>{toArchive.length} 張</strong>「設計完成」與「Pending」卡片到歷史。
-                  {cards.length - toArchive.length > 0 && (
-                    <> 其餘 <strong style={{ color: 'var(--ink)' }}>{cards.length - toArchive.length} 張</strong> 繼續留在看板。</>
-                  )}
-                </p>
-              </div>
-              <div className="modal-f">
-                <button type="button" className="btn btn-ghost" onClick={() => setArchiveModalOpen(false)}>取消</button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={!archiveMonthInput.trim() || toArchive.length === 0}
-                  onClick={() => { onArchive(archiveMonthInput.trim()); setArchiveModalOpen(false); }}
-                >
-                  <Archive size={14} /> 確認封存
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }

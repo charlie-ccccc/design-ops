@@ -21,6 +21,14 @@ export function shiftMonth(month: string, delta: number): string {
   return `${ny}/${String(nm).padStart(2, '0')}`;
 }
 
+// Returns 'YYYY/MM' from a card's due date, falling back to card.month
+export function dueMonthOf(card: { due: string; month: string }): string {
+  if (!card.due) return card.month;
+  const year = card.month.split('/')[0];
+  const mm = card.due.split('/')[0];
+  return `${year}/${mm}`;
+}
+
 export function workingDaysInMonth(month: string, holidays: Array<{ date: string }>): number {
   const [y, mo] = month.split('/').map(Number);
   const total = new Date(y, mo, 0).getDate();

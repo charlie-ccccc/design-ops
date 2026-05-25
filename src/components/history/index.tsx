@@ -18,7 +18,6 @@ interface HistoryProps {
   archives: HistoryMonth[];
   currentSnapshot: CurrentSnapshot;
   currentCards: Card[];
-  onArchive: () => void;
   onOpenCard: (card: Card) => void;
 }
 
@@ -275,7 +274,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
 }
 
 // ── Main export ──────────────────────────────────────────────────
-export default function History({ archives, currentSnapshot, currentCards, onArchive, onOpenCard }: HistoryProps) {
+export default function History({ archives, currentSnapshot, currentCards, onOpenCard }: HistoryProps) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const LIVE_MONTH = currentSnapshot.month;
