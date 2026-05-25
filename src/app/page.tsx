@@ -44,6 +44,7 @@ export default function App() {
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
+  const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
   const [archiveMonthInput, setArchiveMonthInput] = useState('2026/05');
 
@@ -367,7 +368,12 @@ export default function App() {
             />
           )}
           {page === 'history' && (
-            <History archives={history} currentSnapshot={currentSnapshot} onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }} />
+            <History
+              archives={history}
+              currentSnapshot={currentSnapshot}
+              onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }}
+              onOpenCard={card => setPreviewCard(card)}
+            />
           )}
           {page === 'permissions' && showAdmin && (
             <Permissions />
@@ -376,6 +382,7 @@ export default function App() {
       </main>
 
       <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} />
+      <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} />
       <NewCardModal
         open={newCardOpen}
         onClose={() => setNewCardOpen(false)}

@@ -1,8 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import type { HistoryMonth, Card } from '@/lib/types';
-import { DEPT_SHORT, MEMBER_BY_ID, STATUSES } from '@/lib/data';
+import type { HistoryMonth, Card, Cat } from '@/lib/types';
+import { DEPT_SHORT, MEMBER_BY_ID, STATUSES, MEMBERS } from '@/lib/data';
 import { sum } from '@/lib/utils';
 
 interface CurrentSnapshot {
@@ -18,6 +18,7 @@ interface HistoryProps {
   archives: HistoryMonth[];
   currentSnapshot: CurrentSnapshot;
   onArchive: () => void;
+  onOpenCard: (card: Card) => void;
 }
 
 // ── Archive summary card ─────────────────────────────────────────
@@ -100,7 +101,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
 }
 
 // ── Card table ───────────────────────────────────────────────────
-function HistoryCardTable({ cards }: { cards: Card[] }) {
+function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (card: Card) => void }) {
   return (
     <div className="panel">
       <div className="xtab-wrap">
@@ -127,7 +128,20 @@ function HistoryCardTable({ cards }: { cards: Card[] }) {
                   <td className="cell-num" style={{ fontSize: 10.5, fontFamily: 'var(--font-mono), monospace', letterSpacing: '0.02em' }}>
                     {card.id}
                   </td>
-                  <td style={{ textAlign: 'left' }}>{card.title}</td>
+                  <td style={{ textAlign: 'left' }}>
+                    <button
+                      onClick={() => onOpenCard(card)}
+                      style={{
+                        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                        color: 'var(--ink)', fontFamily: 'inherit', fontSize: 'inherit',
+                        textAlign: 'left', lineHeight: 'inherit',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink)')}
+                    >
+                      {card.title}
+                    </button>
+                  </td>
                   <td style={{ textAlign: 'left' }}>
                     <span className="dept-pill" style={{ fontSize: 11 }}>
                       {DEPT_SHORT[card.dept] || card.dept}
@@ -150,6 +164,13 @@ function HistoryCardTable({ cards }: { cards: Card[] }) {
                 </tr>
               );
             })}
+            {cards.length === 0 && (
+              <tr>
+                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0' }}>
+                  無符合條件的卡片
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -158,11 +179,34 @@ function HistoryCardTable({ cards }: { cards: Card[] }) {
 }
 
 // ── Month detail view ────────────────────────────────────────────
-function HistoryDetail({ archive, onBack }: { archive: HistoryMonth; onBack: () => void }) {
+function HistoryDetail({ archive, onBack, onOpenCard }: {
+  archive: HistoryMonth;
+  onBack: () => void;
+  onOpenCard: (card: Card) => void;
+}) {
   const [year, mon] = archive.month.split('/');
   const capPct = archive.capacity > 0 ? Math.round((archive.totalEst / archive.capacity) * 100) : 0;
   const doneCount = archive.cardList.filter(c => c.status === 'done').length;
   const pendingCount = archive.cardList.filter(c => c.status === 'pending').length;
+
+  const [filterOwner, setFilterOwner] = useState('');
+  const [filterDept, setFilterDept] = useState('');
+  const [filterCat, setFilterCat] = useState<Cat | ''>('');
+
+  // derive unique owners / depts present in this archive
+  const ownerIds = useMemo(() =>
+    [...new Set(archive.cardList.map(c => c.owner).filter(Boolean))], [archive]);
+  const depts = useMemo(() =>
+    [...new Set(archive.cardList.map(c => c.dept).filter(Boolean))], [archive]);
+
+  const filtered = useMemo(() =>
+    archive.cardList.filter(c =>
+      (!filterOwner || c.owner === filterOwner) &&
+      (!filterDept  || c.dept  === filterDept) &&
+      (!filterCat   || c.cat   === filterCat)
+    ), [archive, filterOwner, filterDept, filterCat]);
+
+  const hasFilter = filterOwner || filterDept || filterCat;
 
   return (
     <div className="history">
@@ -192,20 +236,49 @@ function HistoryDetail({ archive, onBack }: { archive: HistoryMonth; onBack: () 
         ))}
       </div>
 
-      <HistoryCardTable cards={archive.cardList} />
+      {/* 篩選列 */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <select className="input" style={{ minWidth: 110 }} value={filterOwner} onChange={e => setFilterOwner(e.target.value)}>
+          <option value="">全部受託人</option>
+          {ownerIds.map(id => (
+            <option key={id} value={id}>{MEMBER_BY_ID[id]?.name ?? id}</option>
+          ))}
+        </select>
+        <select className="input" style={{ minWidth: 110 }} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
+          <option value="">全部部門</option>
+          {depts.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
+        </select>
+        <select className="input" style={{ minWidth: 100 }} value={filterCat} onChange={e => setFilterCat(e.target.value as Cat | '')}>
+          <option value="">全部類別</option>
+          <option value="UIUX">UIUX</option>
+          <option value="平面視覺">平面視覺</option>
+        </select>
+        {hasFilter && (
+          <button className="btn btn-ghost" onClick={() => { setFilterOwner(''); setFilterDept(''); setFilterCat(''); }}>
+            清除篩選
+          </button>
+        )}
+        {hasFilter && (
+          <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+            顯示 {filtered.length} / {archive.cardList.length} 張
+          </span>
+        )}
+      </div>
+
+      <HistoryCardTable cards={filtered} onOpenCard={onOpenCard} />
     </div>
   );
 }
 
 // ── Main export ──────────────────────────────────────────────────
-export default function History({ archives, currentSnapshot, onArchive }: HistoryProps) {
+export default function History({ archives, currentSnapshot, onArchive, onOpenCard }: HistoryProps) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const selectedArchive = archives.find(a => a.month === selectedMonth) ?? null;
 
   if (selectedArchive) {
     return (
       <div className="body">
-        <HistoryDetail archive={selectedArchive} onBack={() => setSelectedMonth(null)} />
+        <HistoryDetail archive={selectedArchive} onBack={() => setSelectedMonth(null)} onOpenCard={onOpenCard} />
       </div>
     );
   }
