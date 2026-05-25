@@ -110,7 +110,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
             <tr>
               <th>ID</th>
               <th style={{ textAlign: 'left', minWidth: 200 }}>標題</th>
-              <th style={{ textAlign: 'left' }}>部門</th>
+              <th style={{ textAlign: 'left' }}>需求發起單位</th>
               <th style={{ textAlign: 'left' }}>類別</th>
               <th style={{ textAlign: 'left' }}>受託人</th>
               <th>原估(h)</th>
@@ -245,7 +245,7 @@ function HistoryDetail({ archive, onBack, onOpenCard }: {
           ))}
         </select>
         <select className="input" style={{ minWidth: 110 }} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
-          <option value="">全部部門</option>
+          <option value="">全部發起單位</option>
           {depts.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
         </select>
         <select className="input" style={{ minWidth: 100 }} value={filterCat} onChange={e => setFilterCat(e.target.value as Cat | '')}>
