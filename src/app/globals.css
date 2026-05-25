@@ -285,10 +285,10 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 /* ── History ─────────────────────────────────────────────────── */
 .history { padding: 18px 22px; display: grid; gap: 14px; align-content: start; }
 .history .xtab-wrap { max-height: none; overflow: visible; }
-.archive-card { display: grid; grid-template-columns: 200px 1fr auto; gap: 22px; align-items: center; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+.archive-card { display: grid; grid-template-columns: 200px 1fr 110px; gap: 22px; align-items: center; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
 .archive-card .month { font: 600 22px/1 var(--font-mono), monospace; letter-spacing: -0.02em; }
 .archive-card .month .y { color: var(--muted); font-size: 13px; margin-right: 6px; }
-.archive-card .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.archive-card .stats { display: grid; grid-template-columns: repeat(4, minmax(100px, 1fr)); gap: 18px; }
 .archive-card .stat .l { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
 .archive-card .stat .v { font: 600 18px var(--font-mono), monospace; margin-top: 2px; letter-spacing: -0.01em; }
 .archive-card .stat .sub { font-size: 11px; color: var(--muted); }
