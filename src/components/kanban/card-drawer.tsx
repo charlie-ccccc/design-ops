@@ -52,7 +52,6 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
           <>
             <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>
             <span style={{ fontWeight: 500 }}>{selected.name}</span>
-            {selected.sub && <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {selected.sub}</span>}
           </>
         ) : <span style={{ color: 'var(--muted)' }}>{placeholder}</span>}
         <span style={{ marginLeft: 4, color: 'var(--muted)', fontSize: 10 }}>▾</span>
@@ -72,7 +71,6 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
                   style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 13, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}>
                   <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
                   <span style={{ fontWeight: 500 }}>{u.name}</span>
-                  {u.sub && <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {u.sub}</span>}
                 </button>
               ))}
               {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12.5, color: 'var(--muted)' }}>無符合結果</div>}
