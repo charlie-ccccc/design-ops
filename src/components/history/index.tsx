@@ -71,7 +71,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
         {item.isLive && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4,
