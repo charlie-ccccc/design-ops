@@ -49,7 +49,7 @@ export default function Permissions() {
   }
 
   return (
-    <div className="pg-pad" style={{ maxWidth: 800 }}>
+    <div style={{ padding: '18px 22px', maxWidth: 800 }}>
 
       {/* ── Tab bar ── */}
       <div className="cap-side" style={{ marginBottom: 20 }}>
