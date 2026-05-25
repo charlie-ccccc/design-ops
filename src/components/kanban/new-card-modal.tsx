@@ -79,7 +79,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
     onClose();
   }
 
-  const canSubmit = form.title.trim() && form.dept && form.cat && form.prio;
+  const canSubmit = form.title.trim() && form.dept && form.cat && form.prio && form.due;
 
   return (
     <div className={`modal-scrim${open ? ' open' : ''}`} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -118,7 +118,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
 
               {/* 截止日 */}
               <div className="form-row">
-                <label>截止日</label>
+                <label>截止日 *</label>
                 <input
                   className="input"
                   style={{ width: '100%' }}
