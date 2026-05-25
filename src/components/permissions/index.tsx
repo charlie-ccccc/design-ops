@@ -50,116 +50,114 @@ export default function Permissions() {
 
   return (
     <div style={{ padding: '18px 22px', maxWidth: 800 }}>
+      <div className="panel">
 
-      {/* ── Tab bar ── */}
-      <div className="cap-side" style={{ marginBottom: 20 }}>
-        <div className="cap-tabs">
-          <button
-            className="cap-tab"
-            data-on={tab === 'users' ? '1' : '0'}
-            onClick={() => setTab('users')}
-          >
-            使用者權限
-          </button>
-          <button
-            className="cap-tab"
-            data-on={tab === 'depts' ? '1' : '0'}
-            onClick={() => setTab('depts')}
-          >
-            需求發起單位
-          </button>
+        {/* ── Tab bar in panel header ── */}
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--divider)' }}>
+          {(['users', 'depts'] as const).map((t, i) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
+                padding: '11px 18px', fontSize: 13, fontWeight: tab === t ? 600 : 400,
+                color: tab === t ? 'var(--ink)' : 'var(--muted)',
+                borderBottom: tab === t ? '2px solid var(--accent)' : '2px solid transparent',
+                marginBottom: -1, transition: 'color 0.15s',
+                fontFamily: 'inherit',
+              }}
+            >
+              {i === 0 ? '使用者權限' : '需求發起單位'}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* ── 使用者權限管理 ── */}
-      {tab === 'users' && (
-        <div className="panel">
-          <div className="panel-h">
-            <span className="panel-title">使用者權限管理</span>
-            <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 8 }}>僅 @cmoney.com.tw 帳號可透過 Google 登入</span>
-          </div>
-
-          {/* 權限說明列 */}
-          <div style={{ display: 'flex', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--divider)' }}>
-            {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
-              <div key={role} style={{ flex: 1, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>{role}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
-              </div>
-            ))}
-          </div>
-
-          <table className="cap-table">
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left' }}>姓名</th>
-                <th style={{ textAlign: 'left' }}>Email</th>
-                <th>權限角色</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id}>
-                  <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>{u.name}</td>
-                  <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
-                  <td>
-                    <select
-                      className="input"
-                      style={{ width: 90 }}
-                      value={u.role}
-                      onChange={e => setUserRole(u.id, e.target.value as Role)}
-                    >
-                      <option value="一般">一般</option>
-                      <option value="成員">成員</option>
-                      <option value="Admin">Admin</option>
-                    </select>
-                  </td>
-                </tr>
+        {/* ── 使用者權限管理 ── */}
+        {tab === 'users' && (
+          <>
+            <div style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
+              {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
+                <div key={role} style={{ flex: 1, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>{role}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── 需求單位管理 ── */}
-      {tab === 'depts' && (
-        <div className="panel">
-          <div className="panel-h">
-            <span className="panel-title">需求單位管理</span>
-            <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 8 }}>新增需求單時的發起單位選項</span>
-          </div>
-          <div style={{ padding: '14px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-            {depts.map(d => (
-              <span key={d} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                padding: '4px 10px 4px 12px', background: 'var(--surface-2)',
-                border: '1px solid var(--border)', borderRadius: 20, fontSize: 13,
-              }}>
-                {d}
-                <button
-                  onClick={() => removeDept(d)}
-                  style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 1, color: 'var(--muted)', borderRadius: '50%' }}
-                >
-                  <X size={11} />
-                </button>
-              </span>
-            ))}
-            <div style={{ display: 'flex', gap: 6 }}>
-              <input
-                className="input"
-                placeholder="新增單位名稱"
-                style={{ width: 150 }}
-                value={newDept}
-                onChange={e => setNewDept(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addDept()}
-              />
-              <button className="btn btn-primary" onClick={addDept} style={{ padding: '0 10px' }}>
-                <Plus size={14} />
-              </button>
             </div>
-          </div>
-        </div>
-      )}
+            <div style={{ padding: '4px 16px 8px', fontSize: 11.5, color: 'var(--muted)' }}>
+              僅 @cmoney.com.tw 帳號可透過 Google 登入
+            </div>
+            <table className="cap-table">
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left' }}>姓名</th>
+                  <th style={{ textAlign: 'left' }}>Email</th>
+                  <th>權限角色</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(u => (
+                  <tr key={u.id}>
+                    <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>{u.name}</td>
+                    <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
+                    <td>
+                      <select
+                        className="input"
+                        style={{ width: 90 }}
+                        value={u.role}
+                        onChange={e => setUserRole(u.id, e.target.value as Role)}
+                      >
+                        <option value="一般">一般</option>
+                        <option value="成員">成員</option>
+                        <option value="Admin">Admin</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {/* ── 需求單位管理 ── */}
+        {tab === 'depts' && (
+          <>
+            <div style={{ padding: '8px 16px 4px', fontSize: 11.5, color: 'var(--muted)' }}>
+              新增需求單時的發起單位選項
+            </div>
+            <div style={{ padding: '8px 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+              {depts.map(d => (
+                <span key={d} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '4px 10px 4px 12px', background: 'var(--surface-2)',
+                  border: '1px solid var(--border)', borderRadius: 20, fontSize: 13,
+                }}>
+                  {d}
+                  <button
+                    onClick={() => removeDept(d)}
+                    style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 1, color: 'var(--muted)', borderRadius: '50%' }}
+                  >
+                    <X size={11} />
+                  </button>
+                </span>
+              ))}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  className="input"
+                  placeholder="新增單位名稱"
+                  style={{ width: 150 }}
+                  value={newDept}
+                  onChange={e => setNewDept(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addDept()}
+                />
+                <button className="btn btn-primary" onClick={addDept} style={{ padding: '0 10px' }}>
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+      </div>
     </div>
   );
 }
