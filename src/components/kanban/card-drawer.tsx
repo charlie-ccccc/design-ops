@@ -285,7 +285,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                     <div className="lbl">原始預估</div>
                     {readOnly ? <div className="val">{c.est}</div> : (
                       <input type="number" min={0} className="val"
-                        style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit', padding: 0, cursor: 'text' }}
                         value={c.est} onChange={e => onUpdate(c.id, { est: Math.max(0, Number(e.target.value)) })} />
                     )}
                     <div className="delta">小時</div>

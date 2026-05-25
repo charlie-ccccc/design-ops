@@ -182,7 +182,10 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .drawer-hours { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .drawer-hours .cell { border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; }
 .drawer-hours .cell .lbl { font-size: 11px; color: var(--muted); }
-.drawer-hours .cell .val { font: 600 22px/1.1 var(--font-mono), monospace; margin-top: 6px; color: var(--ink); letter-spacing: -0.02em; }
+.drawer-hours .cell .val { font: 600 22px/1.1 var(--font-mono), monospace; margin-top: 6px; color: var(--ink); letter-spacing: -0.02em; display: block; }
+.drawer-hours .cell input.val { background: none; border: none; outline: none; padding: 0; width: 100%; -moz-appearance: textfield; }
+.drawer-hours .cell input.val::-webkit-inner-spin-button,
+.drawer-hours .cell input.val::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .drawer-hours .cell .delta { font-size: 11px; margin-top: 4px; color: var(--muted); }
 .drawer-hours .cell .delta.over { color: var(--st-block); }
 .drawer-hours .cell .delta.under { color: var(--st-done); }
