@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import type { HistoryMonth, Card, Cat } from '@/lib/types';
-import { DEPT_SHORT, MEMBER_BY_ID, STATUSES, MEMBERS } from '@/lib/data';
-import { sum } from '@/lib/utils';
+import { DEPT_SHORT, MEMBER_BY_ID, STATUSES } from '@/lib/data';
+import { sum, groupBy } from '@/lib/utils';
 
 interface CurrentSnapshot {
   month: string;
@@ -17,6 +17,7 @@ interface CurrentSnapshot {
 interface HistoryProps {
   archives: HistoryMonth[];
   currentSnapshot: CurrentSnapshot;
+  currentCards: Card[];
   onArchive: () => void;
   onOpenCard: (card: Card) => void;
 }
@@ -30,7 +31,7 @@ interface ArchiveCardItem {
   capacity: number;
   topDept: string;
   isLive?: boolean;
-  onClick?: () => void;
+  onClick: () => void;
 }
 
 function ArchiveCard({ item }: { item: ArchiveCardItem }) {
@@ -45,11 +46,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
   ];
 
   return (
-    <div
-      className={`archive-card${item.onClick ? ' clickable' : ''}`}
-      onClick={item.onClick}
-      style={{ cursor: item.onClick ? 'pointer' : 'default' }}
-    >
+    <div className="archive-card clickable" onClick={item.onClick} style={{ cursor: 'pointer' }}>
       <div>
         <div className="month">
           <span className="y">{year}</span>
@@ -58,18 +55,6 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
         <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>
           最多：{DEPT_SHORT[item.topDept] || item.topDept}
         </div>
-        {item.isLive && (
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8,
-            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-            color: 'var(--st-done)',
-            background: 'color-mix(in oklab, var(--st-done) 12%, transparent)',
-            padding: '2px 7px', borderRadius: 4,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--st-done)', flexShrink: 0 }} />
-            LIVE
-          </span>
-        )}
       </div>
 
       <div className="stats">
@@ -87,14 +72,22 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
         ))}
       </div>
 
-      <div>
-        {item.onClick ? (
-          <button className="btn btn-ghost" style={{ padding: '6px 8px' }} onClick={e => { e.stopPropagation(); item.onClick?.(); }}>
-            <ChevronRight size={16} />
-          </button>
-        ) : (
-          <div style={{ width: 36 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {item.isLive && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: 'var(--st-done)',
+            background: 'color-mix(in oklab, var(--st-done) 12%, transparent)',
+            padding: '2px 7px', borderRadius: 4,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--st-done)', flexShrink: 0 }} />
+            LIVE
+          </span>
         )}
+        <button className="btn btn-ghost" style={{ padding: '6px 8px' }} onClick={e => { e.stopPropagation(); item.onClick(); }}>
+          <ChevronRight size={16} />
+        </button>
       </div>
     </div>
   );
@@ -179,8 +172,9 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
 }
 
 // ── Month detail view ────────────────────────────────────────────
-function HistoryDetail({ archive, onBack, onOpenCard }: {
+function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
   archive: HistoryMonth;
+  isLive?: boolean;
   onBack: () => void;
   onOpenCard: (card: Card) => void;
 }) {
@@ -193,7 +187,6 @@ function HistoryDetail({ archive, onBack, onOpenCard }: {
   const [filterDept, setFilterDept] = useState('');
   const [filterCat, setFilterCat] = useState<Cat | ''>('');
 
-  // derive unique owners / depts present in this archive
   const ownerIds = useMemo(() =>
     [...new Set(archive.cardList.map(c => c.owner).filter(Boolean))], [archive]);
   const depts = useMemo(() =>
@@ -215,8 +208,19 @@ function HistoryDetail({ archive, onBack, onOpenCard }: {
           <ChevronLeft size={14} /> 返回列表
         </button>
         <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>
-          {year} 年 {mon} 月封存
+          {year} 年 {mon} 月{isLive ? '' : '封存'}
         </h2>
+        {isLive && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: 'var(--st-done)', background: 'color-mix(in oklab, var(--st-done) 12%, transparent)',
+            padding: '2px 7px', borderRadius: 4,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--st-done)', flexShrink: 0 }} />
+            LIVE
+          </span>
+        )}
         <span className="tag">{archive.cardList.length} 張</span>
       </div>
 
@@ -227,7 +231,7 @@ function HistoryDetail({ archive, onBack, onOpenCard }: {
           { l: '量能使用', v: `${capPct}%` },
           { l: '設計完成', v: `${doneCount} 張` },
           { l: 'Pending', v: `${pendingCount} 張` },
-          { l: '最多部門', v: DEPT_SHORT[archive.topDept] || archive.topDept },
+          { l: '最多發起單位', v: DEPT_SHORT[archive.topDept] || archive.topDept },
         ].map((s, i) => (
           <div key={i} className="stat-item">
             <div className="l">{s.l}</div>
@@ -271,27 +275,46 @@ function HistoryDetail({ archive, onBack, onOpenCard }: {
 }
 
 // ── Main export ──────────────────────────────────────────────────
-export default function History({ archives, currentSnapshot, onArchive, onOpenCard }: HistoryProps) {
+export default function History({ archives, currentSnapshot, currentCards, onArchive, onOpenCard }: HistoryProps) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-  const selectedArchive = archives.find(a => a.month === selectedMonth) ?? null;
+
+  const LIVE_MONTH = currentSnapshot.month;
+
+  // build a virtual HistoryMonth for the live view
+  const liveArchive = useMemo((): HistoryMonth => {
+    const byDept = groupBy(currentCards, 'dept');
+    const topDept = Object.entries(byDept)
+      .map(([d, xs]) => [d, sum(xs.map(c => c.est))] as [string, number])
+      .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+    return {
+      month: LIVE_MONTH,
+      cards: currentCards.length,
+      totalEst: sum(currentCards.map(c => c.est)),
+      totalActual: sum(currentCards.map(c => c.actual)),
+      capacity: currentSnapshot.capacity,
+      topDept,
+      deptTotals: Object.fromEntries(Object.entries(byDept).map(([d, xs]) => [d, sum(xs.map(c => c.est))])),
+      memberTotals: {},
+      cardList: currentCards,
+    };
+  }, [currentCards, currentSnapshot, LIVE_MONTH]);
+
+  const selectedArchive = selectedMonth === LIVE_MONTH
+    ? liveArchive
+    : archives.find(a => a.month === selectedMonth) ?? null;
 
   if (selectedArchive) {
     return (
       <div className="body">
-        <HistoryDetail archive={selectedArchive} onBack={() => setSelectedMonth(null)} onOpenCard={onOpenCard} />
+        <HistoryDetail
+          archive={selectedArchive}
+          isLive={selectedMonth === LIVE_MONTH}
+          onBack={() => setSelectedMonth(null)}
+          onOpenCard={onOpenCard}
+        />
       </div>
     );
   }
-
-  const liveItem: ArchiveCardItem = {
-    month: currentSnapshot.month,
-    cards: currentSnapshot.cards,
-    totalEst: currentSnapshot.totalEst,
-    totalActual: currentSnapshot.totalActual,
-    capacity: currentSnapshot.capacity,
-    topDept: currentSnapshot.topDept,
-    isLive: true,
-  };
 
   return (
     <div className="body">
@@ -303,7 +326,18 @@ export default function History({ archives, currentSnapshot, onArchive, onOpenCa
           <span className="tag">{archives.length + 1} 個月</span>
         </div>
 
-        <ArchiveCard item={liveItem} />
+        <ArchiveCard
+          item={{
+            month: liveArchive.month,
+            cards: liveArchive.cards,
+            totalEst: liveArchive.totalEst,
+            totalActual: liveArchive.totalActual,
+            capacity: liveArchive.capacity,
+            topDept: liveArchive.topDept,
+            isLive: true,
+            onClick: () => setSelectedMonth(LIVE_MONTH),
+          }}
+        />
 
         {archives.map(arch => (
           <ArchiveCard

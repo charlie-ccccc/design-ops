@@ -371,6 +371,7 @@ export default function App() {
             <History
               archives={history}
               currentSnapshot={currentSnapshot}
+              currentCards={cards}
               onArchive={() => { setArchiveMonthInput('2026/05'); setArchiveModalOpen(true); }}
               onOpenCard={card => setPreviewCard(card)}
             />
