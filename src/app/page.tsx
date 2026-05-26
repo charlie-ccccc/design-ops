@@ -6,7 +6,7 @@ import {
   Search, Bell, Settings, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import type { Card, LeaveEntry, PublicHoliday, DashLayout, ChartType, CardStatus } from '@/lib/types';
+import type { Card, LeaveEntry, PublicHoliday, CardStatus } from '@/lib/types';
 import {
   MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
@@ -48,8 +48,6 @@ export default function App() {
   // Tweaks
   const [dark, setDark] = useState(false);
   const [density, setDensity] = useState<'compact' | 'comfy'>('comfy');
-  const [chartType, setChartType] = useState<ChartType>('donut');
-  const [dashLayout, setDashLayout] = useState<DashLayout>('classic');
   const [showAdmin, setShowAdmin] = useState(true);
   const [accent, setAccent] = useState<keyof typeof ACCENT_PRESETS>('violet');
 
@@ -271,16 +269,6 @@ export default function App() {
               </select>
             )}
 
-            {page === 'dashboard' && (
-              <div className="layout-pick" title="Dashboard 佈局">
-                {(['classic', 'focus', 'grid'] as DashLayout[]).map(l => (
-                  <button key={l} data-on={dashLayout === l ? '1' : '0'} onClick={() => setDashLayout(l)}>
-                    {l === 'classic' ? '經典' : l === 'focus' ? '交叉' : '緊湊'}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {page === 'capacity' && (
               <div className="month-pill">
                 <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
@@ -318,8 +306,6 @@ export default function App() {
           {page === 'dashboard' && (
             <Dashboard
               cards={monthCards.filter(c => !filterDept || c.dept === filterDept)}
-              layout={dashLayout}
-              chartType={chartType}
               totalCapacity={totalCapacity}
               filterDept={filterDept}
             />

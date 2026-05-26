@@ -17,6 +17,9 @@ interface CrosstabProps {
   getColTotal: (col: ColDef) => number;
   grandTotal: number;
   unit?: string;
+  onCellClick?: (row: Member, col: ColDef) => void;
+  onRowClick?: (row: Member) => void;
+  onColClick?: (col: ColDef) => void;
 }
 
 export default function Crosstab({
@@ -27,6 +30,9 @@ export default function Crosstab({
   getColTotal,
   grandTotal,
   unit = 'h',
+  onCellClick,
+  onRowClick,
+  onColClick,
 }: CrosstabProps) {
   // Find max cell value for heatmap
   let max = 1;
@@ -44,7 +50,9 @@ export default function Crosstab({
           <tr>
             <th>成員</th>
             {cols.map((col) => (
-              <th key={col.id} title={col.full || col.name}>
+              <th key={col.id} title={col.full || col.name}
+                style={onColClick ? { cursor: 'pointer' } : undefined}
+                onClick={() => onColClick?.(col)}>
                 {col.name}
               </th>
             ))}
@@ -56,7 +64,8 @@ export default function Crosstab({
             const rowTotal = getRowTotal(row);
             return (
               <tr key={row.id}>
-                <td>
+                <td style={onRowClick ? { cursor: 'pointer' } : undefined}
+                  onClick={() => onRowClick?.(row)}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div
                       className="av av-sm"
@@ -71,13 +80,16 @@ export default function Crosstab({
                   const v = getCell(row, col);
                   const opacity = v > 0 ? 0.06 + (v / max) * 0.18 : 0;
                   return (
-                    <td key={col.id} className={`cell-num heat${v === 0 ? ' zero' : ''}`}>
+                    <td key={col.id} className={`cell-num heat${v === 0 ? ' zero' : ''}`}
+                      style={onCellClick && v > 0 ? { cursor: 'pointer' } : undefined}
+                      onClick={() => v > 0 && onCellClick?.(row, col)}>
                       <div className="heat-bg" style={{ opacity }} />
                       <div className="heat-v">{v === 0 ? '—' : `${v}${unit}`}</div>
                     </td>
                   );
                 })}
-                <td className="cell-num">
+                <td className="cell-num" style={onRowClick ? { cursor: 'pointer' } : undefined}
+                  onClick={() => onRowClick?.(row)}>
                   {rowTotal > 0 ? `${rowTotal}${unit}` : '—'}
                 </td>
               </tr>

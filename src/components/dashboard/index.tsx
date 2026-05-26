@@ -1,7 +1,8 @@
 'use client';
-import React from 'react';
-import type { Card, DashLayout, ChartType, Member } from '@/lib/types';
-import { DEPT_SHORT, DEPT_HUE, MEMBERS } from '@/lib/data';
+import React, { useState } from 'react';
+import { X } from 'lucide-react';
+import type { Card, Member } from '@/lib/types';
+import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, STATUSES } from '@/lib/data';
 import { sum, groupBy, hue } from '@/lib/utils';
 import CircleChart from '@/components/charts/circle-chart';
 import BarsChart from '@/components/charts/bars-chart';
@@ -9,336 +10,230 @@ import Crosstab from '@/components/dashboard/crosstab';
 
 interface DashboardProps {
   cards: Card[];
-  layout: DashLayout;
-  chartType: ChartType;
   totalCapacity: number;
   filterDept: string;
+  // kept for API compat but unused (layout fixed to grid, chartType fixed to donut)
+  layout?: string;
+  chartType?: string;
 }
 
-interface ColDef {
-  id: string;
-  name: string;
-  full?: string;
+interface ColDef { id: string; name: string; full?: string; }
+interface ModalFilter { label: string; cards: Card[]; }
+
+function CardListModal({ filter, onClose }: { filter: ModalFilter; onClose: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={onClose} />
+      <div style={{ position: 'relative', zIndex: 1, background: 'var(--surface)', borderRadius: 14, boxShadow: '0 16px 48px rgba(0,0,0,.2)', width: 'min(840px, 90vw)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--divider)' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 600 }}>{filter.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{filter.cards.length} 張需求單</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', padding: 4 }}><X size={16} /></button>
+        </div>
+        <div style={{ overflow: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+            <thead>
+              <tr style={{ background: 'var(--surface-2)' }}>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID</th>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', minWidth: 180 }}>標題</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>發起單位</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>受託人</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>預估(h)</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>實際(h)</th>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filter.cards.length === 0 ? (
+                <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>無資料</td></tr>
+              ) : filter.cards.map(c => {
+                const member = MEMBER_BY_ID[c.owner];
+                const status = STATUSES.find(s => s.id === c.status);
+                const isOver = c.actual > c.est;
+                return (
+                  <tr key={c.id} style={{ borderBottom: '1px solid var(--divider)' }}>
+                    <td style={{ padding: '9px 16px', fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--muted)' }}>{c.id}</td>
+                    <td style={{ padding: '9px 16px', fontWeight: 500 }}>{c.title}</td>
+                    <td style={{ padding: '9px 12px' }}>
+                      <span className="dept-pill" style={{ fontSize: 11 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
+                    </td>
+                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
+                    <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
+                    <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>
+                    <td style={{ padding: '9px 16px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: status?.dot, flexShrink: 0 }} />
+                        {status?.name ?? c.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default function Dashboard({
-  cards,
-  layout,
-  chartType,
-  totalCapacity,
-  filterDept,
-}: DashboardProps) {
+export default function Dashboard({ cards, totalCapacity }: DashboardProps) {
+  const [modal, setModal] = useState<ModalFilter | null>(null);
+
   const byDept = groupBy(cards, 'dept');
 
   const deptEst = Object.entries(byDept)
     .map(([dept, items]) => ({
       name: DEPT_SHORT[dept] || dept,
       full: dept,
-      value: sum(items.map((c) => c.est)),
+      value: sum(items.map(c => c.est)),
       color: hue(DEPT_HUE[dept] || 1),
     }))
     .sort((a, b) => b.value - a.value);
 
-  const memberEst = MEMBERS.map((m) => {
-    const memberCards = cards.filter((c) => c.owner === m.id);
-    return {
-      id: m.id,
-      name: m.name,
-      initial: m.initial,
-      hue: m.hue,
-      value: sum(memberCards.map((c) => c.est)),
-      actual: sum(memberCards.map((c) => c.actual)),
-      color: hue(m.hue),
-    };
-  })
-    .filter((m) => m.value > 0)
-    .sort((a, b) => b.value - a.value);
+  const memberEst = MEMBERS.map(m => {
+    const mc = cards.filter(c => c.owner === m.id);
+    return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, value: sum(mc.map(c => c.est)), actual: sum(mc.map(c => c.actual)), color: hue(m.hue) };
+  }).filter(m => m.value > 0).sort((a, b) => b.value - a.value);
 
-  const totalEst = sum(cards.map((c) => c.est));
-  const totalActual = sum(cards.map((c) => c.actual));
-  const doneCount = cards.filter((c) => c.status === 'done').length;
-  const inProgressCount = cards.filter((c) => c.status === 'designing').length;
-
+  const totalEst = sum(cards.map(c => c.est));
+  const totalActual = sum(cards.map(c => c.actual));
   const capPct = totalCapacity > 0 ? Math.round((totalEst / totalCapacity) * 100) : 0;
 
-  const kpis = [
-    {
-      lbl: '需求單總數',
-      val: cards.length,
-      unit: '張',
-      delta: '+4 vs 上月',
-      cls: 'up' as const,
-    },
-    {
-      lbl: '原始預估工時',
-      val: totalEst,
-      unit: 'h',
-      delta: `${cards.length} 張單`,
-      cls: undefined,
-    },
-    {
-      lbl: '實際消耗工時',
-      val: totalActual,
-      unit: 'h',
-      delta: `${totalEst > 0 ? Math.round((totalActual / totalEst) * 100) : 0}% 進度`,
-      cls: undefined,
-    },
-    {
-      lbl: '本月量能',
-      val: capPct,
-      unit: '%',
-      delta: `${totalCapacity}h 可用`,
-      cls: totalEst / totalCapacity > 1 ? ('down' as const) : ('up' as const),
-    },
-  ];
+  const xtabCols: ColDef[] = Object.keys(byDept).map(dept => ({ id: dept, name: DEPT_SHORT[dept] || dept, full: dept }));
+  const getEstCell = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.est));
+  const getActCell = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.actual));
+  const getEstRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.est));
+  const getActRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.actual));
+  const getEstColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.est));
+  const getActColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.actual));
 
-  // Crosstab cols from byDept
-  const xtabCols: ColDef[] = Object.keys(byDept).map((dept) => ({
-    id: dept,
-    name: DEPT_SHORT[dept] || dept,
-    full: dept,
-  }));
+  function openDept(full: string, name: string) {
+    setModal({ label: name, cards: cards.filter(c => c.dept === full) });
+  }
+  function openMember(id: string, name: string) {
+    setModal({ label: `${name} 的需求單`, cards: cards.filter(c => c.owner === id) });
+  }
 
-  const getEstCell = (m: Member, col: ColDef) =>
-    sum(cards.filter((c) => c.owner === m.id && c.dept === col.id).map((c) => c.est));
+  const memberChartData = memberEst.map(m => ({ name: m.name, value: m.value, color: hue(m.hue) }));
 
-  const getActCell = (m: Member, col: ColDef) =>
-    sum(cards.filter((c) => c.owner === m.id && c.dept === col.id).map((c) => c.actual));
+  return (
+    <div className="body">
+      {modal && <CardListModal filter={modal} onClose={() => setModal(null)} />}
 
-  const getEstRowTotal = (m: Member) =>
-    sum(cards.filter((c) => c.owner === m.id).map((c) => c.est));
+      <div className="dash layout-grid">
+        {/* KPI 卡 */}
+        <div className="kpi">
+          <div className="kpi-lbl">需求單總數</div>
+          <div className="kpi-val">{cards.length}<span className="unit">張</span></div>
+          <div className="kpi-delta up">+4 vs 上月</div>
+        </div>
+        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => setModal({ label: '原始預估工時', cards })}>
+          <div className="kpi-lbl">原始預估工時</div>
+          <div className="kpi-val">{totalEst}<span className="unit">h</span></div>
+          <div className="kpi-delta">{cards.length} 張單</div>
+        </div>
+        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => setModal({ label: '實際消耗工時', cards: cards.filter(c => c.actual > 0) })}>
+          <div className="kpi-lbl">實際消耗工時</div>
+          <div className="kpi-val">{totalActual}<span className="unit">h</span></div>
+          <div className="kpi-delta">{totalEst > 0 ? Math.round((totalActual / totalEst) * 100) : 0}% 進度</div>
+        </div>
+        <div className="kpi">
+          <div className="kpi-lbl">本月量能</div>
+          <div className="kpi-val">{capPct}<span className="unit">%</span></div>
+          <div className={`kpi-delta${totalEst / totalCapacity > 1 ? ' down' : ' up'}`}>{totalCapacity}h 可用</div>
+        </div>
 
-  const getActRowTotal = (m: Member) =>
-    sum(cards.filter((c) => c.owner === m.id).map((c) => c.actual));
-
-  const getEstColTotal = (col: ColDef) =>
-    sum(cards.filter((c) => c.dept === col.id).map((c) => c.est));
-
-  const getActColTotal = (col: ColDef) =>
-    sum(cards.filter((c) => c.dept === col.id).map((c) => c.actual));
-
-  const grandEst = totalEst;
-  const grandAct = totalActual;
-
-  function KPIs({ className }: { className?: string }) {
-    return (
-      <>
-        {kpis.map((k, i) => (
-          <div key={i} className={`kpi${className ? ' ' + className : ''}`}>
-            <div className="kpi-lbl">{k.lbl}</div>
-            <div className="kpi-val">
-              {k.val}
-              <span className="unit">{k.unit}</span>
-            </div>
-            <div className={`kpi-delta${k.cls ? ' ' + k.cls : ''}`}>{k.delta}</div>
+        {/* 部門圓餅 */}
+        <div className="panel chart-card pie-card">
+          <div className="panel-h">
+            <span className="panel-h-title">部門預估工時</span>
+            <span className="panel-h-sub">本月</span>
+            <span className="panel-h-spacer" />
+            <span className="tag">{deptEst.length} 部門</span>
           </div>
-        ))}
-      </>
-    );
-  }
-
-  function ChartCard({
-    title,
-    sub,
-    data,
-    count,
-    className,
-  }: {
-    title: string;
-    sub?: string;
-    data: { name: string; value: number; color: string; full?: string }[];
-    count?: string;
-    className?: string;
-  }) {
-    const total = sum(data.map((d) => d.value));
-    return (
-      <div className={`panel chart-card${className ? ' ' + className : ''}`}>
-        <div className="panel-h">
-          <span className="panel-h-title">{title}</span>
-          {sub && <span className="panel-h-sub">{sub}</span>}
-          <span className="panel-h-spacer" />
-          {count && <span className="tag">{count}</span>}
-        </div>
-        <div className="chart-body">
-          {chartType === 'bars' ? (
-            <BarsChart data={data} />
-          ) : (
-            <>
-              <div className="chart-wrap">
-                <CircleChart
-                  data={data}
-                  size={180}
-                  kind={chartType}
-                  centerValue={chartType === 'donut' ? `${total}h` : undefined}
-                  centerLabel={chartType === 'donut' ? '預估' : undefined}
-                />
-              </div>
-              <div className="legend">
-                {data.map((item, i) => (
-                  <div key={i} className="legend-row">
-                    <div className="sw" style={{ background: item.color }} />
-                    <span className="name" title={item.full || item.name}>
-                      {item.name}
-                    </span>
-                    <span className="val">{item.value}h</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  function EstCrosstab({ className }: { className?: string }) {
-    return (
-      <div className={`panel${className ? ' ' + className : ''}`}>
-        <div className="panel-h">
-          <span className="panel-h-title">成員 × 部門 (預估工時)</span>
-          <span className="panel-h-spacer" />
-          <span className="tag">{grandEst}h</span>
-        </div>
-        <Crosstab
-          rows={MEMBERS}
-          cols={xtabCols}
-          getCell={getEstCell}
-          getRowTotal={getEstRowTotal}
-          getColTotal={getEstColTotal}
-          grandTotal={grandEst}
-        />
-      </div>
-    );
-  }
-
-  function ActCrosstab({ className }: { className?: string }) {
-    return (
-      <div className={`panel${className ? ' ' + className : ''}`}>
-        <div className="panel-h">
-          <span className="panel-h-title">成員 × 部門 (實際工時)</span>
-          <span className="panel-h-spacer" />
-          <span className="tag">{grandAct}h</span>
-        </div>
-        <Crosstab
-          rows={MEMBERS}
-          cols={xtabCols}
-          getCell={getActCell}
-          getRowTotal={getActRowTotal}
-          getColTotal={getActColTotal}
-          grandTotal={grandAct}
-        />
-      </div>
-    );
-  }
-
-  const memberChartData = memberEst.map((m) => ({
-    name: m.name,
-    value: m.value,
-    color: hue(m.hue),
-  }));
-
-  if (layout === 'classic') {
-    return (
-      <div className="body">
-        <div className="dash layout-classic">
-          {kpis.map((k, i) => (
-            <div key={i} className="kpi">
-              <div className="kpi-lbl">{k.lbl}</div>
-              <div className="kpi-val">
-                {k.val}
-                <span className="unit">{k.unit}</span>
-              </div>
-              <div className={`kpi-delta${k.cls ? ' ' + k.cls : ''}`}>{k.delta}</div>
+          <div className="chart-body">
+            <div className="chart-wrap">
+              <CircleChart
+                data={deptEst} size={180} kind="donut"
+                centerValue={`${totalEst}h`} centerLabel="預估"
+                onSliceClick={i => openDept(deptEst[i].full!, deptEst[i].name)}
+              />
             </div>
-          ))}
-          <ChartCard
-            title="部門預估工時"
-            sub="本月"
-            data={deptEst}
-            count={`${deptEst.length} 部門`}
-          />
-          <ChartCard
-            title="成員預估工時"
-            sub="本月"
-            data={memberChartData}
-            count={`${memberEst.length} 人`}
-          />
-          <EstCrosstab className="col-span-2" />
-          <ActCrosstab className="col-span-2" />
-        </div>
-      </div>
-    );
-  }
-
-  if (layout === 'focus') {
-    return (
-      <div className="body">
-        <div className="dash layout-focus">
-          <div className="focus-hero">
-            <EstCrosstab />
-            <ActCrosstab />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div className="focus-kpis">
-              {kpis.map((k, i) => (
-                <div key={i} className="kpi">
-                  <div className="kpi-lbl">{k.lbl}</div>
-                  <div className="kpi-val">
-                    {k.val}
-                    <span className="unit">{k.unit}</span>
-                  </div>
-                  <div className={`kpi-delta${k.cls ? ' ' + k.cls : ''}`}>{k.delta}</div>
+            <div className="legend">
+              {deptEst.map((item, i) => (
+                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => openDept(item.full!, item.name)}>
+                  <div className="sw" style={{ background: item.color }} />
+                  <span className="name" title={item.full || item.name}>{item.name}</span>
+                  <span className="val">{item.value}h</span>
                 </div>
               ))}
             </div>
-            <ChartCard
-              title="部門預估工時"
-              sub="本月"
-              data={deptEst}
-              count={`${deptEst.length} 部門`}
-            />
-            <ChartCard
-              title="成員預估工時"
-              sub="本月"
-              data={memberChartData}
-              count={`${memberEst.length} 人`}
-            />
           </div>
         </div>
-      </div>
-    );
-  }
 
-  // grid layout
-  return (
-    <div className="body">
-      <div className="dash layout-grid">
-        {kpis.map((k, i) => (
-          <div key={i} className="kpi">
-            <div className="kpi-lbl">{k.lbl}</div>
-            <div className="kpi-val">
-              {k.val}
-              <span className="unit">{k.unit}</span>
-            </div>
-            <div className={`kpi-delta${k.cls ? ' ' + k.cls : ''}`}>{k.delta}</div>
+        {/* 成員圓餅 */}
+        <div className="panel chart-card pie-card">
+          <div className="panel-h">
+            <span className="panel-h-title">成員預估工時</span>
+            <span className="panel-h-sub">本月</span>
+            <span className="panel-h-spacer" />
+            <span className="tag">{memberEst.length} 人</span>
           </div>
-        ))}
-        <ChartCard
-          title="部門預估工時"
-          sub="本月"
-          data={deptEst}
-          count={`${deptEst.length} 部門`}
-          className="pie-card"
-        />
-        <ChartCard
-          title="成員預估工時"
-          sub="本月"
-          data={memberChartData}
-          count={`${memberEst.length} 人`}
-          className="pie-card"
-        />
-        <EstCrosstab className="table-card" />
-        <ActCrosstab className="table-card" />
+          <div className="chart-body">
+            <div className="chart-wrap">
+              <CircleChart
+                data={memberChartData} size={180} kind="donut"
+                centerValue={`${totalEst}h`} centerLabel="預估"
+                onSliceClick={i => openMember(memberEst[i].id, memberEst[i].name)}
+              />
+            </div>
+            <div className="legend">
+              {memberEst.map((m, i) => (
+                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => openMember(m.id, m.name)}>
+                  <div className="sw" style={{ background: m.color }} />
+                  <span className="name">{m.name}</span>
+                  <span className="val">{m.value}h</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 預估工時交叉表 */}
+        <div className="panel table-card">
+          <div className="panel-h">
+            <span className="panel-h-title">成員 × 部門 (預估工時)</span>
+            <span className="panel-h-spacer" />
+            <span className="tag">{totalEst}h</span>
+          </div>
+          <Crosstab rows={MEMBERS} cols={xtabCols}
+            getCell={getEstCell} getRowTotal={getEstRowTotal}
+            getColTotal={getEstColTotal} grandTotal={totalEst}
+            onCellClick={(m, col) => setModal({ label: `${m.name} × ${col.name} (預估)`, cards: cards.filter(c => c.owner === m.id && c.dept === col.id) })}
+            onRowClick={m => setModal({ label: `${m.name} 的需求單`, cards: cards.filter(c => c.owner === m.id) })}
+            onColClick={col => openDept(col.id, col.name)}
+          />
+        </div>
+
+        {/* 實際工時交叉表 */}
+        <div className="panel table-card">
+          <div className="panel-h">
+            <span className="panel-h-title">成員 × 部門 (實際工時)</span>
+            <span className="panel-h-spacer" />
+            <span className="tag">{totalActual}h</span>
+          </div>
+          <Crosstab rows={MEMBERS} cols={xtabCols}
+            getCell={getActCell} getRowTotal={getActRowTotal}
+            getColTotal={getActColTotal} grandTotal={totalActual}
+            onCellClick={(m, col) => setModal({ label: `${m.name} × ${col.name} (實際)`, cards: cards.filter(c => c.owner === m.id && c.dept === col.id) })}
+            onRowClick={m => setModal({ label: `${m.name} 的需求單`, cards: cards.filter(c => c.owner === m.id) })}
+            onColClick={col => openDept(col.id, col.name)}
+          />
+        </div>
       </div>
     </div>
   );

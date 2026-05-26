@@ -8,6 +8,7 @@ interface CircleChartProps {
   kind?: 'donut' | 'pie';
   centerLabel?: string;
   centerValue?: string;
+  onSliceClick?: (index: number) => void;
 }
 
 const TAU = Math.PI * 2;
@@ -48,6 +49,7 @@ export default function CircleChart({
   kind = 'donut',
   centerLabel,
   centerValue,
+  onSliceClick,
 }: CircleChartProps) {
   const [hovered, setHovered] = useState<number | null>(null);
 
@@ -110,6 +112,7 @@ export default function CircleChart({
             style={{ transition: 'opacity 0.15s ease', cursor: 'pointer' }}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
+            onClick={() => onSliceClick?.(i)}
           />
         ))}
         {/* Hairline separators */}
