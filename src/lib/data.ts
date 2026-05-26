@@ -60,7 +60,7 @@ export const STATUSES: Status[] = [
   { id: 'belog',     name: 'Belog',   dot: 'var(--hue-c3)' },
   { id: 'todo',      name: '待處理',  dot: 'var(--muted-2)' },
   { id: 'designing', name: '設計中',  dot: 'var(--st-progress)' },
-  { id: 'reviewing', name: '審核中',  dot: 'var(--st-review)' },
+  { id: 'reviewing', name: '驗收',  dot: 'var(--st-review)' },
   { id: 'done',      name: '設計完成', dot: 'var(--st-done)' },
   { id: 'pending',   name: 'Pending', dot: 'var(--st-block)' },
 ];
