@@ -12,19 +12,16 @@ interface KCardProps {
   onOpen: () => void;
 }
 
-// Cards are considered overdue if due date is before 2026-05-20
-function isOverdue(due: string, status: string): boolean {
+function isOverdue(due: string, status: string, cardMonth: string): boolean {
   if (status === 'done') return false;
   if (!due) return false;
-  // due is formatted as MM/DD
-  const parts = due.split('/');
-  if (parts.length !== 2) return false;
-  const month = parseInt(parts[0], 10);
-  const day = parseInt(parts[1], 10);
-  // Compare against 2026-05-20
-  if (month < 5) return true;
-  if (month === 5 && day < 20) return true;
-  return false;
+  const [mm, dd] = due.split('/').map(Number);
+  if (!mm || !dd) return false;
+  const year = Number(cardMonth.split('/')[0]);
+  const dueDate = new Date(year, mm - 1, dd);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return dueDate < today;
 }
 
 export default function KCard({ card, onOpen }: KCardProps) {
@@ -39,7 +36,7 @@ export default function KCard({ card, onOpen }: KCardProps) {
 
   const owner = MEMBER_BY_ID[card.owner];
   const over = card.actual > card.est;
-  const overdue = isOverdue(card.due, card.status);
+  const overdue = isOverdue(card.due, card.status, card.month);
   const deptColor = hue(DEPT_HUE[card.dept] || 1);
 
   return (
@@ -68,14 +65,14 @@ export default function KCard({ card, onOpen }: KCardProps) {
         {DEPT_SHORT[card.dept] || card.dept}
       </div>
       <div className="kcard-meta">
+        <span className={`kcard-due${overdue ? ' overdue' : ''}`}>
+          <Calendar size={12} />
+          {card.due}
+        </span>
         <span className={`kcard-hours${over ? ' over' : ''}`}>
           <Clock size={12} />
           {card.actual}
           <span className="ratio">/{card.est}h</span>
-        </span>
-        <span className={`kcard-due${overdue ? ' overdue' : ''}`}>
-          <Calendar size={12} />
-          {card.due}
         </span>
         {owner && (
           <span
