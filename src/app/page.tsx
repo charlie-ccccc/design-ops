@@ -308,6 +308,7 @@ export default function App() {
               cards={monthCards.filter(c => !filterDept || c.dept === filterDept)}
               totalCapacity={totalCapacity}
               filterDept={filterDept}
+              onOpenCard={card => setOpenCardId(card.id)}
             />
           )}
           {page === 'capacity' && showAdmin && (

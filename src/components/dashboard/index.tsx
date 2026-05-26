@@ -12,6 +12,7 @@ interface DashboardProps {
   cards: Card[];
   totalCapacity: number;
   filterDept: string;
+  onOpenCard?: (card: Card) => void;
   // kept for API compat but unused (layout fixed to grid, chartType fixed to donut)
   layout?: string;
   chartType?: string;
@@ -20,7 +21,7 @@ interface DashboardProps {
 interface ColDef { id: string; name: string; full?: string; }
 interface ModalFilter { label: string; cards: Card[]; }
 
-function CardListModal({ filter, onClose }: { filter: ModalFilter; onClose: () => void }) {
+function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; onClose: () => void; onOpenCard?: (card: Card) => void }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => e.target === e.currentTarget && onClose()}>
@@ -56,7 +57,14 @@ function CardListModal({ filter, onClose }: { filter: ModalFilter; onClose: () =
                 return (
                   <tr key={c.id} style={{ borderBottom: '1px solid var(--divider)' }}>
                     <td style={{ padding: '9px 16px', fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--muted)' }}>{c.id}</td>
-                    <td style={{ padding: '9px 16px', fontWeight: 500 }}>{c.title}</td>
+                    <td style={{ padding: '9px 16px', fontWeight: 500 }}>
+                      {onOpenCard ? (
+                        <span
+                          style={{ cursor: 'pointer', color: 'var(--accent)' }}
+                          onClick={() => { onOpenCard(c); onClose(); }}
+                        >{c.title}</span>
+                      ) : c.title}
+                    </td>
                     <td style={{ padding: '9px 12px' }}>
                       <span className="dept-pill" style={{ fontSize: 11 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
                     </td>
@@ -80,7 +88,7 @@ function CardListModal({ filter, onClose }: { filter: ModalFilter; onClose: () =
   );
 }
 
-export default function Dashboard({ cards, totalCapacity }: DashboardProps) {
+export default function Dashboard({ cards, totalCapacity, onOpenCard }: DashboardProps) {
   const [modal, setModal] = useState<ModalFilter | null>(null);
 
   const byDept = groupBy(cards, 'dept');
@@ -122,7 +130,7 @@ export default function Dashboard({ cards, totalCapacity }: DashboardProps) {
 
   return (
     <div className="body">
-      {modal && <CardListModal filter={modal} onClose={() => setModal(null)} />}
+      {modal && <CardListModal filter={modal} onClose={() => setModal(null)} onOpenCard={onOpenCard} />}
 
       <div className="dash layout-grid">
         {/* KPI 卡 */}
