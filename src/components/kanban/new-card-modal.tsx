@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Cat, Priority, CardStatus } from '@/lib/types';
-import { DEPTS } from '@/lib/data';
+import { DEPTS, MEMBERS, SITE_USERS } from '@/lib/data';
 
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
 
@@ -25,9 +25,11 @@ const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資�
 export interface NewCardData {
   title: string;
   dept: string;
+  requester: string;
   cat: Cat;
   prio: Priority;
   due: string;
+  owner: string;
   desc: string;
   status: CardStatus;
 }
@@ -42,20 +44,20 @@ interface NewCardModalProps {
 const DEFAULT_FORM = {
   title: '',
   dept: '' as string,
+  requester: SITE_USERS[0].id,
   cat: '' as Cat | '',
   prio: '' as Priority | '',
   due: '',
+  owner: '',
   desc: DESC_TEMPLATE,
 };
 
-// MM/DD → YYYY-MM-DD for date input value
 function toDateInputVal(mmdd: string): string {
   if (!mmdd) return '';
   const year = new Date().getFullYear();
   return `${year}-${mmdd.replace('/', '-')}`;
 }
 
-// YYYY-MM-DD → MM/DD for storage
 function fromDateInput(val: string): string {
   if (!val) return '';
   return val.slice(5).replace('-', '/');
@@ -107,7 +109,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
             </div>
 
             <div className="form-grid">
-              {/* 需求發起單位 */}
+              {/* Row 1: 需求發起單位 | 委託人 */}
               <div className="form-row">
                 <label>需求發起單位 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.dept} onChange={e => set('dept', e.target.value)}>
@@ -116,7 +118,15 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
                 </select>
               </div>
 
-              {/* 截止日 */}
+              <div className="form-row">
+                <label>委託人</label>
+                <select className="input" style={{ width: '100%' }} value={form.requester} onChange={e => set('requester', e.target.value)}>
+                  <option value="">未指定</option>
+                  {SITE_USERS.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                </select>
+              </div>
+
+              {/* Row 2: 截止日 | 優先級 */}
               <div className="form-row">
                 <label>截止日 *</label>
                 <input
@@ -128,17 +138,6 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
                 />
               </div>
 
-              {/* 需求執行單位 */}
-              <div className="form-row">
-                <label>需求執行單位 *</label>
-                <select className="input" style={{ width: '100%' }} value={form.cat} onChange={e => set('cat', e.target.value as Cat)}>
-                  <option value="">請選擇</option>
-                  <option value="UIUX">UIUX</option>
-                  <option value="平面視覺">平面視覺</option>
-                </select>
-              </div>
-
-              {/* 優先級 */}
               <div className="form-row">
                 <label>優先級 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.prio} onChange={e => set('prio', e.target.value as Priority)}>
@@ -146,6 +145,24 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
                   <option value="high">高</option>
                   <option value="normal">中</option>
                   <option value="low">低</option>
+                </select>
+              </div>
+
+              {/* Row 3: 類別 | 受託人 */}
+              <div className="form-row">
+                <label>類別 *</label>
+                <select className="input" style={{ width: '100%' }} value={form.cat} onChange={e => set('cat', e.target.value as Cat)}>
+                  <option value="">請選擇</option>
+                  <option value="UIUX">UIUX</option>
+                  <option value="平面視覺">平面視覺</option>
+                </select>
+              </div>
+
+              <div className="form-row">
+                <label>受託人</label>
+                <select className="input" style={{ width: '100%' }} value={form.owner} onChange={e => set('owner', e.target.value)}>
+                  <option value="">未指定</option>
+                  {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
               </div>
             </div>

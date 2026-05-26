@@ -62,7 +62,7 @@ export default function Permissions() {
   }
 
   return (
-    <div style={{ padding: '18px 22px', maxWidth: 800 }}>
+    <div style={{ padding: '18px 22px' }}>
       <div className="panel">
 
         {/* ── Tab bar in panel header ── */}

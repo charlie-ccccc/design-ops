@@ -223,7 +223,7 @@ export default function Admin({
   ];
 
   return (
-    <div style={{ padding: '18px 22px', maxWidth: 1000 }}>
+    <div style={{ padding: '18px 22px' }}>
       <div className="panel">
 
         {/* ── Tab bar ── */}

@@ -122,7 +122,6 @@ export default function App() {
       ...data,
       id: formatId(maxN + 1),
       month: '2026/05',
-      owner: '',
       est: 0,
       actual: 0,
       attach: 0,
