@@ -163,10 +163,10 @@ export default function App() {
       {/* ── Sidebar ── */}
       <aside className="sidebar">
         <div className="sb-brand">
-          <div className="sb-mark">設</div>
+          <div className="sb-mark">C</div>
           <div>
-            <div className="sb-brand-name">DesignOps</div>
-            <div className="sb-brand-sub">產能管理系統</div>
+            <div className="sb-brand-name">CMoneyDesign</div>
+            <div className="sb-brand-sub">設計部工作看板</div>
           </div>
         </div>
 
