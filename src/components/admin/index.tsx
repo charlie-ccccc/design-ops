@@ -246,14 +246,6 @@ export default function Admin({
 
           <span style={{ flex: 1 }} />
 
-          {/* Sub-filter only visible on 設計量能 tab */}
-          {tab === 'capacity' && (
-            <div className="layout-pick" style={{ marginRight: 16 }}>
-              {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面']] as [CatFilter, string][]).map(([v, lbl]) => (
-                <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
-              ))}
-            </div>
-          )}
           {tab === 'members' && (
             <span style={{ fontSize: 11.5, color: 'var(--muted)', marginRight: 16 }}>
               工作天 × 8 × 工時比例 − 請假
@@ -269,40 +261,49 @@ export default function Admin({
 
         {/* ── 設計量能 ── */}
         {tab === 'capacity' && (
-          <div style={{ padding: '20px 24px', display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-            {/* Left: gauge */}
-            <div style={{ minWidth: 200, flex: '0 0 200px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ font: `600 48px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
-                  {filteredPct}%
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 5 }}>{catLabel}量能使用率</div>
-              </div>
-              <div style={{ height: 8, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden' }}>
-                <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {[
-                  { l: '可用工時', v: `${filteredMonthHours}h` },
-                  { l: '本月承接', v: `${filteredLoad}h` },
-                  { l: '請假工時', v: `${filteredLeave}h` },
-                ].map((t, i) => (
-                  <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.l}</div>
-                    <div style={{ font: `600 14px/1 var(--font-mono), monospace`, color: 'var(--ink)' }}>{t.v}</div>
-                  </div>
-                ))}
-              </div>
+          <div style={{ padding: '20px 24px 28px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+            {/* Filter */}
+            <div className="layout-pick">
+              {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面視覺']] as [CatFilter, string][]).map(([v, lbl]) => (
+                <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
+              ))}
             </div>
 
-            {/* Right: dept bars */}
-            <div style={{ flex: 1, minWidth: 200 }}>
+            {/* Gauge + stats row */}
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Big percentage */}
+              <div style={{ textAlign: 'center', minWidth: 140 }}>
+                <div style={{ font: `600 56px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
+                  {filteredPct}%
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>{catLabel}量能使用率</div>
+                <div style={{ height: 6, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden', marginTop: 10 }}>
+                  <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
+
+              {/* 3 stat cards in a row */}
+              {[
+                { l: '可用工時', v: `${filteredMonthHours}h` },
+                { l: '本月承接', v: `${filteredLoad}h` },
+                { l: '請假工時', v: `${filteredLeave}h` },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, minWidth: 100, background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '16px 20px' }}>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
+                  <div style={{ font: `600 24px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 8 }}>{s.v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Dept bars */}
+            <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
                 承接分佈
                 <span className="tag" style={{ fontSize: 10, marginLeft: 8 }}>{deptLoads.length} 部門</span>
               </div>
               {deptLoads.length === 0 ? (
-                <div style={{ fontSize: 12, color: 'var(--muted-2)', padding: '8px 0' }}>無資料</div>
+                <div style={{ fontSize: 12, color: 'var(--muted-2)' }}>無資料</div>
               ) : deptLoads.map(([dept, load]) => {
                 const pct = (load / maxDeptLoad) * 100;
                 const color = hue(DEPT_HUE[dept] || 1);
