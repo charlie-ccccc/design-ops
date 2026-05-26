@@ -4,8 +4,8 @@ import { Plus, X } from 'lucide-react';
 import type { Cat } from '@/lib/types';
 import { DEPTS } from '@/lib/data';
 
-type Role = '一般' | '成員' | 'Admin';
-const ALL_ROLES: Role[] = ['一般', '成員', 'Admin'];
+type Role = 'Admin' | '成員' | '一般';
+const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
 
 interface SiteUser {
   id: string;
@@ -25,9 +25,9 @@ const SEED_USERS: SiteUser[] = [
 ];
 
 const ROLE_DESC: Record<Role, string> = {
-  一般:  '開單、看單子、修改自己的單、留言',
-  成員:  '移動單子、修改所有內容、記錄工時、留言',
   Admin: '成員功能 + 調整權限、封存、量能管理',
+  成員:  '移動單子、修改所有內容、記錄工時、留言',
+  一般:  '開單、看單子、修改自己的單、留言',
 };
 
 export default function Permissions() {
