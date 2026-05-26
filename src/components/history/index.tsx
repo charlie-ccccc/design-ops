@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import type { HistoryMonth, Card, Cat } from '@/lib/types';
-import { DEPT_SHORT, MEMBER_BY_ID, STATUSES } from '@/lib/data';
+import { DEPT_SHORT, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES } from '@/lib/data';
 import { sum, groupBy } from '@/lib/utils';
 
 interface CurrentSnapshot {
@@ -103,6 +103,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
               <th>ID</th>
               <th style={{ textAlign: 'left', minWidth: 200 }}>標題</th>
               <th style={{ textAlign: 'left' }}>需求發起單位</th>
+              <th style={{ textAlign: 'left' }}>委託人</th>
               <th style={{ textAlign: 'left' }}>類別</th>
               <th style={{ textAlign: 'left' }}>受託人</th>
               <th>原估(h)</th>
@@ -113,6 +114,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
           <tbody>
             {cards.map(card => {
               const member = MEMBER_BY_ID[card.owner];
+              const requester = card.requester ? SITE_USER_BY_ID[card.requester] : undefined;
               const status = STATUSES.find(s => s.id === card.status);
               const isOver = card.actual > card.est;
               return (
@@ -139,6 +141,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
                       {DEPT_SHORT[card.dept] || card.dept}
                     </span>
                   </td>
+                  <td style={{ textAlign: 'left' }}>{requester?.name ?? '—'}</td>
                   <td style={{ textAlign: 'left' }}>
                     <span className="kcard-cat" data-cat={card.cat}>{card.cat}</span>
                   </td>
@@ -158,7 +161,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
             })}
             {cards.length === 0 && (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0' }}>
+                <td colSpan={9} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0' }}>
                   無符合條件的卡片
                 </td>
               </tr>

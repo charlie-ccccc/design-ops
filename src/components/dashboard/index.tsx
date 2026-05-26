@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import type { Card, Member } from '@/lib/types';
-import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, STATUSES } from '@/lib/data';
+import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES } from '@/lib/data';
 import { sum, groupBy, hue } from '@/lib/utils';
 import CircleChart from '@/components/charts/circle-chart';
 import BarsChart from '@/components/charts/bars-chart';
@@ -41,6 +41,7 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                 <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID</th>
                 <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', minWidth: 180 }}>標題</th>
                 <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>發起單位</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>委託人</th>
                 <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>受託人</th>
                 <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>預估(h)</th>
                 <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>實際(h)</th>
@@ -49,9 +50,10 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
             </thead>
             <tbody>
               {filter.cards.length === 0 ? (
-                <tr><td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>無資料</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>無資料</td></tr>
               ) : filter.cards.map(c => {
                 const member = MEMBER_BY_ID[c.owner];
+                const requester = c.requester ? SITE_USER_BY_ID[c.requester] : undefined;
                 const status = STATUSES.find(s => s.id === c.status);
                 const isOver = c.actual > c.est;
                 return (
@@ -68,6 +70,7 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                     <td style={{ padding: '9px 12px' }}>
                       <span className="dept-pill" style={{ fontSize: 11 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
                     </td>
+                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{requester?.name ?? '—'}</td>
                     <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>

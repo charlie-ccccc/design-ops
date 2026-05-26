@@ -56,6 +56,8 @@ export const SITE_USERS: SiteUser[] = [
   { id: 'su8',  name: '李宜蓉', initial: '蓉', hue: 5, dept: '合作夥伴事業群-法人事業' },
 ];
 
+export const SITE_USER_BY_ID: Record<string, SiteUser> = Object.fromEntries(SITE_USERS.map(u => [u.id, u]));
+
 export const STATUSES: Status[] = [
   { id: 'belog',     name: 'Belog',   dot: 'var(--hue-c3)' },
   { id: 'todo',      name: '待處理',  dot: 'var(--muted-2)' },
