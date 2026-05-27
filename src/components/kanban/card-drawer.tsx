@@ -213,7 +213,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
         {c && (
           <>
             <div className="drawer-h" style={{ alignItems: 'center' }}>
-              <div className="drawer-h-id">{c.id} · {c.month}</div>
+              <div className="drawer-h-id">{c.id}</div>
               <span style={{ flex: 1 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CopyLinkButton cardId={c.id} />
