@@ -179,7 +179,7 @@ export default function KanbanBoard({
         })}
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeCard ? (
           <div style={{ opacity: 0.85, transform: 'rotate(1.5deg)' }}>
             <KCard card={activeCard} onOpen={() => {}} />
