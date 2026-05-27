@@ -1,28 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
-import type { Cat } from '@/lib/types';
+import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 import { DEPTS } from '@/lib/data';
 
-type Role = 'Admin' | '成員' | '一般';
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
-
-interface SiteUser {
-  id: string;
-  name: string;
-  email: string;
-  roles: Role[];
-  cat?: Cat; // 設計類別，只有具備「成員」角色時有意義
-}
-
-const SEED_USERS: SiteUser[] = [
-  { id: '1', name: '吳奕蓁', email: 'mia@cmoney.com.tw',     roles: ['成員', 'Admin'], cat: 'UIUX' },
-  { id: '2', name: '王映蓉', email: 'annie@cmoney.com.tw',   roles: ['成員'],          cat: 'UIUX' },
-  { id: '3', name: '楊舒娟', email: 'shujuan@cmoney.com.tw', roles: ['成員'],          cat: '平面視覺' },
-  { id: '4', name: '寶萱',   email: 'baoxuan@cmoney.com.tw', roles: ['成員'],          cat: '平面視覺' },
-  { id: '5', name: '陳巧玲', email: 'charlie@cmoney.com.tw', roles: ['成員', 'Admin'], cat: 'UIUX' },
-  { id: '6', name: '熊禹晴', email: 'sunny@cmoney.com.tw',   roles: ['成員'],          cat: '平面視覺' },
-];
 
 const ROLE_DESC: Record<Role, string> = {
   Admin: '成員功能 + 調整權限、封存、量能管理',
@@ -30,11 +12,23 @@ const ROLE_DESC: Record<Role, string> = {
   一般:  '開單、看單子、修改自己的單、留言',
 };
 
-export default function Permissions() {
+interface PermissionsProps {
+  users: AppUser[];
+  currentUser: AppUser;
+  onUpdateUser: (uid: string, patch: Partial<AppUser>) => void;
+}
+
+export default function Permissions({ users, currentUser, onUpdateUser }: PermissionsProps) {
   const [tab, setTab] = useState<'users' | 'depts'>('users');
   const [depts, setDepts] = useState<string[]>(DEPTS);
   const [newDept, setNewDept] = useState('');
-  const [users, setUsers] = useState<SiteUser[]>(SEED_USERS);
+
+  const isAdmin = currentUser.roles.includes('Admin');
+
+  const sorted = [...users].sort((a, b) => {
+    const rank = (u: AppUser) => u.roles.includes('Admin') ? 0 : u.roles.includes('成員') ? 1 : 2;
+    return rank(a) - rank(b);
+  });
 
   function addDept() {
     const d = newDept.trim();
@@ -47,25 +41,27 @@ export default function Permissions() {
     setDepts(prev => prev.filter(x => x !== d));
   }
 
-  function toggleRole(id: string, role: Role) {
-    setUsers(prev => prev.map(u => {
-      if (u.id !== id) return u;
-      const has = u.roles.includes(role);
-      const next = has ? u.roles.filter(r => r !== role) : [...u.roles, role];
-      // clear cat if 成員 was removed
-      return { ...u, roles: next, cat: next.includes('成員') ? u.cat : undefined };
-    }));
+  function toggleRole(uid: string, role: Role) {
+    if (!isAdmin) return;
+    const u = users.find(x => x.uid === uid);
+    if (!u) return;
+    const has = u.roles.includes(role);
+    const next: Role[] = has ? u.roles.filter(r => r !== role) : [...u.roles, role];
+    onUpdateUser(uid, {
+      roles: next,
+      cat: next.includes('成員') ? u.cat : undefined,
+    });
   }
 
-  function setUserCat(id: string, cat: Cat) {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, cat } : u));
+  function setUserCat(uid: string, cat: DesignCat) {
+    if (!isAdmin) return;
+    onUpdateUser(uid, { cat });
   }
 
   return (
     <div style={{ padding: '18px 22px' }}>
       <div className="panel">
 
-        {/* ── Tab bar in panel header ── */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--divider)' }}>
           {(['users', 'depts'] as const).map((t, i) => (
             <button
@@ -85,7 +81,6 @@ export default function Permissions() {
           ))}
         </div>
 
-        {/* ── 使用者權限管理 ── */}
         {tab === 'users' && (
           <>
             <div style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
@@ -98,6 +93,7 @@ export default function Permissions() {
             </div>
             <div style={{ padding: '4px 16px 8px', fontSize: 11.5, color: 'var(--muted)' }}>
               僅 @cmoney.com.tw 帳號可透過 Google 登入
+              {!isAdmin && <span style={{ marginLeft: 8, color: 'var(--st-block)' }}>（需 Admin 權限才能修改角色）</span>}
             </div>
             <table className="cap-table">
               <thead>
@@ -109,23 +105,33 @@ export default function Permissions() {
                 </tr>
               </thead>
               <tbody>
-                {users.map(u => (
-                  <tr key={u.id}>
-                    <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>{u.name}</td>
+                {sorted.map(u => (
+                  <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, transparent)' : undefined }}>
+                    <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>
+                      {u.name}
+                      {u.uid === currentUser.uid && <span style={{ fontSize: 10, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
+                    </td>
                     <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
                     <td style={{ textAlign: 'left' }}>
                       <div style={{ display: 'flex', gap: 4 }}>
                         {ALL_ROLES.map(role => {
                           const active = u.roles.includes(role);
                           return (
-                            <button key={role} onClick={() => toggleRole(u.id, role)} style={{
-                              appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                              borderRadius: 6, padding: '3px 10px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                              background: active ? 'var(--accent-soft)' : 'none',
-                              color: active ? 'var(--accent)' : 'var(--muted)',
-                              fontWeight: active ? 600 : 400,
-                              transition: 'all 0.15s',
-                            }}>
+                            <button
+                              key={role}
+                              onClick={() => toggleRole(u.uid, role)}
+                              disabled={!isAdmin}
+                              style={{
+                                appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                                borderRadius: 6, padding: '3px 10px', fontSize: 12,
+                                cursor: isAdmin ? 'pointer' : 'default', fontFamily: 'inherit',
+                                background: active ? 'var(--accent-soft)' : 'none',
+                                color: active ? 'var(--accent)' : 'var(--muted)',
+                                fontWeight: active ? 600 : 400,
+                                transition: 'all 0.15s',
+                                opacity: !isAdmin ? 0.7 : 1,
+                              }}
+                            >
                               {role}
                             </button>
                           );
@@ -134,9 +140,13 @@ export default function Permissions() {
                     </td>
                     <td style={{ textAlign: 'left' }}>
                       {u.roles.includes('成員') ? (
-                        <select className="input" style={{ fontSize: 12 }}
+                        <select
+                          className="input"
+                          style={{ fontSize: 12 }}
                           value={u.cat ?? ''}
-                          onChange={e => setUserCat(u.id, e.target.value as Cat)}>
+                          disabled={!isAdmin}
+                          onChange={e => setUserCat(u.uid, e.target.value as DesignCat)}
+                        >
                           <option value="">請選擇</option>
                           <option value="UIUX">UIUX</option>
                           <option value="平面視覺">平面視覺</option>
@@ -149,10 +159,14 @@ export default function Permissions() {
                 ))}
               </tbody>
             </table>
+            {users.length === 0 && (
+              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+                尚無用戶資料
+              </div>
+            )}
           </>
         )}
 
-        {/* ── 需求單位管理 ── */}
         {tab === 'depts' && (
           <>
             <div style={{ padding: '8px 16px 4px', fontSize: 11.5, color: 'var(--muted)' }}>

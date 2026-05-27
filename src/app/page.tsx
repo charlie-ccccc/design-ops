@@ -1,17 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
   Search, Bell, Settings, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus } from '@/lib/types';
 import {
   MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
 } from '@/lib/data';
 import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
+import { useFirestoreCards } from '@/hooks/use-firestore-cards';
+import { useFirestoreUsers } from '@/hooks/use-firestore-users';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
@@ -21,6 +25,7 @@ import History from '@/components/history/index';
 import Permissions from '@/components/permissions/index';
 import LoginPage from '@/components/auth/login-page';
 import { useAuth } from '@/contexts/auth-context';
+import type { AppUser } from '@/contexts/auth-context';
 
 const ACCENT_PRESETS = {
   violet: { hex: '#6B5BD9', light: 'oklch(0.52 0.14 282)', soft: 'oklch(0.94 0.03 282)', dark: 'oklch(0.74 0.14 282)', darkSoft: 'oklch(0.28 0.05 282)' },
@@ -33,9 +38,10 @@ type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
   const { user, loading, signOutUser } = useAuth();
+  const { cards, initialized, addCard, updateCard, seedCards } = useFirestoreCards();
+  const siteUsers = useFirestoreUsers();
   const [page, setPage] = useState<Page>('kanban');
   const [month, setMonth] = useState('2026/05');
-  const [cards, setCards] = useState<Card[]>(CURRENT_CARDS);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
   const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
@@ -68,6 +74,14 @@ export default function App() {
     r.setProperty('--accent', dark ? p.dark : p.light);
     r.setProperty('--accent-soft', dark ? p.darkSoft : p.soft);
   }, [accent, dark]);
+
+  // Seed Firestore with demo cards on first load if collection is empty
+  useEffect(() => {
+    if (initialized && cards.length === 0) {
+      seedCards(CURRENT_CARDS).catch(console.error);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized]);
 
   useEffect(() => {
     const year = month.split('/')[0];
@@ -113,14 +127,19 @@ export default function App() {
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
-  const onMove = (cardId: string, newStatus: string) => {
-    setCards(cs => cs.map(c => c.id === cardId ? { ...c, status: newStatus as Card['status'] } : c));
-  };
-  const onUpdate = (cardId: string, patch: Partial<Card>) => {
-    setCards(cs => cs.map(c => c.id === cardId ? { ...c, ...patch } : c));
-  };
-  const onCreate = (data: import('@/components/kanban/new-card-modal').NewCardData) => {
-    const maxN = cards.reduce((m, c) => Math.max(m, Number(c.id.split('-')[1])), 0);
+  const onMove = useCallback((cardId: string, newStatus: string) => {
+    updateCard(cardId, { status: newStatus as Card['status'] }).catch(console.error);
+  }, [updateCard]);
+
+  const onUpdate = useCallback((cardId: string, patch: Partial<Card>) => {
+    updateCard(cardId, patch).catch(console.error);
+  }, [updateCard]);
+
+  const onCreate = useCallback((data: import('@/components/kanban/new-card-modal').NewCardData) => {
+    const maxN = cards.reduce((m, c) => {
+      const n = Number(c.id.split('-')[1]);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
     const nc: Card = {
       ...data,
       id: formatId(maxN + 1),
@@ -130,8 +149,12 @@ export default function App() {
       attach: 0,
       activity: [],
     };
-    setCards(cs => [nc, ...cs]);
-  };
+    addCard(nc).catch(console.error);
+  }, [cards, addCard]);
+
+  const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
+    await updateDoc(doc(db, 'users', uid), patch as Record<string, unknown>);
+  }, []);
 
   const currentSnapshot = useMemo(() => {
     const currentMonthCards = cards.filter(c => dueMonthOf(c) === CURRENT_MONTH);
@@ -161,7 +184,7 @@ export default function App() {
     { id: 'permissions' as Page,  name: '權限管理', icon: <Shield size={15} /> },
   ];
 
-  if (loading) return (
+  if (loading || (user && !initialized)) return (
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--surface-2)' }}>
       <div style={{ fontSize: 13, color: 'var(--muted)' }}>載入中…</div>
     </div>
@@ -349,7 +372,7 @@ export default function App() {
             />
           )}
           {page === 'permissions' && showAdmin && (
-            <Permissions />
+            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} />
           )}
         </div>
       </main>
@@ -361,6 +384,8 @@ export default function App() {
         onClose={() => setNewCardOpen(false)}
         onCreate={onCreate}
         defaultStatus={newCardDefaultStatus}
+        currentUser={user}
+        siteUsers={siteUsers}
       />
 
     </div>

@@ -5,6 +5,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 
 export type Role = 'Admin' | '成員' | '一般';
+export type DesignCat = 'UIUX' | '平面視覺';
 
 export interface AppUser {
   uid: string;
@@ -12,7 +13,10 @@ export interface AppUser {
   name: string;
   photo?: string;
   roles: Role[];
-  cat?: string;
+  cat?: DesignCat;
+  dept?: string;
+  initial?: string;
+  hue?: number;
 }
 
 interface AuthContextValue {
@@ -36,12 +40,16 @@ async function getOrCreateUser(firebaseUser: User): Promise<AppUser> {
   }
 
   // First time login — create with default role
+  const displayName = firebaseUser.displayName ?? firebaseUser.email!;
+  const hue = (firebaseUser.uid.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 8) + 1;
   const newUser: AppUser = {
     uid: firebaseUser.uid,
     email: firebaseUser.email!,
-    name: firebaseUser.displayName ?? firebaseUser.email!,
+    name: displayName,
     photo: firebaseUser.photoURL ?? undefined,
     roles: ['一般'],
+    initial: displayName[0].toUpperCase(),
+    hue,
   };
   await setDoc(ref, newUser);
   return newUser;

@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Cat, Priority, CardStatus } from '@/lib/types';
-import { DEPTS, MEMBERS, SITE_USERS } from '@/lib/data';
+import type { AppUser } from '@/contexts/auth-context';
+import { DEPTS, MEMBERS } from '@/lib/data';
 
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
 
@@ -26,6 +27,7 @@ export interface NewCardData {
   title: string;
   dept: string;
   requester: string;
+  requesterName: string;
   cat: Cat;
   prio: Priority;
   due: string;
@@ -39,18 +41,21 @@ interface NewCardModalProps {
   onClose: () => void;
   onCreate: (data: NewCardData) => void;
   defaultStatus: CardStatus;
+  currentUser: AppUser;
+  siteUsers: AppUser[];
 }
 
-const DEFAULT_FORM = {
+const makeDefaultForm = (currentUser: AppUser) => ({
   title: '',
   dept: '' as string,
-  requester: SITE_USERS[0].id,
+  requester: currentUser.uid,
+  requesterName: currentUser.name,
   cat: '' as Cat | '',
   prio: '' as Priority | '',
   due: '',
   owner: '',
   desc: DESC_TEMPLATE,
-};
+});
 
 function toDateInputVal(mmdd: string): string {
   if (!mmdd) return '';
@@ -63,21 +68,21 @@ function fromDateInput(val: string): string {
   return val.slice(5).replace('-', '/');
 }
 
-export default function NewCardModal({ open, onClose, onCreate, defaultStatus }: NewCardModalProps) {
-  const [form, setForm] = useState(DEFAULT_FORM);
+export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers }: NewCardModalProps) {
+  const [form, setForm] = useState(() => makeDefaultForm(currentUser));
 
   useEffect(() => {
-    if (open) setForm(DEFAULT_FORM);
-  }, [open]);
+    if (open) setForm(makeDefaultForm(currentUser));
+  }, [open, currentUser]);
 
-  function set<K extends keyof typeof DEFAULT_FORM>(key: K, val: (typeof DEFAULT_FORM)[K]) {
+  function set<K extends keyof ReturnType<typeof makeDefaultForm>>(key: K, val: ReturnType<typeof makeDefaultForm>[K]) {
     setForm(f => ({ ...f, [key]: val }));
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim() || !form.dept || !form.cat || !form.prio) return;
-    onCreate({ ...form, cat: form.cat as Cat, prio: form.prio as Priority, status: defaultStatus });
+    onCreate({ ...form, cat: form.cat as Cat, prio: form.prio as Priority, requesterName: form.requesterName, status: defaultStatus });
     onClose();
   }
 
@@ -120,9 +125,19 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus }:
 
               <div className="form-row">
                 <label>委託人</label>
-                <select className="input" style={{ width: '100%' }} value={form.requester} onChange={e => set('requester', e.target.value)}>
+                <select
+                  className="input"
+                  style={{ width: '100%' }}
+                  value={form.requester}
+                  onChange={e => {
+                    const uid = e.target.value;
+                    const u = siteUsers.find(x => x.uid === uid);
+                    set('requester', uid);
+                    set('requesterName', u?.name ?? '');
+                  }}
+                >
                   <option value="">未指定</option>
-                  {SITE_USERS.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                  {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
                 </select>
               </div>
 

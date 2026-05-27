@@ -34,6 +34,7 @@ export interface Card {
   est: number;
   actual: number;
   requester?: string;
+  requesterName?: string;
   timeLogs?: TimeLog[];
   comments?: Comment[];
   status: CardStatus;

@@ -114,7 +114,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
           <tbody>
             {cards.map(card => {
               const member = MEMBER_BY_ID[card.owner];
-              const requester = card.requester ? SITE_USER_BY_ID[card.requester] : undefined;
+              const requesterName = card.requesterName ?? (card.requester ? SITE_USER_BY_ID[card.requester]?.name : undefined);
               const status = STATUSES.find(s => s.id === card.status);
               const isOver = card.actual > card.est;
               return (
@@ -141,7 +141,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
                       {DEPT_SHORT[card.dept] || card.dept}
                     </span>
                   </td>
-                  <td style={{ textAlign: 'left' }}>{requester?.name ?? '—'}</td>
+                  <td style={{ textAlign: 'left' }}>{requesterName ?? '—'}</td>
                   <td style={{ textAlign: 'left' }}>
                     <span className="kcard-cat" data-cat={card.cat}>{card.cat}</span>
                   </td>

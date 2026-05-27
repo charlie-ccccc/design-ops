@@ -53,7 +53,7 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                 <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>無資料</td></tr>
               ) : filter.cards.map(c => {
                 const member = MEMBER_BY_ID[c.owner];
-                const requester = c.requester ? SITE_USER_BY_ID[c.requester] : undefined;
+                const requesterName = c.requesterName ?? (c.requester ? SITE_USER_BY_ID[c.requester]?.name : undefined);
                 const status = STATUSES.find(s => s.id === c.status);
                 const isOver = c.actual > c.est;
                 return (
@@ -70,7 +70,7 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                     <td style={{ padding: '9px 12px' }}>
                       <span className="dept-pill" style={{ fontSize: 11 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
                     </td>
-                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{requester?.name ?? '—'}</td>
+                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{requesterName ?? '—'}</td>
                     <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>
