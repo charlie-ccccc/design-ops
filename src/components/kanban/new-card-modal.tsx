@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import type { Cat, Priority, CardStatus } from '@/lib/types';
+import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
-import { DEPTS, MEMBERS } from '@/lib/data';
+import { DEPTS } from '@/lib/data';
 
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
 
@@ -43,6 +43,7 @@ interface NewCardModalProps {
   defaultStatus: CardStatus;
   currentUser: AppUser;
   siteUsers: AppUser[];
+  members: Member[];
 }
 
 const makeDefaultForm = (currentUser: AppUser) => ({
@@ -68,7 +69,7 @@ function fromDateInput(val: string): string {
   return val.slice(5).replace('-', '/');
 }
 
-export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers }: NewCardModalProps) {
+export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members }: NewCardModalProps) {
   const [form, setForm] = useState(() => makeDefaultForm(currentUser));
 
   useEffect(() => {
@@ -177,7 +178,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
                 <label>受託人</label>
                 <select className="input" style={{ width: '100%' }} value={form.owner} onChange={e => set('owner', e.target.value)}>
                   <option value="">未指定</option>
-                  {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
               </div>
             </div>

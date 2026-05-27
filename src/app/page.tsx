@@ -367,7 +367,7 @@ export default function App() {
               onMove={onMove}
               onOpen={id => setOpenCardId(id)}
               onAddCard={status => { setNewCardDefaultStatus(status as CardStatus); setNewCardOpen(true); }}
-              canEdit={isMember}
+              canEdit={isMember || showAdmin}
             />
           )}
           {page === 'dashboard' && (
@@ -407,7 +407,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} canEdit={isMember} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} canEdit={isMember || showAdmin} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
       <NewCardModal
         open={newCardOpen}
@@ -416,6 +416,7 @@ export default function App() {
         defaultStatus={newCardDefaultStatus}
         currentUser={user}
         siteUsers={siteUsers}
+        members={members}
       />
 
     </div>
