@@ -11,6 +11,8 @@ interface CircleChartProps {
   onSliceClick?: (index: number) => void;
 }
 
+interface TooltipPos { x: number; y: number; }
+
 const TAU = Math.PI * 2;
 
 function polar(cx: number, cy: number, r: number, a: number): [number, number] {
@@ -52,6 +54,7 @@ export default function CircleChart({
   onSliceClick,
 }: CircleChartProps) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const [tipPos, setTipPos] = useState<TooltipPos>({ x: 0, y: 0 });
 
   const total = data.reduce((s, d) => s + d.value, 0);
   if (total === 0 || data.length === 0) {
@@ -88,9 +91,35 @@ export default function CircleChart({
     return { x, y };
   });
 
+  const hoveredItem = hovered !== null ? data[hovered] : null;
+
   return (
     <div style={{ position: 'relative', width: size, height: size, display: 'inline-block' }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {hoveredItem && (
+        <div style={{
+          position: 'fixed',
+          left: tipPos.x + 14,
+          top: tipPos.y - 10,
+          pointerEvents: 'none',
+          zIndex: 9999,
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          padding: '6px 10px',
+          boxShadow: '0 4px 16px rgba(0,0,0,.12)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: hoveredItem.color, flexShrink: 0, display: 'inline-block' }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>{hoveredItem.name}</span>
+          <span style={{ fontSize: 13, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>{hoveredItem.value}h</span>
+          <span style={{ fontSize: 12, color: 'var(--muted-2)' }}>{Math.round(hoveredItem.value / total * 100)}%</span>
+        </div>
+      )}
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}
+        onMouseMove={e => setTipPos({ x: e.clientX, y: e.clientY })}>
         {/* Background ring for donut */}
         {kind === 'donut' && (
           <circle
