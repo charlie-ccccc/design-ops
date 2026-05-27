@@ -58,6 +58,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [density, setDensity] = useState<'compact' | 'comfy'>('comfy');
   const showAdmin = user?.roles.includes('Admin') ?? false;
+  const isMember = (user?.roles.includes('成員') || user?.roles.includes('Admin')) ?? false;
   const [accent, setAccent] = useState<keyof typeof ACCENT_PRESETS>('violet');
 
   useEffect(() => {
@@ -343,6 +344,7 @@ export default function App() {
               onMove={onMove}
               onOpen={id => setOpenCardId(id)}
               onAddCard={status => { setNewCardDefaultStatus(status as CardStatus); setNewCardOpen(true); }}
+              canEdit={isMember}
             />
           )}
           {page === 'dashboard' && (
@@ -381,7 +383,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} readOnly={!isMember} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
       <NewCardModal
         open={newCardOpen}

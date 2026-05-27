@@ -29,6 +29,7 @@ interface KanbanBoardProps {
   query: string;
   filterMember: string;
   filterDept: string;
+  canEdit: boolean;
 }
 
 export default function KanbanBoard({
@@ -39,14 +40,17 @@ export default function KanbanBoard({
   query,
   filterMember,
   filterDept,
+  canEdit,
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
 
-  const sensors = useSensors(
+  const allSensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
   );
+  const noSensors = useSensors();
+  const sensors = canEdit ? allSensors : noSensors;
 
   // Filter cards
   const filtered = cards.filter((c) => {
@@ -135,13 +139,15 @@ export default function KanbanBoard({
                 <span className="kcol-name">{status.name}</span>
                 <span className="kcol-count">{colCards.length}</span>
                 <div className="kcol-tools">
-                  <button
-                    className="kcol-tool"
-                    onClick={() => onAddCard(status.id)}
-                    title="新增需求單"
-                  >
-                    <Plus size={14} />
-                  </button>
+                  {canEdit && (
+                    <button
+                      className="kcol-tool"
+                      onClick={() => onAddCard(status.id)}
+                      title="新增需求單"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  )}
                   <button className="kcol-tool" title="更多">
                     <MoreHorizontal size={14} />
                   </button>
