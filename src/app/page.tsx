@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
-  Search, Bell, Settings, Plus, Download,
+  Search, Bell, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -237,8 +237,8 @@ export default function App() {
             <div className="sb-user" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
             <div className="sb-user-role">{user.roles.join(' · ')}</div>
           </div>
-          <button onClick={signOutUser} title="登出" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 4, display: 'flex', flexShrink: 0 }}>
-            <Settings size={14} />
+          <button onClick={signOutUser} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', color: 'var(--muted)', padding: '3px 8px', fontSize: 11.5, fontFamily: 'inherit', flexShrink: 0 }}>
+            登出
           </button>
         </div>
       </aside>
