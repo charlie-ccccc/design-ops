@@ -150,6 +150,7 @@ export default function Admin({
   const [tab, setTab] = useState<MainTab>('capacity');
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [leaveModal, setLeaveModal] = useState(false);
   const [newLeave, setNewLeave] = useState({
     member: MEMBERS[0].id,
     startDate: '', startMin: 510,
@@ -214,6 +215,7 @@ export default function Admin({
       hours: newLeaveHours,
     }]);
     setNewLeave(p => ({ ...p, startDate: '', endDate: '', startMin: 510, endMin: 1080 }));
+    setLeaveModal(false);
   }
 
   const TABS: { id: MainTab; label: string }[] = [
@@ -397,74 +399,129 @@ export default function Admin({
         {/* ── 請假紀錄 ── */}
         {tab === 'leave' && (
           <>
-            <MiniCalendar
-              month={month} year={year}
-              leave={leave} publicHolidays={publicHolidays}
-              selectedDate={selectedDate} onSelect={setSelectedDate}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 0, alignItems: 'start' }}>
+              {/* Left: Calendar */}
+              <div style={{ borderRight: '1px solid var(--divider)', padding: '16px 0' }}>
+                <MiniCalendar
+                  month={month} year={year}
+                  leave={leave} publicHolidays={publicHolidays}
+                  selectedDate={selectedDate} onSelect={setSelectedDate}
+                />
+              </div>
 
-            <div style={{ borderTop: '1px solid var(--divider)' }} />
-
-            <div className="leave-list">
-              {visibleLeave.length === 0 ? (
-                <div style={{ padding: '12px 16px', fontSize: 12, color: 'var(--muted-2)' }}>
-                  {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
+              {/* Right: Leave list */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {/* List header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--divider)' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
+                    {selectedDate ? `${selectedDate} 請假` : '所有請假記錄'}
+                    {selectedDate && (
+                      <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 7px', marginLeft: 8 }}
+                              onClick={() => setSelectedDate(null)}>
+                        清除 <X size={10} />
+                      </button>
+                    )}
+                  </span>
+                  <button className="btn btn-primary" style={{ fontSize: 12, padding: '4px 12px' }}
+                          onClick={() => {
+                            setNewLeave(p => ({ ...p, startDate: selectedDate ?? '', endDate: selectedDate ?? '' }));
+                            setLeaveModal(true);
+                          }}>
+                    <span style={{ fontSize: 15, lineHeight: 1, marginRight: 2 }}>+</span> 新增
+                  </button>
                 </div>
-              ) : visibleLeave.map(entry => {
-                const mb = MEMBER_BY_ID[entry.member];
-                return (
-                  <div key={entry.id} className="leave-row">
-                    <div className="who">
-                      {mb && <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>}
-                      <span>{mb ? mb.name : entry.member}</span>
-                    </div>
-                    <span className="date">{dateRangeLabel(entry.date, entry.endDate)}</span>
-                    <span className="hrs">{entry.hours}h</span>
-                    <button className="del" onClick={() => setLeave(leave.filter(l => l.id !== entry.id))} title="刪除">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
 
-            <div style={{ padding: '12px 16px', borderTop: '1px solid var(--divider)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <select className="input" value={newLeave.member}
-                      onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
-                {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-              </select>
-              <div style={{ display: 'grid', gridTemplateColumns: '76px 1fr 16px 76px 1fr auto auto', gap: 6, alignItems: 'center' }}>
-                <input className="input" type="text" placeholder="MM/DD"
-                       value={newLeave.startDate}
-                       onChange={e => {
-                         const v = e.target.value;
-                         setNewLeave(p => ({ ...p, startDate: v, endDate: p.endDate || v }));
-                       }} />
-                <select className="input" value={newLeave.startMin}
-                        onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
-                  {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
-                </select>
-                <span style={{ textAlign: 'center', fontSize: 11, color: 'var(--muted)' }}>→</span>
-                <input className="input" type="text" placeholder="MM/DD"
-                       value={newLeave.endDate}
-                       onChange={e => setNewLeave(p => ({ ...p, endDate: e.target.value }))} />
-                <select className="input" value={newLeave.endMin}
-                        onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
-                  {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
-                </select>
-                <span style={{
-                  fontFamily: 'var(--font-mono), monospace', fontSize: 12.5, fontWeight: 600,
-                  color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)',
-                  minWidth: 34, textAlign: 'right', flexShrink: 0,
-                }}>
-                  {newLeaveHours > 0 ? `${newLeaveHours}h` : '—'}
-                </span>
-                <button className="btn btn-primary" onClick={addLeave}
-                        disabled={!newLeave.startDate.trim() || !newLeave.endDate.trim() || newLeaveHours <= 0}>
-                  新增
-                </button>
+                {/* List body */}
+                <div className="leave-list" style={{ flex: 1, minHeight: 200 }}>
+                  {visibleLeave.length === 0 ? (
+                    <div style={{ padding: '24px 18px', fontSize: 12.5, color: 'var(--muted-2)', textAlign: 'center' }}>
+                      {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
+                    </div>
+                  ) : visibleLeave.map(entry => {
+                    const mb = MEMBER_BY_ID[entry.member];
+                    return (
+                      <div key={entry.id} className="leave-row">
+                        <div className="who">
+                          {mb && <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>}
+                          <span>{mb ? mb.name : entry.member}</span>
+                        </div>
+                        <span className="date">{dateRangeLabel(entry.date, entry.endDate)}</span>
+                        <span className="hrs">{entry.hours}h</span>
+                        <button className="del" onClick={() => setLeave(leave.filter(l => l.id !== entry.id))} title="刪除">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
+
+            {/* ── Add leave modal ── */}
+            {leaveModal && (
+              <div className="modal-scrim open" onClick={e => e.target === e.currentTarget && setLeaveModal(false)}>
+                <div className="modal" style={{ width: 420 }}>
+                  <div className="modal-h">
+                    <span className="modal-h-title">新增請假</span>
+                    <span style={{ flex: 1 }} />
+                    <button className="drawer-close" onClick={() => setLeaveModal(false)}><X size={16} /></button>
+                  </div>
+                  <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {/* 成員 */}
+                    <div className="form-row">
+                      <label>成員</label>
+                      <select className="input" style={{ width: '100%' }} value={newLeave.member}
+                              onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
+                        {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      </select>
+                    </div>
+                    {/* 開始 */}
+                    <div className="form-row">
+                      <label>開始</label>
+                      <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                        <input className="input" type="text" placeholder="MM/DD" style={{ width: 90 }}
+                               value={newLeave.startDate}
+                               onChange={e => {
+                                 const v = e.target.value;
+                                 setNewLeave(p => ({ ...p, startDate: v, endDate: p.endDate || v }));
+                               }} />
+                        <select className="input" style={{ flex: 1 }} value={newLeave.startMin}
+                                onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
+                          {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    {/* 結束 */}
+                    <div className="form-row">
+                      <label>結束</label>
+                      <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                        <input className="input" type="text" placeholder="MM/DD" style={{ width: 90 }}
+                               value={newLeave.endDate}
+                               onChange={e => setNewLeave(p => ({ ...p, endDate: e.target.value }))} />
+                        <select className="input" style={{ flex: 1 }} value={newLeave.endMin}
+                                onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
+                          {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    {/* 計算工時 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 8 }}>
+                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>計算工時</span>
+                      <span style={{ fontFamily: 'var(--font-mono), monospace', fontWeight: 700, fontSize: 16, color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)', marginLeft: 'auto' }}>
+                        {newLeaveHours > 0 ? `${newLeaveHours} h` : '—'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="modal-f">
+                    <button className="btn btn-ghost" onClick={() => setLeaveModal(false)}>取消</button>
+                    <button className="btn btn-primary" onClick={addLeave}
+                            disabled={!newLeave.startDate.trim() || !newLeave.endDate.trim() || newLeaveHours <= 0}>
+                      儲存
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
