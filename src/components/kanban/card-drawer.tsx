@@ -212,11 +212,9 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
       <div className={`drawer${isOpen ? ' open' : ''}`} role="dialog" aria-modal="true">
         {c && (
           <>
-            <div className="drawer-h">
-              <div>
-                <div className="drawer-h-id">{c.id} · {c.month}</div>
-                <div className="drawer-h-title">{c.title}</div>
-              </div>
+            <div className="drawer-h" style={{ alignItems: 'center' }}>
+              <div className="drawer-h-id">{c.id} · {c.month}</div>
+              <span style={{ flex: 1 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CopyLinkButton cardId={c.id} />
                 <button className="drawer-close" onClick={onClose} aria-label="關閉"><X size={16} /></button>
@@ -224,8 +222,11 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
             </div>
 
             <div className="drawer-body">
-              {/* Tags row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Title */}
+              <div className="drawer-h-title" style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.35, marginBottom: 12 }}>{c.title}</div>
+
+              {/* Cat + Status */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
                 <select className="input" value={c.status} disabled={readOnly || !canEdit}
                   onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })} style={{ marginLeft: 'auto' }}>
@@ -233,7 +234,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 </select>
               </div>
 
-              {/* Meta — order: 需求發起單位 / 委託人 / 到期日 / 優先級 / 建立時間 / 受託人 */}
+              {/* Meta fields */}
               <dl className="drawer-meta">
                 <dt>需求發起單位</dt>
                 <dd>
@@ -241,6 +242,16 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                     <select className="input" value={c.dept} onChange={e => onUpdate(c.id, { dept: e.target.value })}>
                       {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
+                  )}
+                </dd>
+
+                <dt>到期日</dt>
+                <dd>
+                  {readOnly ? (
+                    <span className="mono tnum" style={{ fontSize: 12.5 }}>{c.due || '—'}</span>
+                  ) : (
+                    <input type="date" className="input" value={toDateInput(c.due, c.month)}
+                      onChange={e => onUpdate(c.id, { due: fromDateInput(e.target.value) })} />
                   )}
                 </dd>
 
@@ -261,16 +272,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   )}
                 </dd>
 
-                <dt>到期日</dt>
-                <dd>
-                  {readOnly ? (
-                    <span className="mono tnum" style={{ fontSize: 12.5 }}>{c.due || '—'}</span>
-                  ) : (
-                    <input type="date" className="input" value={toDateInput(c.due, c.month)}
-                      onChange={e => onUpdate(c.id, { due: fromDateInput(e.target.value) })} />
-                  )}
-                </dd>
-
                 <dt>優先級</dt>
                 <dd>
                   {readOnly ? ({ high: '高', normal: '中', low: '低' }[c.prio] || c.prio) : (
@@ -284,22 +285,48 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
                 <dt>建立時間</dt>
                 <dd><span className="mono tnum" style={{ fontSize: 12.5 }}>2026/05/01</span></dd>
-
-                <dt>受託人</dt>
-                <dd>
-                  {readOnly ? (
-                    owner ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
-                        <span>{owner.name} <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {owner.alias} · {owner.cat}</span></span>
-                      </div>
-                    ) : '—'
-                  ) : (
-                    <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
-                      onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
-                  )}
-                </dd>
               </dl>
+
+              {/* Description */}
+              <div className="drawer-section">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <h4 style={{ margin: 0 }}>說明</h4>
+                  {!readOnly && !editingDesc && (
+                    <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }}
+                      onClick={() => { setDraftDesc(c.desc || ''); setEditingDesc(true); }}>編輯</button>
+                  )}
+                  {!readOnly && editingDesc && (
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
+                      <button className="btn btn-primary" style={{ fontSize: 11.5, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
+                    </div>
+                  )}
+                </div>
+                {editingDesc ? (
+                  <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.6 }}
+                    value={draftDesc} onChange={e => setDraftDesc(e.target.value)} />
+                ) : (
+                  <p style={{ fontSize: 13, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                    {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
+                  </p>
+                )}
+              </div>
+
+              {/* 受託人 */}
+              <div className="drawer-section">
+                <h4>受託人</h4>
+                {readOnly ? (
+                  owner ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
+                      <span>{owner.name} <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {owner.alias} · {owner.cat}</span></span>
+                    </div>
+                  ) : <span style={{ color: 'var(--muted)', fontSize: 13 }}>—</span>
+                ) : (
+                  <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
+                    onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
+                )}
+              </div>
 
               {/* Hours */}
               <div className="drawer-section">
@@ -337,31 +364,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10.5, color: 'var(--muted)' }}>
                   <span>0h</span><span>{c.est}h</span>
                 </div>
-              </div>
-
-              {/* Description */}
-              <div className="drawer-section">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <h4 style={{ margin: 0 }}>說明</h4>
-                  {!readOnly && !editingDesc && (
-                    <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }}
-                      onClick={() => { setDraftDesc(c.desc || ''); setEditingDesc(true); }}>編輯</button>
-                  )}
-                  {!readOnly && editingDesc && (
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
-                      <button className="btn btn-primary" style={{ fontSize: 11.5, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
-                    </div>
-                  )}
-                </div>
-                {editingDesc ? (
-                  <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.6 }}
-                    value={draftDesc} onChange={e => setDraftDesc(e.target.value)} />
-                ) : (
-                  <p style={{ fontSize: 13, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
-                    {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
-                  </p>
-                )}
               </div>
 
               {/* Bottom tabs */}
