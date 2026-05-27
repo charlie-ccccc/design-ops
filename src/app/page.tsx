@@ -315,13 +315,9 @@ export default function App() {
                 </span>
               )}
             </div>
-            <div className="tb-crumb">
-              {page === 'kanban'      && `工作台 / 任務看板`}
-              {page === 'dashboard'   && `工作台 / Dashboard`}
-              {page === 'history'     && '工作台 / 歷史紀錄'}
-              {page === 'capacity'    && `管理 / 量能管理 / ${month}`}
-              {page === 'permissions' && '管理 / 權限管理'}
-            </div>
+            {page === 'capacity' && (
+              <div className="tb-crumb">{month}</div>
+            )}
           </div>
 
           <span className="tb-spacer" />
