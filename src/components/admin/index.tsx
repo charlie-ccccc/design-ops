@@ -340,7 +340,7 @@ export default function Admin({
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left' }}>成員</th>
-                  <th>工作天</th><th>工時比例</th><th>請假(h)</th>
+                  <th>工作天</th><th>工時比例(%)</th><th>請假(h)</th>
                   <th>月工時</th><th>承接(h)</th><th>量能%</th>
                 </tr>
               </thead>
@@ -361,9 +361,9 @@ export default function Admin({
                              onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
                     </td>
                     <td>
-                      <input className="num-input" type="number" min={0.1} max={1} step={0.005}
-                             value={ratio}
-                             onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) })} />
+                      <input className="num-input" type="number" min={10} max={100} step={0.5}
+                             value={Math.round(ratio * 1000) / 10}
+                             onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) / 100 })} />
                     </td>
                     <td>{lv}</td>
                     <td style={{ fontWeight: 600 }}>{monthHours}</td>
