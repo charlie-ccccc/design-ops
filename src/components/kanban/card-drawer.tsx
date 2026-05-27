@@ -124,6 +124,8 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
   const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
   const [editingDesc, setEditingDesc] = useState(false);
   const [draftDesc, setDraftDesc] = useState('');
   const [commentText, setCommentText] = useState('');
@@ -139,6 +141,8 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
   useEffect(() => {
     if (card) {
       setDisplayCard(card);
+      setEditingTitle(false);
+      setDraftTitle(card.title || '');
       setEditingDesc(false);
       setDraftDesc(card.desc || '');
       setCommentText('');
@@ -223,7 +227,30 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
             <div className="drawer-body">
               {/* Title */}
-              <div className="drawer-h-title" style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.35, marginBottom: 12 }}>{c.title}</div>
+              {!readOnly && editingTitle ? (
+                <div style={{ marginBottom: 12 }}>
+                  <input
+                    autoFocus
+                    className="input"
+                    style={{ width: '100%', fontSize: 18, fontWeight: 700, padding: '4px 8px' }}
+                    value={draftTitle}
+                    onChange={e => setDraftTitle(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }
+                      if (e.key === 'Escape') setEditingTitle(false);
+                    }}
+                    onBlur={() => { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="drawer-h-title"
+                  style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.35, marginBottom: 12, cursor: readOnly ? 'default' : 'text' }}
+                  onClick={() => { if (!readOnly) { setDraftTitle(c.title); setEditingTitle(true); } }}
+                >
+                  {c.title}
+                </div>
+              )}
 
               {/* Cat + Status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -236,15 +263,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
               {/* Meta fields */}
               <dl className="drawer-meta">
-                <dt>需求發起單位</dt>
-                <dd>
-                  {readOnly ? (DEPT_SHORT[c.dept] || c.dept) : (
-                    <select className="input" value={c.dept} onChange={e => onUpdate(c.id, { dept: e.target.value })}>
-                      {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  )}
-                </dd>
-
                 <dt>到期日</dt>
                 <dd>
                   {readOnly ? (
@@ -252,6 +270,15 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   ) : (
                     <input type="date" className="input" value={toDateInput(c.due, c.month)}
                       onChange={e => onUpdate(c.id, { due: fromDateInput(e.target.value) })} />
+                  )}
+                </dd>
+
+                <dt>需求發起單位</dt>
+                <dd>
+                  {readOnly ? (DEPT_SHORT[c.dept] || c.dept) : (
+                    <select className="input" value={c.dept} onChange={e => onUpdate(c.id, { dept: e.target.value })}>
+                      {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
                   )}
                 </dd>
 
