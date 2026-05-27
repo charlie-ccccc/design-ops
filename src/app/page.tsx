@@ -19,6 +19,8 @@ import Dashboard from '@/components/dashboard/index';
 import Admin from '@/components/admin/index';
 import History from '@/components/history/index';
 import Permissions from '@/components/permissions/index';
+import LoginPage from '@/components/auth/login-page';
+import { useAuth } from '@/contexts/auth-context';
 
 const ACCENT_PRESETS = {
   violet: { hex: '#6B5BD9', light: 'oklch(0.52 0.14 282)', soft: 'oklch(0.94 0.03 282)', dark: 'oklch(0.74 0.14 282)', darkSoft: 'oklch(0.28 0.05 282)' },
@@ -30,6 +32,7 @@ const ACCENT_PRESETS = {
 type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
+  const { user, loading } = useAuth();
   const [page, setPage] = useState<Page>('kanban');
   const [month, setMonth] = useState('2026/05');
   const [cards, setCards] = useState<Card[]>(CURRENT_CARDS);
@@ -157,6 +160,14 @@ export default function App() {
     { id: 'capacity' as Page,     name: '量能管理', icon: <TrendingUp size={15} /> },
     { id: 'permissions' as Page,  name: '權限管理', icon: <Shield size={15} /> },
   ];
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--surface-2)' }}>
+      <div style={{ fontSize: 13, color: 'var(--muted)' }}>載入中…</div>
+    </div>
+  );
+
+  if (!user) return <LoginPage />;
 
   return (
     <div className="app">

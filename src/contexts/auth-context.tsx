@@ -1,0 +1,100 @@
+'use client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, googleProvider, db } from '@/lib/firebase';
+
+export type Role = 'Admin' | '成員' | '一般';
+
+export interface AppUser {
+  uid: string;
+  email: string;
+  name: string;
+  photo?: string;
+  roles: Role[];
+  cat?: string;
+}
+
+interface AuthContextValue {
+  user: AppUser | null;
+  loading: boolean;
+  signInWithGoogle: () => Promise<void>;
+  signOutUser: () => Promise<void>;
+  error: string | null;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+const ALLOWED_DOMAIN = '@cmoney.com.tw';
+
+async function getOrCreateUser(firebaseUser: User): Promise<AppUser> {
+  const ref = doc(db, 'users', firebaseUser.uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    return snap.data() as AppUser;
+  }
+
+  // First time login — create with default role
+  const newUser: AppUser = {
+    uid: firebaseUser.uid,
+    email: firebaseUser.email!,
+    name: firebaseUser.displayName ?? firebaseUser.email!,
+    photo: firebaseUser.photoURL ?? undefined,
+    roles: ['一般'],
+  };
+  await setDoc(ref, newUser);
+  return newUser;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async firebaseUser => {
+      if (firebaseUser) {
+        if (!firebaseUser.email?.endsWith(ALLOWED_DOMAIN)) {
+          await signOut(auth);
+          setError('請使用公司帳號（@cmoney.com.tw）登入');
+          setUser(null);
+        } else {
+          const appUser = await getOrCreateUser(firebaseUser);
+          setUser(appUser);
+          setError(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  async function signInWithGoogle() {
+    setError(null);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch {
+      setError('登入失敗，請再試一次');
+    }
+  }
+
+  async function signOutUser() {
+    await signOut(auth);
+    setUser(null);
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOutUser, error }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}
