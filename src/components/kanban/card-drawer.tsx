@@ -164,9 +164,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
   const timeLogs: TimeLog[] = c?.timeLogs ?? [];
   const comments: Comment[] = c?.comments ?? [];
   const computedActual = timeLogs.length > 0 ? sum(timeLogs.map(l => l.hours)) : (c?.actual ?? 0);
-  const pct = c && c.est > 0 ? Math.min(1, computedActual / c.est) * 100 : 0;
   const isOver = c ? computedActual > c.est : false;
-  const overPct = isOver && c ? ((computedActual - c.est) / c.est) * 100 : 0;
 
   function submitLog() {
     if (!c || !newLog.date || newLog.hours <= 0) return;
@@ -396,13 +394,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                       </div>
                     )}
                   </div>
-                </div>
-                <div className="drawer-progress">
-                  <span className="fill" style={{ width: `${isOver ? 100 : pct}%` }} />
-                  {isOver && <span className="over-fill" style={{ left: '100%', width: `${Math.min(overPct, 30)}%`, position: 'absolute' }} />}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 12, color: 'var(--muted)' }}>
-                  <span>{computedActual}h 實際</span><span>{c.est}h 預估</span>
                 </div>
               </div>
 
