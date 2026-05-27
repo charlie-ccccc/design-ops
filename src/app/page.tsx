@@ -57,7 +57,7 @@ export default function App() {
   // Tweaks
   const [dark, setDark] = useState(false);
   const [density, setDensity] = useState<'compact' | 'comfy'>('comfy');
-  const [showAdmin, setShowAdmin] = useState(true);
+  const showAdmin = user?.roles.includes('Admin') ?? false;
   const [accent, setAccent] = useState<keyof typeof ACCENT_PRESETS>('violet');
 
   useEffect(() => {
