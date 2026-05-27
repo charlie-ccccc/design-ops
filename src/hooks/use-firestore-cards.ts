@@ -9,10 +9,17 @@ export function useFirestoreCards() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'cards'), snap => {
-      setCards(snap.docs.map(d => d.data() as Card));
-      setInitialized(true);
-    });
+    const unsub = onSnapshot(
+      collection(db, 'cards'),
+      snap => {
+        setCards(snap.docs.map(d => d.data() as Card));
+        setInitialized(true);
+      },
+      err => {
+        console.error('Firestore cards permission error:', err);
+        setInitialized(true); // don't block the app — Firestore rules may not be updated yet
+      },
+    );
     return unsub;
   }, []);
 
