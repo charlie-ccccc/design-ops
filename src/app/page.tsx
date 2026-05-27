@@ -6,7 +6,7 @@ import {
   Search, Bell, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus } from '@/lib/types';
 import {
@@ -153,7 +153,11 @@ export default function App() {
   }, [cards, addCard]);
 
   const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
-    await updateDoc(doc(db, 'users', uid), patch as Record<string, unknown>);
+    const firestorePatch: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(patch)) {
+      firestorePatch[k] = v === undefined ? deleteField() : v;
+    }
+    await updateDoc(doc(db, 'users', uid), firestorePatch);
   }, []);
 
   const currentSnapshot = useMemo(() => {
