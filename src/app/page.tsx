@@ -44,7 +44,7 @@ export default function App() {
   // Dynamic member list: Firestore users with 成員 or Admin role
   const members = useMemo((): Member[] =>
     siteUsers
-      .filter(u => u.roles.includes('成員') || u.roles.includes('Admin'))
+      .filter(u => u.roles.includes('成員'))
       .map(u => ({
         id: u.uid,
         name: u.name,
