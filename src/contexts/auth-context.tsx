@@ -60,9 +60,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setError('請使用公司帳號（@cmoney.com.tw）登入');
           setUser(null);
         } else {
-          const appUser = await getOrCreateUser(firebaseUser);
-          setUser(appUser);
-          setError(null);
+          try {
+            const appUser = await getOrCreateUser(firebaseUser);
+            setUser(appUser);
+            setError(null);
+          } catch (e) {
+            console.error('Firestore error:', e);
+            setError('載入使用者資料失敗，請重新整理');
+            setUser(null);
+          }
         }
       } else {
         setUser(null);
