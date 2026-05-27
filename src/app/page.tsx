@@ -32,7 +32,7 @@ const ACCENT_PRESETS = {
 type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOutUser } = useAuth();
   const [page, setPage] = useState<Page>('kanban');
   const [month, setMonth] = useState('2026/05');
   const [cards, setCards] = useState<Card[]>(CURRENT_CARDS);
@@ -206,12 +206,17 @@ export default function App() {
         )}
 
         <div className="sb-bottom">
-          <div className="sb-avatar">設</div>
-          <div>
-            <div className="sb-user">主設計師</div>
-            <div className="sb-user-role">設計組長 · Admin</div>
+          {user.photo
+            ? <img src={user.photo} alt="" style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0 }} />
+            : <div className="sb-avatar">{user.name[0]}</div>
+          }
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="sb-user" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+            <div className="sb-user-role">{user.roles.join(' · ')}</div>
           </div>
-          <Settings size={14} style={{ color: 'var(--muted)', marginLeft: 'auto' }} />
+          <button onClick={signOutUser} title="登出" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 4, display: 'flex', flexShrink: 0 }}>
+            <Settings size={14} />
+          </button>
         </div>
       </aside>
 
