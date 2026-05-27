@@ -227,35 +227,34 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
             <div className="drawer-body">
               {/* Title */}
-              {!readOnly && editingTitle ? (
-                <div style={{ marginBottom: 12 }}>
-                  <input
-                    autoFocus
-                    className="input"
-                    style={{ width: '100%', fontSize: 18, fontWeight: 700, padding: '4px 8px' }}
-                    value={draftTitle}
-                    onChange={e => setDraftTitle(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }
-                      if (e.key === 'Escape') setEditingTitle(false);
-                    }}
-                    onBlur={() => { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }}
-                  />
+              {/* Title row + Status */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {!readOnly && editingTitle ? (
+                    <input
+                      autoFocus
+                      className="input"
+                      style={{ width: '100%', fontSize: 16, fontWeight: 700, padding: '3px 6px' }}
+                      value={draftTitle}
+                      onChange={e => setDraftTitle(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }
+                        if (e.key === 'Escape') setEditingTitle(false);
+                      }}
+                      onBlur={() => { onUpdate(c.id, { title: draftTitle.trim() || c.title }); setEditingTitle(false); }}
+                    />
+                  ) : (
+                    <div
+                      className="drawer-h-title"
+                      style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.4, cursor: readOnly ? 'default' : 'text', wordBreak: 'break-word' }}
+                      onClick={() => { if (!readOnly) { setDraftTitle(c.title); setEditingTitle(true); } }}
+                    >
+                      {c.title}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div
-                  className="drawer-h-title"
-                  style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.35, marginBottom: 12, cursor: readOnly ? 'default' : 'text' }}
-                  onClick={() => { if (!readOnly) { setDraftTitle(c.title); setEditingTitle(true); } }}
-                >
-                  {c.title}
-                </div>
-              )}
-
-              {/* Section header + Status */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>需求資料</span>
                 <select className="input" value={c.status} disabled={readOnly || !canEdit}
+                  style={{ flexShrink: 0 }}
                   onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })}>
                   {STATUSES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
@@ -275,12 +274,17 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
                 <dt>類型</dt>
                 <dd>
-                  {readOnly ? c.cat : (
-                    <select className="input" value={c.cat} onChange={e => onUpdate(c.id, { cat: e.target.value as Card['cat'] })}>
-                      <option value="UIUX">UIUX</option>
-                      <option value="平面視覺">平面視覺</option>
-                    </select>
-                  )}
+                  <span
+                    className="kcard-cat"
+                    data-cat={c.cat}
+                    style={{ cursor: readOnly ? 'default' : 'pointer' }}
+                    onClick={() => {
+                      if (!readOnly) onUpdate(c.id, { cat: c.cat === 'UIUX' ? '平面視覺' : 'UIUX' });
+                    }}
+                    title={readOnly ? undefined : '點擊切換類型'}
+                  >
+                    {c.cat}
+                  </span>
                 </dd>
 
                 <dt>需求發起單位</dt>
