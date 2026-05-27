@@ -412,8 +412,8 @@ export default function Admin({
               {/* Right: Leave list */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {/* List header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--divider)' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px 10px' }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
                     {selectedDate ? `${selectedDate} 請假` : '所有請假記錄'}
                     {selectedDate && (
                       <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 7px', marginLeft: 8 }}

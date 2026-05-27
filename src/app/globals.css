@@ -332,14 +332,14 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .history-detail-meta .stat-item .v { font: 600 15px/1 var(--font-mono), monospace; letter-spacing: -0.01em; color: var(--ink); }
 
 /* ── Leave Calendar ─────────────────────────────────────────── */
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; padding: 10px 14px 6px; }
-.cal-hdr { text-align: center; font-size: 9.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; padding-bottom: 5px; }
-.cal-day { border-radius: 6px; padding: 5px 2px 4px; text-align: center; min-height: 36px; transition: background 0.1s; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; padding: 14px 20px 10px; min-width: 380px; }
+.cal-hdr { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; padding-bottom: 7px; }
+.cal-day { border-radius: 8px; padding: 8px 4px 6px; text-align: center; min-height: 48px; transition: background 0.1s; }
 .cal-day.clickable { cursor: pointer; }
 .cal-day.clickable:hover { background: var(--surface-2); }
 .cal-day.selected { background: var(--accent) !important; }
 .cal-day.today:not(.selected) { background: color-mix(in oklab, var(--accent) 12%, transparent); }
-.cal-n { font-size: 13.5px; font-weight: 600; line-height: 1.3; color: var(--ink-2); }
+.cal-n { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink-2); }
 .cal-day.weekend .cal-n { color: var(--muted-2); font-weight: 400; }
 .cal-day.holiday:not(.selected) .cal-n { color: var(--st-block); }
 .cal-day.selected .cal-n { color: #fff; }
