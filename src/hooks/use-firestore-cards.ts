@@ -28,6 +28,7 @@ export function useFirestoreCards() {
   }, []);
 
   const updateCard = useCallback(async (cardId: string, patch: Partial<Card>) => {
+    setCards(prev => prev.map(c => c.id === cardId ? { ...c, ...patch } : c));
     await updateDoc(doc(db, 'cards', cardId), patch as Record<string, unknown>);
   }, []);
 
