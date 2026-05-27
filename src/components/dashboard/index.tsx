@@ -170,7 +170,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
             <div className="chart-wrap">
               <CircleChart
                 data={deptEst} size={180} kind="donut"
-                centerValue={`${totalEst}h`} centerLabel="預估"
+                centerValue={`${totalEst}h`}
                 onSliceClick={i => openDept(deptEst[i].full!, deptEst[i].name)}
               />
             </div>
@@ -198,7 +198,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
             <div className="chart-wrap">
               <CircleChart
                 data={memberChartData} size={180} kind="donut"
-                centerValue={`${totalEst}h`} centerLabel="預估"
+                centerValue={`${totalEst}h`}
                 onSliceClick={i => openMember(memberEst[i].id, memberEst[i].name)}
               />
             </div>
