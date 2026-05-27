@@ -81,7 +81,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [density, setDensity] = useState<'compact' | 'comfy'>('comfy');
   const showAdmin = user?.roles.includes('Admin') ?? false;
-  const isMember = (user?.roles.includes('成員') || user?.roles.includes('Admin')) ?? false;
+  const isMember = user?.roles.includes('成員') ?? false;
   const [accent, setAccent] = useState<keyof typeof ACCENT_PRESETS>('violet');
 
   useEffect(() => {
