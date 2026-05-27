@@ -19,7 +19,7 @@ import { useFirestoreUsers } from '@/hooks/use-firestore-users';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
-import Dashboard from '@/components/dashboard/index';
+import Dashboard, { type DashFilter } from '@/components/dashboard/index';
 import Admin from '@/components/admin/index';
 import History from '@/components/history/index';
 import Permissions from '@/components/permissions/index';
@@ -82,6 +82,7 @@ export default function App() {
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
+  const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -155,29 +156,26 @@ export default function App() {
     [members, memberDays, memberRatios, defaultWorkDays, leaveByMember],
   );
 
-  // Sync openCardId with URL ?card= param (on mount only)
+  // Restore state from URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cardId = params.get('card');
     if (cardId) setOpenCardId(cardId);
+    const dept  = params.get('dept')  ?? undefined;
+    const owner = params.get('owner') ?? undefined;
+    if (dept || owner) setDashFilter({ dept, owner });
   }, []);
 
-  // Sync page + card to URL whenever either changes
+  // Sync page + card + dashFilter to URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (page === 'kanban') {
-      params.delete('page');
-    } else {
-      params.set('page', page);
-    }
-    if (openCardId) {
-      params.set('card', openCardId);
-    } else {
-      params.delete('card');
-    }
+    if (page === 'kanban') { params.delete('page'); } else { params.set('page', page); }
+    if (openCardId) { params.set('card', openCardId); } else { params.delete('card'); }
+    if (page === 'dashboard' && dashFilter?.dept)  { params.set('dept',  dashFilter.dept);  } else { params.delete('dept'); }
+    if (page === 'dashboard' && dashFilter?.owner) { params.set('owner', dashFilter.owner); } else { params.delete('owner'); }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [page, openCardId]);
+  }, [page, openCardId, dashFilter]);
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
@@ -270,7 +268,7 @@ export default function App() {
           <div className="sb-group-h">工作台</div>
           {workspacePages.map(p => (
             <button key={p.id} className="sb-item" data-on={page === p.id ? '1' : '0'}
-                    onClick={() => setPage(p.id)}>
+                    onClick={() => { setPage(p.id); if (p.id !== 'dashboard') setDashFilter(null); }}>
               {p.icon}
               <span>{p.name}</span>
               {p.count != null && <span className="sb-item-tag">{p.count}</span>}
@@ -410,6 +408,8 @@ export default function App() {
               totalCapacity={totalCapacity}
               filterDept={filterDept}
               onOpenCard={card => setOpenCardId(card.id)}
+              drillFilter={dashFilter}
+              onDrill={f => setDashFilter(f)}
             />
           )}
           {page === 'capacity' && showAdmin && (

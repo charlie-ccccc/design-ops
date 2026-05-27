@@ -1,99 +1,164 @@
 'use client';
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import type { Card, Member } from '@/lib/types';
-import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES } from '@/lib/data';
+import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES, DEPTS } from '@/lib/data';
 import { sum, groupBy, hue } from '@/lib/utils';
 import CircleChart from '@/components/charts/circle-chart';
-import BarsChart from '@/components/charts/bars-chart';
 import Crosstab from '@/components/dashboard/crosstab';
+
+export interface DashFilter { dept?: string; owner?: string; }
 
 interface DashboardProps {
   cards: Card[];
   totalCapacity: number;
   filterDept: string;
   onOpenCard?: (card: Card) => void;
-  // kept for API compat but unused (layout fixed to grid, chartType fixed to donut)
-  layout?: string;
-  chartType?: string;
+  drillFilter?: DashFilter | null;
+  onDrill?: (f: DashFilter | null) => void;
 }
 
 interface ColDef { id: string; name: string; full?: string; }
-interface ModalFilter { label: string; cards: Card[]; }
 
-function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; onClose: () => void; onOpenCard?: (card: Card) => void }) {
+// ── Drill detail view ──────────────────────────────────────────────────────
+function DrillView({ cards, drillFilter, onBack, onOpenCard }: {
+  cards: Card[];
+  drillFilter: DashFilter;
+  onBack: () => void;
+  onOpenCard?: (card: Card) => void;
+}) {
+  const [subDept, setSubDept]     = useState('');
+  const [subOwner, setSubOwner]   = useState('');
+  const [subCat, setSubCat]       = useState('');
+
+  // Derive label
+  const deptLabel   = drillFilter.dept  ? (DEPT_SHORT[drillFilter.dept]  || drillFilter.dept)  : '';
+  const memberLabel = drillFilter.owner ? (MEMBER_BY_ID[drillFilter.owner]?.name || drillFilter.owner) : '';
+  const title = [deptLabel, memberLabel].filter(Boolean).join(' × ') || '全部';
+
+  // Apply sub-filters
+  const filtered = cards.filter(c =>
+    (!subDept  || c.dept  === subDept) &&
+    (!subOwner || c.owner === subOwner) &&
+    (!subCat   || c.cat   === subCat)
+  );
+
+  const totalEst    = sum(filtered.map(c => c.est));
+  const totalActual = sum(filtered.map(c => c.actual));
+
+  // Distinct owners in this drill set for the sub-filter dropdown
+  const ownerIds = [...new Set(cards.map(c => c.owner).filter(Boolean))];
+  const depts    = [...new Set(cards.map(c => c.dept).filter(Boolean))];
+  const cats     = [...new Set(cards.map(c => c.cat).filter(Boolean))];
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={onClose} />
-      <div style={{ position: 'relative', zIndex: 1, background: 'var(--surface)', borderRadius: 14, boxShadow: '0 16px 48px rgba(0,0,0,.2)', width: 'min(840px, 90vw)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--divider)' }}>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>{filter.label}</div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{filter.cards.length} 張需求單</div>
+    <div style={{ padding: '0 0 40px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <button
+          onClick={onBack}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 14, padding: 0 }}
+        >
+          <ChevronLeft size={16} /> 返回總覽
+        </button>
+        <span style={{ color: 'var(--divider)' }}>|</span>
+        <span style={{ fontSize: 16, fontWeight: 600 }}>{title}</span>
+        <span style={{ fontSize: 13, color: 'var(--muted)' }}>{cards.length} 張需求單</span>
+      </div>
+
+      {/* Summary stats */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+        {[
+          { label: '需求單', value: `${filtered.length} 張` },
+          { label: '原始預估', value: `${totalEst}h` },
+          { label: '實際消耗', value: `${totalActual}h` },
+          { label: '進度', value: totalEst > 0 ? `${Math.round(totalActual / totalEst * 100)}%` : '—' },
+        ].map(s => (
+          <div key={s.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 18px', minWidth: 90 }}>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>{s.label}</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{s.value}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', padding: 4 }}><X size={16} /></button>
-        </div>
-        <div style={{ overflow: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-            <thead>
-              <tr style={{ background: 'var(--surface-2)' }}>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID</th>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', minWidth: 180 }}>標題</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>發起單位</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>委託人</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>受託人</th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>預估(h)</th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>實際(h)</th>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>狀態</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filter.cards.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>無資料</td></tr>
-              ) : filter.cards.map(c => {
-                const member = MEMBER_BY_ID[c.owner];
-                const requesterName = c.requesterName ?? (c.requester ? SITE_USER_BY_ID[c.requester]?.name : undefined);
-                const status = STATUSES.find(s => s.id === c.status);
-                const isOver = c.actual > c.est;
-                return (
-                  <tr key={c.id} style={{ borderBottom: '1px solid var(--divider)' }}>
-                    <td style={{ padding: '9px 16px', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--muted)' }}>{c.id}</td>
-                    <td style={{ padding: '9px 16px', fontWeight: 500 }}>
-                      {onOpenCard ? (
-                        <span
-                          style={{ cursor: 'pointer', color: 'var(--accent)' }}
-                          onClick={() => { onOpenCard(c); onClose(); }}
-                        >{c.title}</span>
-                      ) : c.title}
-                    </td>
-                    <td style={{ padding: '9px 12px' }}>
-                      <span className="dept-pill" style={{ fontSize: 12 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
-                    </td>
-                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{requesterName ?? '—'}</td>
-                    <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
-                    <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
-                    <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>
-                    <td style={{ padding: '9px 16px' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: status?.dot, flexShrink: 0 }} />
-                        {status?.name ?? c.status}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        ))}
+      </div>
+
+      {/* Sub-filters */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {!drillFilter.owner && ownerIds.length > 1 && (
+          <select className="input" value={subOwner} onChange={e => setSubOwner(e.target.value)}>
+            <option value="">全部受託人</option>
+            {ownerIds.map(id => (
+              <option key={id} value={id}>{MEMBER_BY_ID[id]?.name || id}</option>
+            ))}
+          </select>
+        )}
+        {!drillFilter.dept && depts.length > 1 && (
+          <select className="input" value={subDept} onChange={e => setSubDept(e.target.value)}>
+            <option value="">全部發起單位</option>
+            {depts.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
+          </select>
+        )}
+        {cats.length > 1 && (
+          <select className="input" value={subCat} onChange={e => setSubCat(e.target.value)}>
+            <option value="">全部類別</option>
+            {cats.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
+      </div>
+
+      {/* Card table */}
+      <div className="xtab-wrap">
+        <table className="xtab" style={{ fontSize: 14 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>ID</th>
+              <th style={{ textAlign: 'left', minWidth: 200 }}>標題</th>
+              <th style={{ textAlign: 'left' }}>需求發起單位</th>
+              <th style={{ textAlign: 'left' }}>委託人</th>
+              <th style={{ textAlign: 'left' }}>受託人</th>
+              <th style={{ textAlign: 'right' }}>原估(H)</th>
+              <th style={{ textAlign: 'right' }}>實際(H)</th>
+              <th style={{ textAlign: 'left' }}>狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={8} style={{ textAlign: 'center', padding: 24, color: 'var(--muted)' }}>無資料</td></tr>
+            ) : filtered.map(c => {
+              const member = MEMBER_BY_ID[c.owner];
+              const requesterName = c.requesterName ?? (c.requester ? SITE_USER_BY_ID[c.requester]?.name : undefined);
+              const status = STATUSES.find(s => s.id === c.status);
+              const isOver = c.actual > c.est;
+              return (
+                <tr key={c.id}>
+                  <td style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--muted)' }}>{c.id}</td>
+                  <td style={{ fontWeight: 500 }}>
+                    {onOpenCard
+                      ? <span style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => onOpenCard(c)}>{c.title}</span>
+                      : c.title}
+                  </td>
+                  <td><span className="dept-pill" style={{ fontSize: 12 }}>{DEPT_SHORT[c.dept] || c.dept}</span></td>
+                  <td style={{ color: 'var(--ink-2)' }}>{requesterName ?? '—'}</td>
+                  <td style={{ color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>
+                  <td>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: status?.dot, flexShrink: 0 }} />
+                      {status?.name ?? c.status}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
-export default function Dashboard({ cards, totalCapacity, onOpenCard }: DashboardProps) {
-  const [modal, setModal] = useState<ModalFilter | null>(null);
-
+// ── Main Dashboard ─────────────────────────────────────────────────────────
+export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill }: DashboardProps) {
   const byDept = groupBy(cards, 'dept');
 
   const deptEst = Object.entries(byDept)
@@ -110,44 +175,54 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
     return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, value: sum(mc.map(c => c.est)), actual: sum(mc.map(c => c.actual)), color: hue(m.hue) };
   }).filter(m => m.value > 0).sort((a, b) => b.value - a.value);
 
-  const totalEst = sum(cards.map(c => c.est));
+  const totalEst    = sum(cards.map(c => c.est));
   const totalActual = sum(cards.map(c => c.actual));
-  const capPct = totalCapacity > 0 ? Math.round((totalEst / totalCapacity) * 100) : 0;
+  const capPct      = totalCapacity > 0 ? Math.round((totalEst / totalCapacity) * 100) : 0;
 
   const xtabCols: ColDef[] = Object.keys(byDept).map(dept => ({ id: dept, name: DEPT_SHORT[dept] || dept, full: dept }));
-  const getEstCell = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.est));
-  const getActCell = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.actual));
+  const getEstCell     = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.est));
+  const getActCell     = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.actual));
   const getEstRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.est));
   const getActRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.actual));
   const getEstColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.est));
   const getActColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.actual));
 
-  function openDept(full: string, name: string) {
-    setModal({ label: name, cards: cards.filter(c => c.dept === full) });
-  }
-  function openMember(id: string, name: string) {
-    setModal({ label: `${name} 的需求單`, cards: cards.filter(c => c.owner === id) });
-  }
+  function drill(f: DashFilter) { onDrill?.(f); }
 
   const memberChartData = memberEst.map(m => ({ name: m.name, value: m.value, color: hue(m.hue) }));
 
+  // ── Drill view ───────────────────────────────────────────────────────────
+  if (drillFilter) {
+    const drillCards = cards.filter(c =>
+      (!drillFilter.dept  || c.dept  === drillFilter.dept) &&
+      (!drillFilter.owner || c.owner === drillFilter.owner)
+    );
+    return (
+      <DrillView
+        cards={drillCards}
+        drillFilter={drillFilter}
+        onBack={() => onDrill?.(null)}
+        onOpenCard={onOpenCard}
+      />
+    );
+  }
+
+  // ── Overview ─────────────────────────────────────────────────────────────
   return (
     <div className="body">
-      {modal && <CardListModal filter={modal} onClose={() => setModal(null)} onOpenCard={onOpenCard} />}
-
       <div className="dash layout-grid">
-        {/* KPI 卡 */}
-        <div className="kpi">
+        {/* KPI */}
+        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => drill({})}>
           <div className="kpi-lbl">需求單總數</div>
           <div className="kpi-val">{cards.length}<span className="unit">張</span></div>
           <div className="kpi-delta up">+4 vs 上月</div>
         </div>
-        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => setModal({ label: '原始預估工時', cards })}>
+        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => drill({})}>
           <div className="kpi-lbl">原始預估工時</div>
           <div className="kpi-val">{totalEst}<span className="unit">h</span></div>
           <div className="kpi-delta">{cards.length} 張單</div>
         </div>
-        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => setModal({ label: '實際消耗工時', cards: cards.filter(c => c.actual > 0) })}>
+        <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => drill({})}>
           <div className="kpi-lbl">實際消耗工時</div>
           <div className="kpi-val">{totalActual}<span className="unit">h</span></div>
           <div className="kpi-delta">{totalEst > 0 ? Math.round((totalActual / totalEst) * 100) : 0}% 進度</div>
@@ -171,12 +246,12 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
               <CircleChart
                 data={deptEst} size={180} kind="donut"
                 centerValue={`${totalEst}h`}
-                onSliceClick={i => openDept(deptEst[i].full!, deptEst[i].name)}
+                onSliceClick={i => drill({ dept: deptEst[i].full! })}
               />
             </div>
             <div className="legend">
               {deptEst.map((item, i) => (
-                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => openDept(item.full!, item.name)}>
+                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => drill({ dept: item.full! })}>
                   <div className="sw" style={{ background: item.color }} />
                   <span className="name" title={item.full || item.name}>{item.name}</span>
                   <span className="val">{item.value}h</span>
@@ -199,12 +274,12 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
               <CircleChart
                 data={memberChartData} size={180} kind="donut"
                 centerValue={`${totalEst}h`}
-                onSliceClick={i => openMember(memberEst[i].id, memberEst[i].name)}
+                onSliceClick={i => drill({ owner: memberEst[i].id })}
               />
             </div>
             <div className="legend">
               {memberEst.map((m, i) => (
-                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => openMember(m.id, m.name)}>
+                <div key={i} className="legend-row" style={{ cursor: 'pointer' }} onClick={() => drill({ owner: m.id })}>
                   <div className="sw" style={{ background: m.color }} />
                   <span className="name">{m.name}</span>
                   <span className="val">{m.value}h</span>
@@ -224,9 +299,9 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
           <Crosstab rows={MEMBERS} cols={xtabCols}
             getCell={getEstCell} getRowTotal={getEstRowTotal}
             getColTotal={getEstColTotal} grandTotal={totalEst}
-            onCellClick={(m, col) => setModal({ label: `${m.name} × ${col.name} (預估)`, cards: cards.filter(c => c.owner === m.id && c.dept === col.id) })}
-            onRowClick={m => setModal({ label: `${m.name} 的需求單`, cards: cards.filter(c => c.owner === m.id) })}
-            onColClick={col => openDept(col.id, col.name)}
+            onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}
+            onRowClick={m => drill({ owner: m.id })}
+            onColClick={col => drill({ dept: col.id })}
           />
         </div>
 
@@ -240,9 +315,9 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard }: Dashboar
           <Crosstab rows={MEMBERS} cols={xtabCols}
             getCell={getActCell} getRowTotal={getActRowTotal}
             getColTotal={getActColTotal} grandTotal={totalActual}
-            onCellClick={(m, col) => setModal({ label: `${m.name} × ${col.name} (實際)`, cards: cards.filter(c => c.owner === m.id && c.dept === col.id) })}
-            onRowClick={m => setModal({ label: `${m.name} 的需求單`, cards: cards.filter(c => c.owner === m.id) })}
-            onColClick={col => openDept(col.id, col.name)}
+            onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}
+            onRowClick={m => drill({ owner: m.id })}
+            onColClick={col => drill({ dept: col.id })}
           />
         </div>
       </div>
