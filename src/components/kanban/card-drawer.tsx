@@ -252,20 +252,11 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 </div>
               )}
 
-              {/* Cat + Status */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                {readOnly ? (
-                  <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
-                ) : (
-                  <select className="kcard-cat" data-cat={c.cat} value={c.cat}
-                    style={{ appearance: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
-                    onChange={e => onUpdate(c.id, { cat: e.target.value as Card['cat'] })}>
-                    <option value="UIUX">UIUX</option>
-                    <option value="平面視覺">平面視覺</option>
-                  </select>
-                )}
+              {/* Section header + Status */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>需求資料</span>
                 <select className="input" value={c.status} disabled={readOnly || !canEdit}
-                  onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })} style={{ marginLeft: 'auto' }}>
+                  onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })}>
                   {STATUSES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
@@ -279,6 +270,16 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   ) : (
                     <input type="date" className="input" value={toDateInput(c.due, c.month)}
                       onChange={e => onUpdate(c.id, { due: fromDateInput(e.target.value) })} />
+                  )}
+                </dd>
+
+                <dt>類型</dt>
+                <dd>
+                  {readOnly ? c.cat : (
+                    <select className="input" value={c.cat} onChange={e => onUpdate(c.id, { cat: e.target.value as Card['cat'] })}>
+                      <option value="UIUX">UIUX</option>
+                      <option value="平面視覺">平面視覺</option>
+                    </select>
                   )}
                 </dd>
 
