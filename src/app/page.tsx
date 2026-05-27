@@ -149,6 +149,24 @@ export default function App() {
     [members, memberDays, memberRatios, defaultWorkDays, leaveByMember],
   );
 
+  // Sync openCardId with URL ?card= param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cardId = params.get('card');
+    if (cardId) setOpenCardId(cardId);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (openCardId) {
+      params.set('card', openCardId);
+    } else {
+      params.delete('card');
+    }
+    const qs = params.toString();
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  }, [openCardId]);
+
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
   const onMove = useCallback((cardId: string, newStatus: string) => {

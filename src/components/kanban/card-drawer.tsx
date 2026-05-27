@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Clock } from 'lucide-react';
+import { X, Plus, Trash2, Clock, Link } from 'lucide-react';
 import type { Card, TimeLog, Comment } from '@/lib/types';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
@@ -94,6 +94,28 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
   borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
   marginBottom: -1, transition: 'color 0.15s',
 });
+
+function CopyLinkButton({ cardId }: { cardId: string }) {
+  const [copied, setCopied] = useState(false);
+  function copy() {
+    const url = `${window.location.origin}${window.location.pathname}?card=${cardId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  }
+  return (
+    <button
+      className="drawer-close"
+      onClick={copy}
+      title="複製連結"
+      style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
+    >
+      <Link size={13} />
+      {copied ? '已複製' : '複製連結'}
+    </button>
+  );
+}
 
 const EMPTY_LOG = { date: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
@@ -195,7 +217,10 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 <div className="drawer-h-id">{c.id} · {c.month}</div>
                 <div className="drawer-h-title">{c.title}</div>
               </div>
-              <button className="drawer-close" onClick={onClose} aria-label="關閉"><X size={16} /></button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CopyLinkButton cardId={c.id} />
+                <button className="drawer-close" onClick={onClose} aria-label="關閉"><X size={16} /></button>
+              </div>
             </div>
 
             <div className="drawer-body">
