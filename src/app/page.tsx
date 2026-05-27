@@ -383,7 +383,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} readOnly={!isMember} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} canEdit={isMember} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
       <NewCardModal
         open={newCardOpen}

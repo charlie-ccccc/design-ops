@@ -9,7 +9,8 @@ interface CardDrawerProps {
   card: Card | null;
   onClose: () => void;
   onUpdate: (id: string, patch: Partial<Card>) => void;
-  readOnly?: boolean;
+  readOnly?: boolean;   // full lock (history preview)
+  canEdit?: boolean;    // 成員/Admin: can change status + log time (default true)
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -97,7 +98,7 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
 const EMPTY_LOG = { date: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit = true }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
   const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
@@ -201,7 +202,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
               {/* Tags row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
-                <select className="input" value={c.status} disabled={readOnly}
+                <select className="input" value={c.status} disabled={readOnly || !canEdit}
                   onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })} style={{ marginLeft: 'auto' }}>
                   {STATUSES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
@@ -281,23 +282,23 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                 <div className="drawer-hours">
                   <div className="cell">
                     <div className="lbl">原始預估</div>
-                    {readOnly ? <div className="val">{c.est}</div> : (
+                    {(readOnly || !canEdit) ? <div className="val">{c.est}</div> : (
                       <input type="number" min={0} className="val"
                         value={c.est} onChange={e => onUpdate(c.id, { est: Math.max(0, Number(e.target.value)) })} />
                     )}
                     <div className="delta">小時</div>
                   </div>
-                  <div className="cell" style={{ cursor: readOnly ? 'default' : 'pointer', position: 'relative' }}
-                    onClick={() => { if (!readOnly) { setNewLog({ date: todayMMDD, hours: 0, note: '' }); setLogModal(true); } }}>
+                  <div className="cell" style={{ cursor: (readOnly || !canEdit) ? 'default' : 'pointer', position: 'relative' }}
+                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, hours: 0, note: '' }); setLogModal(true); } }}>
                     <div className="lbl" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       實際消耗
-                      {!readOnly && <Clock size={10} style={{ color: 'var(--accent)', opacity: 0.7 }} />}
+                      {(!readOnly && canEdit) && <Clock size={10} style={{ color: 'var(--accent)', opacity: 0.7 }} />}
                     </div>
                     <div className="val" style={isOver ? { color: 'var(--st-block)' } : {}}>{computedActual}</div>
                     <div className={`delta${isOver ? ' over' : ' under'}`}>
-                      {isOver ? `超出 ${computedActual - c.est}h` : c.est > 0 ? `剩餘 ${c.est - computedActual}h` : '點擊記錄工時'}
+                      {isOver ? `超出 ${computedActual - c.est}h` : c.est > 0 ? `剩餘 ${c.est - computedActual}h` : canEdit ? '點擊記錄工時' : '—'}
                     </div>
-                    {!readOnly && (
+                    {(!readOnly && canEdit) && (
                       <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 10.5, color: 'var(--accent)', fontWeight: 600 }}>
                         + 記錄
                       </div>
@@ -402,7 +403,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                             <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
                             <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
                             <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
-                            {!readOnly && <th style={{ width: 28 }} />}
+                            {(!readOnly && canEdit) && <th style={{ width: 28 }} />}
                           </tr>
                         </thead>
                         <tbody>
@@ -431,11 +432,11 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                               </tr>
                             ) : (
                               <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)' }}
-                                onDoubleClick={() => { if (!readOnly) { setEditingLogId(l.id); setEditLogDraft({ date: l.date, hours: l.hours, note: l.note }); } }}>
+                                onDoubleClick={() => { if (!readOnly && canEdit) { setEditingLogId(l.id); setEditLogDraft({ date: l.date, hours: l.hours, note: l.note }); } }}>
                                 <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--ink-2)' }}>{l.date}</td>
                                 <td style={{ padding: '7px 8px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', fontWeight: 600 }}>{l.hours}h</td>
                                 <td style={{ padding: '7px 8px', color: 'var(--ink-2)' }}>{l.note || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
-                                {!readOnly && (
+                                {(!readOnly && canEdit) && (
                                   <td style={{ padding: '7px 0 7px 4px' }}>
                                     <button onClick={() => removeLog(l.id)} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 2, borderRadius: 4 }}
                                       onMouseEnter={e => (e.currentTarget.style.color = 'var(--st-block)')}
@@ -449,7 +450,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly }: CardDr
                           ))}
                         </tbody>
                       </table>
-                    ) : <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 10px' }}>尚無工時記錄，點擊實際消耗卡片新增</div>}
+                    ) : <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 10px' }}>{canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}</div>}
                   </div>
                 )}
               </div>
