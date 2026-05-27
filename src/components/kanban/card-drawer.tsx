@@ -313,6 +313,21 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   )}
                 </dd>
 
+                <dt>受託人</dt>
+                <dd>
+                  {readOnly ? (
+                    owner ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
+                        <span>{owner.name}</span>
+                      </div>
+                    ) : <span style={{ color: 'var(--muted)' }}>—</span>
+                  ) : (
+                    <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
+                      onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
+                  )}
+                </dd>
+
                 <dt>優先級</dt>
                 <dd>
                   {readOnly ? ({ high: '高', normal: '中', low: '低' }[c.prio] || c.prio) : (
@@ -325,7 +340,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 </dd>
 
                 <dt>建立時間</dt>
-                <dd><span className="mono tnum" style={{ fontSize: 14 }}>{c.createdAt ?? '—'}</span></dd>
+                <dd><span className="mono tnum" style={{ fontSize: 14 }}>{c.createdAt ?? c.month ?? '—'}</span></dd>
               </dl>
 
               {/* Description */}
@@ -350,22 +365,6 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   <p style={{ fontSize: 14, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                     {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
                   </p>
-                )}
-              </div>
-
-              {/* 受託人 */}
-              <div className="drawer-section">
-                <h4>受託人</h4>
-                {readOnly ? (
-                  owner ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
-                      <span>{owner.name} <span style={{ color: 'var(--muted)', fontSize: 13 }}>· {owner.alias} · {owner.cat}</span></span>
-                    </div>
-                  ) : <span style={{ color: 'var(--muted)', fontSize: 14 }}>—</span>
-                ) : (
-                  <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
-                    onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
                 )}
               </div>
 
@@ -403,7 +402,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   {isOver && <span className="over-fill" style={{ left: '100%', width: `${Math.min(overPct, 30)}%`, position: 'absolute' }} />}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 12, color: 'var(--muted)' }}>
-                  <span>0h</span><span>{c.est}h</span>
+                  <span>{computedActual}h 實際</span><span>{c.est}h 預估</span>
                 </div>
               </div>
 
