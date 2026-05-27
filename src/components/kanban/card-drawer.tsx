@@ -325,7 +325,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 </dd>
 
                 <dt>建立時間</dt>
-                <dd><span className="mono tnum" style={{ fontSize: 14 }}>2026/05/01</span></dd>
+                <dd><span className="mono tnum" style={{ fontSize: 14 }}>{c.createdAt ?? '—'}</span></dd>
               </dl>
 
               {/* Description */}

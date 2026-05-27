@@ -63,7 +63,13 @@ export default function App() {
     [members],
   );
 
-  const [page, setPage] = useState<Page>('kanban');
+  const [page, setPage] = useState<Page>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('page') as Page | null;
+      if (p && ['kanban', 'dashboard', 'capacity', 'history', 'permissions'].includes(p)) return p;
+    }
+    return 'kanban';
+  });
   const [month, setMonth] = useState('2026/05');
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
@@ -149,15 +155,21 @@ export default function App() {
     [members, memberDays, memberRatios, defaultWorkDays, leaveByMember],
   );
 
-  // Sync openCardId with URL ?card= param
+  // Sync openCardId with URL ?card= param (on mount only)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cardId = params.get('card');
     if (cardId) setOpenCardId(cardId);
   }, []);
 
+  // Sync page + card to URL whenever either changes
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (page === 'kanban') {
+      params.delete('page');
+    } else {
+      params.set('page', page);
+    }
     if (openCardId) {
       params.set('card', openCardId);
     } else {
@@ -165,7 +177,7 @@ export default function App() {
     }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [openCardId]);
+  }, [page, openCardId]);
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
@@ -182,6 +194,9 @@ export default function App() {
       const n = Number(c.id.split('-')[1]);
       return isNaN(n) ? m : Math.max(m, n);
     }, 0);
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const createdAt = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const nc: Card = {
       ...data,
       id: formatId(maxN + 1),
@@ -190,6 +205,7 @@ export default function App() {
       actual: 0,
       attach: 0,
       activity: [],
+      createdAt,
     };
     addCard(nc).catch(console.error);
   }, [cards, addCard]);

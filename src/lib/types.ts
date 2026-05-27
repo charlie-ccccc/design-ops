@@ -43,6 +43,7 @@ export interface Card {
   desc: string;
   attach: number;
   activity: ActivityEntry[];
+  createdAt?: string;
 }
 
 export interface Member {
