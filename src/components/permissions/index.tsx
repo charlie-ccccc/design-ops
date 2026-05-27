@@ -7,8 +7,8 @@ import { DEPTS } from '@/lib/data';
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
 
 const ROLE_DESC: Record<Role, string> = {
-  Admin: '成員功能 + 調整權限、封存、量能管理',
-  成員:  '移動單子、修改所有內容、記錄工時、留言',
+  Admin: '看板全功能 + 調整權限、量能管理（不計入受託人與工時）',
+  成員:  '看板全功能 + 計入受託人、工時表、量能計算',
   一般:  '開單、看單子、修改自己的單、留言',
 };
 
