@@ -8,9 +8,9 @@ import {
 } from 'lucide-react';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Card, LeaveEntry, PublicHoliday, CardStatus } from '@/lib/types';
+import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat } from '@/lib/types';
 import {
-  MEMBERS, MEMBER_BY_ID, STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
+  STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
 } from '@/lib/data';
 import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
@@ -40,6 +40,29 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, seedCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
+
+  // Dynamic member list: Firestore users with 成員 or Admin role
+  const members = useMemo((): Member[] =>
+    siteUsers
+      .filter(u => u.roles.includes('成員') || u.roles.includes('Admin'))
+      .map(u => ({
+        id: u.uid,
+        name: u.name,
+        alias: u.name,
+        initial: u.initial ?? u.name[0] ?? '?',
+        cat: (u.cat ?? 'UIUX') as Cat,
+        hue: u.hue ?? 1,
+        base: 168,
+        ratio: 0.875,
+      })),
+    [siteUsers],
+  );
+
+  const memberById = useMemo(() =>
+    Object.fromEntries(members.map(m => [m.id, m])),
+    [members],
+  );
+
   const [page, setPage] = useState<Page>('kanban');
   const [month, setMonth] = useState('2026/05');
   const [openCardId, setOpenCardId] = useState<string | null>(null);
@@ -107,9 +130,9 @@ export default function App() {
     [cards, month]);
 
   const leaveByMember = useMemo(() =>
-    Object.fromEntries(MEMBERS.map(m => [m.id,
+    Object.fromEntries(members.map(m => [m.id,
       sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
-    [leave]);
+    [members, leave]);
 
   const defaultWorkDays = useMemo(
     () => workingDaysInMonth(month, publicHolidays),
@@ -117,13 +140,13 @@ export default function App() {
   );
 
   const totalCapacity = useMemo(() =>
-    MEMBERS.reduce((acc, m) => {
+    members.reduce((acc, m) => {
       const days = memberDays[m.id] ?? defaultWorkDays;
       const ratio = memberRatios[m.id] ?? m.ratio;
       const lv = leaveByMember[m.id] || 0;
       return acc + Math.max(0, Math.round(days * 8 * ratio) - lv);
     }, 0),
-    [memberDays, memberRatios, defaultWorkDays, leaveByMember],
+    [members, memberDays, memberRatios, defaultWorkDays, leaveByMember],
   );
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
@@ -275,7 +298,7 @@ export default function App() {
             {page === 'kanban' && (
               <>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  {MEMBERS.map(m => (
+                  {members.map(m => (
                     <button
                       key={m.id}
                       onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)}
@@ -358,6 +381,7 @@ export default function App() {
           {page === 'capacity' && showAdmin && (
             <Admin
               cards={monthCards}
+              members={members}
               memberRatios={memberRatios}
               setMemberRatios={setMemberRatios}
               memberDays={memberDays}

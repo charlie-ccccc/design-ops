@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import { Trash2, X } from 'lucide-react';
-import type { Card, LeaveEntry, PublicHoliday, Cat } from '@/lib/types';
-import { MEMBERS, MEMBER_BY_ID, DEPT_SHORT, DEPT_HUE } from '@/lib/data';
+import type { Card, LeaveEntry, PublicHoliday, Cat, Member } from '@/lib/types';
+import { DEPT_SHORT, DEPT_HUE } from '@/lib/data';
 import { sum, hue } from '@/lib/utils';
 
 type CatFilter = 'all' | Cat;
@@ -59,6 +59,7 @@ function dateRangeLabel(date: string, endDate?: string) {
 
 interface AdminProps {
   cards: Card[];
+  members: Member[];
   memberRatios: Record<string, number>;
   setMemberRatios: (r: Record<string, number>) => void;
   memberDays: Record<string, number>;
@@ -75,9 +76,10 @@ function capColor(pct: number) {
   return pct > 100 ? 'var(--st-block)' : pct > 85 ? 'var(--st-review)' : 'var(--accent)';
 }
 
-function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, year }: {
+function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, year, memberById }: {
   month: string; leave: LeaveEntry[]; publicHolidays: PublicHoliday[];
   selectedDate: string | null; onSelect: (d: string | null) => void; year: number;
+  memberById: Record<string, Member>;
 }) {
   const [, mo] = month.split('/').map(Number);
   const daysInMonth = new Date(year, mo, 0).getDate();
@@ -130,7 +132,7 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, ye
             {members.length > 0 && (
               <div className="cal-dots">
                 {members.slice(0, 4).map((mid, j) => {
-                  const mb = MEMBER_BY_ID[mid];
+                  const mb = memberById[mid];
                   return <div key={j} style={{ width: 4, height: 4, borderRadius: '50%', flexShrink: 0, background: mb ? hue(mb.hue) : 'var(--muted-2)' }} />;
                 })}
               </div>
@@ -143,16 +145,17 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, ye
 }
 
 export default function Admin({
-  cards, memberRatios, setMemberRatios, memberDays, setMemberDays,
+  cards, members, memberRatios, setMemberRatios, memberDays, setMemberDays,
   leave, setLeave, publicHolidays, month, defaultWorkDays,
 }: AdminProps) {
+  const memberById = Object.fromEntries(members.map(m => [m.id, m]));
   const year = Number(month.split('/')[0]);
   const [tab, setTab] = useState<MainTab>('capacity');
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [leaveModal, setLeaveModal] = useState(false);
   const [newLeave, setNewLeave] = useState({
-    member: MEMBERS[0].id,
+    member: '',
     startDate: '', startMin: 510,
     endDate:   '', endMin:   1080,
   });
@@ -163,12 +166,12 @@ export default function Admin({
   }, [newLeave, publicHolidays, year]);
 
   const leaveByMember = useMemo(() =>
-    Object.fromEntries(MEMBERS.map(m => [m.id,
+    Object.fromEntries(members.map(m => [m.id,
       sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
-    [leave]);
+    [members, leave]);
 
-  const memberRows = useMemo(() => MEMBERS.map(m => {
-    const days = memberDays[m.id] ?? defaultWorkDays;
+  const memberRows = useMemo(() => members.map(m => {
+    const days  = memberDays[m.id]   ?? defaultWorkDays;
     const ratio = memberRatios[m.id] ?? m.ratio;
     const lv = leaveByMember[m.id] || 0;
     const monthHours = Math.max(0, Math.round(days * 8 * ratio) - lv);
@@ -205,7 +208,7 @@ export default function Admin({
   const catLabel = catFilter === 'all' ? '整體' : catFilter;
 
   function addLeave() {
-    if (!newLeave.startDate.trim() || !newLeave.endDate.trim() || newLeaveHours <= 0) return;
+    if (!newLeave.startDate.trim() || !newLeave.endDate.trim() || newLeaveHours <= 0 || !newLeave.member) return;
     const isSameDay = newLeave.startDate === newLeave.endDate;
     setLeave([...leave, {
       id: `lv${Date.now()}`,
@@ -406,6 +409,7 @@ export default function Admin({
                   month={month} year={year}
                   leave={leave} publicHolidays={publicHolidays}
                   selectedDate={selectedDate} onSelect={setSelectedDate}
+                  memberById={memberById}
                 />
               </div>
 
@@ -424,7 +428,7 @@ export default function Admin({
                   </span>
                   <button className="btn btn-primary" style={{ fontSize: 12, padding: '4px 12px' }}
                           onClick={() => {
-                            setNewLeave(p => ({ ...p, startDate: selectedDate ?? '', endDate: selectedDate ?? '' }));
+                            setNewLeave(p => ({ ...p, startDate: selectedDate ?? '', endDate: selectedDate ?? '', member: p.member || (members[0]?.id ?? '') }));
                             setLeaveModal(true);
                           }}>
                     <span style={{ fontSize: 15, lineHeight: 1, marginRight: 2 }}>+</span> 新增
@@ -438,7 +442,7 @@ export default function Admin({
                       {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
                     </div>
                   ) : visibleLeave.map(entry => {
-                    const mb = MEMBER_BY_ID[entry.member];
+                    const mb = memberById[entry.member];
                     return (
                       <div key={entry.id} className="leave-row">
                         <div className="who">
@@ -472,7 +476,8 @@ export default function Admin({
                       <label>成員</label>
                       <select className="input" style={{ width: '100%' }} value={newLeave.member}
                               onChange={e => setNewLeave(p => ({ ...p, member: e.target.value }))}>
-                        {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        {!newLeave.member && <option value="">請選擇成員</option>}
+                        {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                       </select>
                     </div>
                     {/* 開始 */}
