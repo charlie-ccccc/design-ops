@@ -360,7 +360,7 @@ export default function App() {
               </>
             )}
 
-            {(page === 'kanban' || page === 'dashboard') && (
+            {(page === 'kanban' || (page === 'dashboard' && !dashFilter)) && (
               <select className="input" value={filterDept} onChange={e => setFilterDept(e.target.value)}>
                 <option value="">全部單位</option>
                 {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
