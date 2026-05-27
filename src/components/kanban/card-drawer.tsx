@@ -254,7 +254,16 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
 
               {/* Cat + Status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
+                {readOnly ? (
+                  <span className="kcard-cat" data-cat={c.cat}>{c.cat}</span>
+                ) : (
+                  <select className="kcard-cat" data-cat={c.cat} value={c.cat}
+                    style={{ appearance: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+                    onChange={e => onUpdate(c.id, { cat: e.target.value as Card['cat'] })}>
+                    <option value="UIUX">UIUX</option>
+                    <option value="平面視覺">平面視覺</option>
+                  </select>
+                )}
                 <select className="input" value={c.status} disabled={readOnly || !canEdit}
                   onChange={e => onUpdate(c.id, { status: e.target.value as Card['status'] })} style={{ marginLeft: 'auto' }}>
                   {STATUSES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
