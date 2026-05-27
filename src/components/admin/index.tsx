@@ -261,63 +261,72 @@ export default function Admin({
 
         {/* ── 設計量能 ── */}
         {tab === 'capacity' && (
-          <div style={{ padding: '20px 24px 28px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ padding: '20px 24px 28px' }}>
 
             {/* Filter */}
-            <div className="layout-pick">
+            <div className="layout-pick" style={{ marginBottom: 20 }}>
               {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面視覺']] as [CatFilter, string][]).map(([v, lbl]) => (
                 <button key={v} data-on={catFilter === v ? '1' : '0'} onClick={() => setCatFilter(v)}>{lbl}</button>
               ))}
             </div>
 
-            {/* Gauge + stats row */}
-            <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-              {/* Big percentage */}
-              <div style={{ textAlign: 'center', minWidth: 140 }}>
-                <div style={{ font: `600 56px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
-                  {filteredPct}%
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>{catLabel}量能使用率</div>
-                <div style={{ height: 6, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden', marginTop: 10 }}>
-                  <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
-                </div>
-              </div>
+            {/* Left / Right split */}
+            <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 32, alignItems: 'start' }}>
 
-              {/* 3 stat cards in a row */}
-              {[
-                { l: '可用工時', v: `${filteredMonthHours}h` },
-                { l: '本月承接', v: `${filteredLoad}h` },
-                { l: '請假工時', v: `${filteredLeave}h` },
-              ].map((s, i) => (
-                <div key={i} style={{ flex: 1, minWidth: 100, background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '16px 20px' }}>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
-                  <div style={{ font: `600 24px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 8 }}>{s.v}</div>
+              {/* ── Left: 量能總覽 ── */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                  量能總覽
                 </div>
-              ))}
-            </div>
 
-            {/* Dept bars */}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
-                承接分佈
-                <span className="tag" style={{ fontSize: 10, marginLeft: 8 }}>{deptLoads.length} 部門</span>
-              </div>
-              {deptLoads.length === 0 ? (
-                <div style={{ fontSize: 12, color: 'var(--muted-2)' }}>無資料</div>
-              ) : deptLoads.map(([dept, load]) => {
-                const pct = (load / maxDeptLoad) * 100;
-                const color = hue(DEPT_HUE[dept] || 1);
-                return (
-                  <div key={dept} className="dept-bar-row">
-                    <div className="name" title={dept}>
-                      <span className="chip-dot" style={{ background: color, display: 'inline-block', marginRight: 6 }} />
-                      {DEPT_SHORT[dept] || dept}
-                    </div>
-                    <div className="v">{load}h</div>
-                    <div className="bar"><span style={{ width: `${pct}%`, background: color }} /></div>
+                {/* Big percentage gauge */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ font: `600 64px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
+                    {filteredPct}%
                   </div>
-                );
-              })}
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>{catLabel}量能使用率</div>
+                  <div style={{ height: 6, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden', marginTop: 12 }}>
+                    <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
+                  </div>
+                </div>
+
+                {/* 3 stat cards stacked */}
+                {[
+                  { l: '可用工時', v: `${filteredMonthHours}h` },
+                  { l: '本月承接', v: `${filteredLoad}h` },
+                  { l: '請假工時', v: `${filteredLeave}h` },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '14px 18px' }}>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
+                    <div style={{ font: `600 26px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 6 }}>{s.v}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── Right: 承接分佈 ── */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
+                  承接分佈
+                  <span className="tag" style={{ fontSize: 10, marginLeft: 8 }}>{deptLoads.length} 部門</span>
+                </div>
+                {deptLoads.length === 0 ? (
+                  <div style={{ fontSize: 12, color: 'var(--muted-2)' }}>無資料</div>
+                ) : deptLoads.map(([dept, load]) => {
+                  const pct = (load / maxDeptLoad) * 100;
+                  const color = hue(DEPT_HUE[dept] || 1);
+                  return (
+                    <div key={dept} className="dept-bar-row">
+                      <div className="name" title={dept}>
+                        <span className="chip-dot" style={{ background: color, display: 'inline-block', marginRight: 6 }} />
+                        {DEPT_SHORT[dept] || dept}
+                      </div>
+                      <div className="v">{load}h</div>
+                      <div className="bar"><span style={{ width: `${pct}%`, background: color }} /></div>
+                    </div>
+                  );
+                })}
+              </div>
+
             </div>
           </div>
         )}
