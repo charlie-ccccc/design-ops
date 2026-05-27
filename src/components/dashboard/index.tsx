@@ -30,22 +30,22 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--divider)' }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600 }}>{filter.label}</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{filter.cards.length} 張需求單</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{filter.cards.length} 張需求單</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', padding: 4 }}><X size={16} /></button>
         </div>
         <div style={{ overflow: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: 'var(--surface-2)' }}>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID</th>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', minWidth: 180 }}>標題</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>發起單位</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>委託人</th>
-                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>受託人</th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>預估(h)</th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>實際(h)</th>
-                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>狀態</th>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID</th>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', minWidth: 180 }}>標題</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>發起單位</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>委託人</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>受託人</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>預估(h)</th>
+                <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>實際(h)</th>
+                <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>狀態</th>
               </tr>
             </thead>
             <tbody>
@@ -58,7 +58,7 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                 const isOver = c.actual > c.est;
                 return (
                   <tr key={c.id} style={{ borderBottom: '1px solid var(--divider)' }}>
-                    <td style={{ padding: '9px 16px', fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--muted)' }}>{c.id}</td>
+                    <td style={{ padding: '9px 16px', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--muted)' }}>{c.id}</td>
                     <td style={{ padding: '9px 16px', fontWeight: 500 }}>
                       {onOpenCard ? (
                         <span
@@ -68,14 +68,14 @@ function CardListModal({ filter, onClose, onOpenCard }: { filter: ModalFilter; o
                       ) : c.title}
                     </td>
                     <td style={{ padding: '9px 12px' }}>
-                      <span className="dept-pill" style={{ fontSize: 11 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
+                      <span className="dept-pill" style={{ fontSize: 12 }}>{DEPT_SHORT[c.dept] || c.dept}</span>
                     </td>
                     <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{requesterName ?? '—'}</td>
                     <td style={{ padding: '9px 12px', color: 'var(--ink-2)' }}>{member?.name ?? '—'}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace' }}>{c.est}</td>
                     <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', color: isOver ? 'var(--st-block)' : undefined }}>{c.actual}</td>
                     <td style={{ padding: '9px 16px' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: status?.dot, flexShrink: 0 }} />
                         {status?.name ?? c.status}
                       </span>

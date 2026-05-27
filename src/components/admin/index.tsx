@@ -239,7 +239,7 @@ export default function Admin({
               onClick={() => setTab(t.id)}
               style={{
                 appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
-                padding: '11px 18px', fontSize: 13, fontWeight: tab === t.id ? 600 : 400,
+                padding: '11px 18px', fontSize: 14, fontWeight: tab === t.id ? 600 : 400,
                 color: tab === t.id ? 'var(--ink)' : 'var(--muted)',
                 borderBottom: tab === t.id ? '2px solid var(--accent)' : '2px solid transparent',
                 marginBottom: -1, transition: 'color 0.15s', fontFamily: 'inherit',
@@ -252,12 +252,12 @@ export default function Admin({
           <span style={{ flex: 1 }} />
 
           {tab === 'members' && (
-            <span style={{ fontSize: 11.5, color: 'var(--muted)', marginRight: 16 }}>
+            <span style={{ fontSize: 13, color: 'var(--muted)', marginRight: 16 }}>
               工作天 × 8 × 工時比例 − 請假
             </span>
           )}
           {tab === 'leave' && selectedDate && (
-            <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px', gap: 4, marginRight: 16 }}
+            <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px', gap: 4, marginRight: 16 }}
                     onClick={() => setSelectedDate(null)}>
               {selectedDate} <X size={11} />
             </button>
@@ -280,7 +280,7 @@ export default function Admin({
 
               {/* ── Left: 量能總覽 ── */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                   量能總覽
                 </div>
 
@@ -289,7 +289,7 @@ export default function Admin({
                   <div style={{ font: `600 64px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
                     {filteredPct}%
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>{catLabel}量能使用率</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>{catLabel}量能使用率</div>
                   <div style={{ height: 6, borderRadius: 99, background: 'var(--surface-2)', overflow: 'hidden', marginTop: 12 }}>
                     <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
                   </div>
@@ -302,7 +302,7 @@ export default function Admin({
                   { l: '請假工時', v: `${filteredLeave}h` },
                 ].map((s, i) => (
                   <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '14px 18px' }}>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
                     <div style={{ font: `600 26px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 6 }}>{s.v}</div>
                   </div>
                 ))}
@@ -310,12 +310,12 @@ export default function Admin({
 
               {/* ── Right: 承接分佈 ── */}
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
                   承接分佈
-                  <span className="tag" style={{ fontSize: 10, marginLeft: 8 }}>{deptLoads.length} 部門</span>
+                  <span className="tag" style={{ fontSize: 12, marginLeft: 8 }}>{deptLoads.length} 部門</span>
                 </div>
                 {deptLoads.length === 0 ? (
-                  <div style={{ fontSize: 12, color: 'var(--muted-2)' }}>無資料</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted-2)' }}>無資料</div>
                 ) : deptLoads.map(([dept, load]) => {
                   const pct = (load / maxDeptLoad) * 100;
                   const color = hue(DEPT_HUE[dept] || 1);
@@ -354,8 +354,8 @@ export default function Admin({
                       <div className="member">
                         <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>
                         <div>
-                          <div style={{ fontSize: 13 }}>{m.name}</div>
-                          <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{m.cat}</div>
+                          <div style={{ fontSize: 14 }}>{m.name}</div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)' }}>{m.cat}</div>
                         </div>
                       </div>
                     </td>
@@ -420,13 +420,13 @@ export default function Admin({
                   <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
                     {selectedDate ? `${selectedDate} 請假` : '所有請假記錄'}
                     {selectedDate && (
-                      <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 7px', marginLeft: 8 }}
+                      <button className="btn btn-ghost" style={{ fontSize: 12, padding: '2px 7px', marginLeft: 8 }}
                               onClick={() => setSelectedDate(null)}>
                         清除 <X size={10} />
                       </button>
                     )}
                   </span>
-                  <button className="btn btn-primary" style={{ fontSize: 12, padding: '4px 12px' }}
+                  <button className="btn btn-primary" style={{ fontSize: 13, padding: '4px 12px' }}
                           onClick={() => {
                             setNewLeave(p => ({ ...p, startDate: selectedDate ?? '', endDate: selectedDate ?? '', member: p.member || (members[0]?.id ?? '') }));
                             setLeaveModal(true);
@@ -438,7 +438,7 @@ export default function Admin({
                 {/* List body */}
                 <div className="leave-list" style={{ flex: 1, minHeight: 200 }}>
                   {visibleLeave.length === 0 ? (
-                    <div style={{ padding: '24px 18px', fontSize: 12.5, color: 'var(--muted-2)', textAlign: 'center' }}>
+                    <div style={{ padding: '24px 18px', fontSize: 13, color: 'var(--muted-2)', textAlign: 'center' }}>
                       {selectedDate ? '當日無請假記錄' : '尚無請假記錄'}
                     </div>
                   ) : visibleLeave.map(entry => {
@@ -511,7 +511,7 @@ export default function Admin({
                     </div>
                     {/* 計算工時 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 8 }}>
-                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>計算工時</span>
+                      <span style={{ fontSize: 13, color: 'var(--muted)' }}>計算工時</span>
                       <span style={{ fontFamily: 'var(--font-mono), monospace', fontWeight: 700, fontSize: 16, color: newLeaveHours > 0 ? 'var(--ink)' : 'var(--muted-2)', marginLeft: 'auto' }}>
                         {newLeaveHours > 0 ? `${newLeaveHours} h` : '—'}
                       </span>

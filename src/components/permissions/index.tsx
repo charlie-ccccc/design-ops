@@ -69,7 +69,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
               onClick={() => setTab(t)}
               style={{
                 appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
-                padding: '11px 18px', fontSize: 13, fontWeight: tab === t ? 600 : 400,
+                padding: '11px 18px', fontSize: 14, fontWeight: tab === t ? 600 : 400,
                 color: tab === t ? 'var(--ink)' : 'var(--muted)',
                 borderBottom: tab === t ? '2px solid var(--accent)' : '2px solid transparent',
                 marginBottom: -1, transition: 'color 0.15s',
@@ -86,12 +86,12 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
             <div style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
               {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
                 <div key={role} style={{ flex: 1, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 3 }}>{role}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{role}</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
                 </div>
               ))}
             </div>
-            <div style={{ padding: '4px 16px 8px', fontSize: 11.5, color: 'var(--muted)' }}>
+            <div style={{ padding: '4px 16px 8px', fontSize: 13, color: 'var(--muted)' }}>
               僅 @cmoney.com.tw 帳號可透過 Google 登入
               {!isAdmin && <span style={{ marginLeft: 8, color: 'var(--st-block)' }}>（需 Admin 權限才能修改角色）</span>}
             </div>
@@ -109,7 +109,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
                   <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, transparent)' : undefined }}>
                     <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>
                       {u.name}
-                      {u.uid === currentUser.uid && <span style={{ fontSize: 10, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
+                      {u.uid === currentUser.uid && <span style={{ fontSize: 12, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
                     </td>
                     <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
                     <td style={{ textAlign: 'left' }}>
@@ -123,7 +123,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
                               disabled={!isAdmin}
                               style={{
                                 appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                                borderRadius: 6, padding: '3px 10px', fontSize: 12,
+                                borderRadius: 6, padding: '3px 10px', fontSize: 13,
                                 cursor: isAdmin ? 'pointer' : 'default', fontFamily: 'inherit',
                                 background: active ? 'var(--accent-soft)' : 'none',
                                 color: active ? 'var(--accent)' : 'var(--muted)',
@@ -142,7 +142,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
                       {u.roles.includes('成員') ? (
                         <select
                           className="input"
-                          style={{ fontSize: 12 }}
+                          style={{ fontSize: 13 }}
                           value={u.cat ?? ''}
                           disabled={!isAdmin}
                           onChange={e => setUserCat(u.uid, e.target.value as DesignCat)}
@@ -152,7 +152,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
                           <option value="平面視覺">平面視覺</option>
                         </select>
                       ) : (
-                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                        <span style={{ color: 'var(--muted)', fontSize: 13 }}>—</span>
                       )}
                     </td>
                   </tr>
@@ -160,7 +160,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
               </tbody>
             </table>
             {users.length === 0 && (
-              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 14 }}>
                 尚無用戶資料
               </div>
             )}
@@ -169,7 +169,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
 
         {tab === 'depts' && (
           <>
-            <div style={{ padding: '8px 16px 4px', fontSize: 11.5, color: 'var(--muted)' }}>
+            <div style={{ padding: '8px 16px 4px', fontSize: 13, color: 'var(--muted)' }}>
               新增需求單時的發起單位選項
             </div>
             <div style={{ padding: '8px 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
@@ -177,7 +177,7 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
                 <span key={d} style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
                   padding: '4px 10px 4px 12px', background: 'var(--surface-2)',
-                  border: '1px solid var(--border)', borderRadius: 20, fontSize: 13,
+                  border: '1px solid var(--border)', borderRadius: 20, fontSize: 14,
                 }}>
                   {d}
                   <button

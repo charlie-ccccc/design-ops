@@ -51,7 +51,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
           <span className="y">{year}</span>
           {mon}
         </div>
-        <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>
           最多：{DEPT_SHORT[item.topDept] || item.topDept}
         </div>
       </div>
@@ -63,7 +63,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
             <div className="v">
               {s.v}
               {typeof s.v === 'number' && (
-                <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 2 }}>{s.sub}</span>
+                <span style={{ fontSize: 13, color: 'var(--muted)', marginLeft: 2 }}>{s.sub}</span>
               )}
             </div>
             {typeof s.v !== 'number' && <div className="sub">{s.sub}</div>}
@@ -75,7 +75,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
         {item.isLive && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
             color: 'var(--st-done)',
             background: 'color-mix(in oklab, var(--st-done) 12%, transparent)',
             padding: '2px 7px', borderRadius: 4,
@@ -119,7 +119,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
               const isOver = card.actual > card.est;
               return (
                 <tr key={card.id}>
-                  <td className="cell-num" style={{ fontSize: 10.5, fontFamily: 'var(--font-mono), monospace', letterSpacing: '0.02em' }}>
+                  <td className="cell-num" style={{ fontSize: 12, fontFamily: 'var(--font-mono), monospace', letterSpacing: '0.02em' }}>
                     {card.id}
                   </td>
                   <td style={{ textAlign: 'left' }}>
@@ -137,7 +137,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
                     </button>
                   </td>
                   <td style={{ textAlign: 'left' }}>
-                    <span className="dept-pill" style={{ fontSize: 11 }}>
+                    <span className="dept-pill" style={{ fontSize: 12 }}>
                       {DEPT_SHORT[card.dept] || card.dept}
                     </span>
                   </td>
@@ -151,7 +151,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
                     {card.actual}
                   </td>
                   <td style={{ textAlign: 'left' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13 }}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: status?.dot, flexShrink: 0 }} />
                       {status?.name ?? card.status}
                     </span>
@@ -215,7 +215,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
         {isLive && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
             color: 'var(--st-done)', background: 'color-mix(in oklab, var(--st-done) 12%, transparent)',
             padding: '2px 7px', borderRadius: 4,
           }}>
@@ -265,7 +265,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
           </button>
         )}
         {hasFilter && (
-          <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+          <span style={{ fontSize: 13, color: 'var(--muted)' }}>
             顯示 {filtered.length} / {archive.cardList.length} 張
           </span>
         )}

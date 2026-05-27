@@ -48,33 +48,33 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
   return (
     <div style={{ position: 'relative' }}>
       <button onClick={() => { setOpen(o => !o); setQ(''); }}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 13 }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 14 }}>
         {selected ? (
           <>
             <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>
             <span style={{ fontWeight: 500 }}>{selected.name}</span>
           </>
         ) : <span style={{ color: 'var(--muted)' }}>{placeholder}</span>}
-        <span style={{ marginLeft: 4, color: 'var(--muted)', fontSize: 10 }}>▾</span>
+        <span style={{ marginLeft: 4, color: 'var(--muted)', fontSize: 12 }}>▾</span>
       </button>
       {open && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => { setOpen(false); setQ(''); }} />
           <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 100, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 240, overflow: 'hidden' }}>
             <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
-              <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 12.5 }}
+              <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 14 }}
                 value={q} onChange={e => setQ(e.target.value)} />
             </div>
             <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-              <button onClick={clear} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 13, color: 'var(--muted)' }}>— 未指定 —</button>
+              <button onClick={clear} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, color: 'var(--muted)' }}>— 未指定 —</button>
               {filtered.map(u => (
                 <button key={u.id} onClick={() => pick(u)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 13, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}>
                   <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
                   <span style={{ fontWeight: 500 }}>{u.name}</span>
                 </button>
               ))}
-              {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12.5, color: 'var(--muted)' }}>無符合結果</div>}
+              {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12, color: 'var(--muted)' }}>無符合結果</div>}
             </div>
           </div>
         </>
@@ -88,7 +88,7 @@ const ALL_USERS = SITE_USERS.map(siteToAnyUser);
 
 const tabStyle = (active: boolean): React.CSSProperties => ({
   appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
-  padding: '8px 14px', fontSize: 12.5, fontFamily: 'inherit',
+  padding: '8px 14px', fontSize: 14, fontFamily: 'inherit',
   fontWeight: active ? 600 : 400,
   color: active ? 'var(--ink)' : 'var(--muted)',
   borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
@@ -109,7 +109,7 @@ function CopyLinkButton({ cardId }: { cardId: string }) {
       className="drawer-close"
       onClick={copy}
       title="複製連結"
-      style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
+      style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
     >
       <Link size={13} />
       {copied ? '已複製' : '複製連結'}
@@ -265,7 +265,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 <dt>到期日</dt>
                 <dd>
                   {readOnly ? (
-                    <span className="mono tnum" style={{ fontSize: 12.5 }}>{c.due || '—'}</span>
+                    <span className="mono tnum" style={{ fontSize: 14 }}>{c.due || '—'}</span>
                   ) : (
                     <input type="date" className="input" value={toDateInput(c.due, c.month)}
                       onChange={e => onUpdate(c.id, { due: fromDateInput(e.target.value) })} />
@@ -325,7 +325,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 </dd>
 
                 <dt>建立時間</dt>
-                <dd><span className="mono tnum" style={{ fontSize: 12.5 }}>2026/05/01</span></dd>
+                <dd><span className="mono tnum" style={{ fontSize: 14 }}>2026/05/01</span></dd>
               </dl>
 
               {/* Description */}
@@ -333,21 +333,21 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <h4 style={{ margin: 0 }}>說明</h4>
                   {!readOnly && !editingDesc && (
-                    <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }}
+                    <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }}
                       onClick={() => { setDraftDesc(c.desc || ''); setEditingDesc(true); }}>編輯</button>
                   )}
                   {!readOnly && editingDesc && (
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn btn-ghost" style={{ fontSize: 11.5, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
-                      <button className="btn btn-primary" style={{ fontSize: 11.5, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
+                      <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
+                      <button className="btn btn-primary" style={{ fontSize: 13, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
                     </div>
                   )}
                 </div>
                 {editingDesc ? (
-                  <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.6 }}
+                  <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.6 }}
                     value={draftDesc} onChange={e => setDraftDesc(e.target.value)} />
                 ) : (
-                  <p style={{ fontSize: 13, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                  <p style={{ fontSize: 14, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                     {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
                   </p>
                 )}
@@ -360,9 +360,9 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   owner ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
-                      <span>{owner.name} <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>· {owner.alias} · {owner.cat}</span></span>
+                      <span>{owner.name} <span style={{ color: 'var(--muted)', fontSize: 13 }}>· {owner.alias} · {owner.cat}</span></span>
                     </div>
-                  ) : <span style={{ color: 'var(--muted)', fontSize: 13 }}>—</span>
+                  ) : <span style={{ color: 'var(--muted)', fontSize: 14 }}>—</span>
                 ) : (
                   <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
                     onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
@@ -392,7 +392,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                       {isOver ? `超出 ${computedActual - c.est}h` : c.est > 0 ? `剩餘 ${c.est - computedActual}h` : canEdit ? '點擊記錄工時' : '—'}
                     </div>
                     {(!readOnly && canEdit) && (
-                      <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 10.5, color: 'var(--accent)', fontWeight: 600 }}>
+                      <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
                         + 記錄
                       </div>
                     )}
@@ -402,7 +402,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   <span className="fill" style={{ width: `${isOver ? 100 : pct}%` }} />
                   {isOver && <span className="over-fill" style={{ left: '100%', width: `${Math.min(overPct, 30)}%`, position: 'absolute' }} />}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10.5, color: 'var(--muted)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 12, color: 'var(--muted)' }}>
                   <span>0h</span><span>{c.est}h</span>
                 </div>
               </div>
@@ -412,10 +412,10 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 <div style={{ display: 'flex', borderBottom: '1px solid var(--divider)', marginBottom: 12 }}>
                   <button style={tabStyle(bottomTab === 'activity')} onClick={() => setBottomTab('activity')}>活動</button>
                   <button style={tabStyle(bottomTab === 'comments')} onClick={() => setBottomTab('comments')}>
-                    留言{comments.length > 0 && <span style={{ marginLeft: 4, fontSize: 10.5, color: 'var(--muted)' }}>({comments.length})</span>}
+                    留言{comments.length > 0 && <span style={{ marginLeft: 4, fontSize: 12, color: 'var(--muted)' }}>({comments.length})</span>}
                   </button>
                   <button style={tabStyle(bottomTab === 'timelogs')} onClick={() => setBottomTab('timelogs')}>
-                    工作時間{timeLogs.length > 0 && <span style={{ marginLeft: 4, fontSize: 10.5, color: 'var(--muted)' }}>({timeLogs.length})</span>}
+                    工作時間{timeLogs.length > 0 && <span style={{ marginLeft: 4, fontSize: 12, color: 'var(--muted)' }}>({timeLogs.length})</span>}
                   </button>
                 </div>
 
@@ -430,7 +430,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                         </div>
                       ))}
                     </div>
-                  ) : <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無活動記錄</div>
+                  ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無活動記錄</div>
                 )}
 
                 {bottomTab === 'comments' && (
@@ -442,18 +442,18 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                             <div className="av av-sm" style={{ background: 'var(--accent)', flexShrink: 0 }}>{cm.author[0]}</div>
                             <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                <span style={{ fontSize: 12, fontWeight: 600 }}>{cm.author}</span>
-                                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{cm.t}</span>
+                                <span style={{ fontSize: 14, fontWeight: 600 }}>{cm.author}</span>
+                                <span style={{ fontSize: 12, color: 'var(--muted)' }}>{cm.t}</span>
                               </div>
-                              <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{renderWithLinks(cm.text)}</div>
+                              <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{renderWithLinks(cm.text)}</div>
                             </div>
                           </div>
                         ))}
                       </div>
-                    ) : <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無留言</div>}
+                    ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無留言</div>}
                     {!readOnly && (
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                        <textarea className="input" placeholder="新增留言..." style={{ flex: 1, minHeight: 64, resize: 'vertical', fontFamily: 'inherit', fontSize: 13 }}
+                        <textarea className="input" placeholder="新增留言..." style={{ flex: 1, minHeight: 64, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
                           value={commentText} onChange={e => setCommentText(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addComment(); }} />
                         <button className="btn btn-primary" style={{ flexShrink: 0 }} onClick={addComment} disabled={!commentText.trim()}>送出</button>
@@ -465,12 +465,12 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                 {bottomTab === 'timelogs' && (
                   <div>
                     {timeLogs.length > 0 ? (
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, marginBottom: 10 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 10 }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid var(--divider)' }}>
-                            <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
-                            <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
-                            <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 11, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
+                            <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
+                            <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
+                            <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
                             {(!readOnly && canEdit) && <th style={{ width: 28 }} />}
                           </tr>
                         </thead>
@@ -479,29 +479,29 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                             editingLogId === l.id ? (
                               <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)', background: 'var(--surface-2)' }}>
                                 <td style={{ padding: '6px 8px 6px 0' }}>
-                                  <input type="date" className="input" style={{ fontSize: 12, width: 120 }}
+                                  <input type="date" className="input" style={{ fontSize: 13, width: 120 }}
                                     value={toDateInput(editLogDraft.date || l.date, c.month)}
                                     onChange={e => setEditLogDraft(d => ({ ...d, date: fromDateInput(e.target.value) }))} />
                                 </td>
                                 <td style={{ padding: '6px 8px', textAlign: 'right' }}>
-                                  <input type="number" className="input" style={{ fontSize: 12, width: 60, textAlign: 'right' }} min={0.5} step={0.5}
+                                  <input type="number" className="input" style={{ fontSize: 13, width: 60, textAlign: 'right' }} min={0.5} step={0.5}
                                     value={editLogDraft.hours || l.hours}
                                     onChange={e => setEditLogDraft(d => ({ ...d, hours: Number(e.target.value) }))} />
                                 </td>
                                 <td style={{ padding: '6px 8px' }}>
-                                  <input className="input" style={{ fontSize: 12, width: '100%' }}
+                                  <input className="input" style={{ fontSize: 13, width: '100%' }}
                                     value={editLogDraft.note}
                                     onChange={e => setEditLogDraft(d => ({ ...d, note: e.target.value }))} />
                                 </td>
                                 <td style={{ padding: '6px 0 6px 4px', whiteSpace: 'nowrap' }}>
-                                  <button className="btn btn-primary" style={{ fontSize: 11, padding: '2px 8px', marginRight: 4 }} onClick={() => saveLogEdit(l.id)}>存</button>
-                                  <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 6px' }} onClick={() => setEditingLogId(null)}>✕</button>
+                                  <button className="btn btn-primary" style={{ fontSize: 12, padding: '2px 8px', marginRight: 4 }} onClick={() => saveLogEdit(l.id)}>存</button>
+                                  <button className="btn btn-ghost" style={{ fontSize: 12, padding: '2px 6px' }} onClick={() => setEditingLogId(null)}>✕</button>
                                 </td>
                               </tr>
                             ) : (
                               <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)' }}
                                 onDoubleClick={() => { if (!readOnly && canEdit) { setEditingLogId(l.id); setEditLogDraft({ date: l.date, hours: l.hours, note: l.note }); } }}>
-                                <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--ink-2)' }}>{l.date}</td>
+                                <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 13, color: 'var(--ink-2)' }}>{l.date}</td>
                                 <td style={{ padding: '7px 8px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', fontWeight: 600 }}>{l.hours}h</td>
                                 <td style={{ padding: '7px 8px', color: 'var(--ink-2)' }}>{l.note || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
                                 {(!readOnly && canEdit) && (
@@ -518,7 +518,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                           ))}
                         </tbody>
                       </table>
-                    ) : <div style={{ fontSize: 12.5, color: 'var(--muted)', padding: '4px 0 10px' }}>{canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}</div>}
+                    ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 10px' }}>{canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}</div>}
                   </div>
                 )}
               </div>
@@ -535,20 +535,20 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div>
-                      <label style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>日期</label>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>日期</label>
                       <input type="date" className="input" style={{ width: '100%' }}
                         value={toDateInput(newLog.date, c.month)}
                         onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工時（小時）</label>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工時（小時）</label>
                       <input type="number" className="input" style={{ width: '100%' }} min={0.5} step={0.5} placeholder="例：4"
                         value={newLog.hours || ''}
                         onChange={e => setNewLog(l => ({ ...l, hours: Number(e.target.value) }))} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工作內容（選填）</label>
-                      <textarea className="input" style={{ width: '100%', minHeight: 72, resize: 'vertical', fontFamily: 'inherit', fontSize: 13 }}
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工作內容（選填）</label>
+                      <textarea className="input" style={{ width: '100%', minHeight: 72, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
                         placeholder="簡述這段時間做了什麼..."
                         value={newLog.note}
                         onChange={e => setNewLog(l => ({ ...l, note: e.target.value }))}
