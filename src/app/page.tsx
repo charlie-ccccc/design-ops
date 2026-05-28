@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat } from '@/lib/types';
 import {
   STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
-  CURRENT_CARDS, HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
+  HISTORY, DEFAULT_LEAVE, DEFAULT_HOLIDAYS,
 } from '@/lib/data';
 import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
 import { useFirestoreCards } from '@/hooks/use-firestore-cards';
@@ -38,7 +38,7 @@ type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
   const { user, loading, signOutUser } = useAuth();
-  const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards, seedCards } = useFirestoreCards();
+  const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
 
   // Dynamic member list: Firestore users with 成員 or Admin role
@@ -106,13 +106,6 @@ export default function App() {
     r.setProperty('--accent-soft', dark ? p.darkSoft : p.soft);
   }, [accent, dark]);
 
-  // Seed Firestore with demo cards on first load if collection is empty
-  useEffect(() => {
-    if (initialized && cards.length === 0) {
-      seedCards(CURRENT_CARDS).catch(console.error);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized]);
 
   useEffect(() => {
     const year = month.split('/')[0];
