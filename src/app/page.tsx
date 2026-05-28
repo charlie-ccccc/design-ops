@@ -173,8 +173,16 @@ export default function App() {
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
   const onMove = useCallback((cardId: string, newStatus: string) => {
-    updateCard(cardId, { status: newStatus as Card['status'] }).catch(console.error);
-  }, [updateCard]);
+    const card = cards.find(c => c.id === cardId);
+    if (!card || card.status === newStatus) return;
+    const now = new Date();
+    const pad = (x: number) => String(x).padStart(2, '0');
+    const stamp = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const fromName = STATUSES.find(s => s.id === card.status)?.name ?? card.status;
+    const toName = STATUSES.find(s => s.id === newStatus)?.name ?? newStatus;
+    const act = { who: user?.name ?? '系統', msg: `將狀態從「${fromName}」移至「${toName}」`, t: stamp };
+    updateCard(cardId, { status: newStatus as Card['status'], activity: [...(card.activity ?? []), act] }).catch(console.error);
+  }, [updateCard, cards, user]);
 
   const onUpdate = useCallback((cardId: string, patch: Partial<Card>) => {
     updateCard(cardId, patch).catch(console.error);

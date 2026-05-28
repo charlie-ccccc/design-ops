@@ -206,7 +206,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   function nowStamp(): string {
     const n = new Date();
     const p = (x: number) => String(x).padStart(2, '0');
-    return `${p(n.getMonth() + 1)}/${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}`;
+    return `${n.getFullYear()}/${p(n.getMonth() + 1)}/${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}`;
   }
 
   function submitLog() {
@@ -236,8 +236,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   function addComment() {
     if (!c || !commentText.trim()) return;
     const stamp = nowStamp();
-    const mmdd = stamp.slice(0, 5);
-    const newComment = { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: mmdd };
+    const newComment = { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: stamp };
     const act = { who: currentUserName ?? '主設計師', msg: '新增了留言', t: stamp };
     onUpdate(c.id, { comments: [...comments, newComment], activity: [...(c.activity ?? []), act] });
     setCommentText('');
