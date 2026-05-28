@@ -44,7 +44,7 @@ function toAnyUser(m: typeof MEMBERS[0]): AnyUser { return { id: m.id, name: m.n
 function siteToAnyUser(u: SiteUser): AnyUser { return { id: u.id, name: u.name, initial: u.initial, hue: u.hue, sub: u.dept }; }
 
 function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —' }: {
-  value: string; onChange: (name: string) => void; users: AnyUser[]; placeholder?: string;
+  value: string; onChange: (name: string, id: string) => void; users: AnyUser[]; placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
@@ -59,8 +59,8 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
     }
     setOpen(o => !o); setQ('');
   }
-  function pick(u: AnyUser) { onChange(u.name); setOpen(false); setQ(''); }
-  function clear() { onChange(''); setOpen(false); setQ(''); }
+  function pick(u: AnyUser) { onChange(u.name, u.id); setOpen(false); setQ(''); }
+  function clear() { onChange('', ''); setOpen(false); setQ(''); }
   const dropdown = open ? createPortal(
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onClick={() => { setOpen(false); setQ(''); }} />
@@ -147,7 +147,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [cloneOpen, setCloneOpen] = useState(false);
-  const [cloneDraft, setCloneDraft] = useState({ title: '', ownerName: '', requesterName: '' });
+  const [cloneDraft, setCloneDraft] = useState({ title: '', ownerName: '', ownerId: '', requesterName: '' });
   const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
   const [editingTitle, setEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -262,15 +262,14 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function openClone() {
     if (!c) return;
-    setCloneDraft({ title: `CLONE - ${c.title}`, ownerName: ownerUser?.name ?? '', requesterName: c.requester ?? '' });
+    setCloneDraft({ title: `CLONE - ${c.title}`, ownerName: ownerUser?.name ?? '', ownerId: c.owner ?? '', requesterName: c.requester ?? '' });
     setCloneOpen(true);
     setMoreOpen(false);
   }
 
   function handleClone() {
     if (!c || !cloneDraft.title.trim()) return;
-    const ownerMember = DESIGNER_USERS.find(u => u.name === cloneDraft.ownerName);
-    onClone?.({ title: cloneDraft.title.trim(), owner: ownerMember?.id ?? c.owner, requester: cloneDraft.requesterName || undefined });
+    onClone?.({ title: cloneDraft.title.trim(), owner: cloneDraft.ownerId || c.owner, requester: cloneDraft.requesterName || undefined });
     setCloneOpen(false);
   }
 
@@ -409,21 +408,6 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   )}
                 </dd>
 
-                <dt>受託人</dt>
-                <dd>
-                  {readOnly ? (
-                    ownerUser ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div className="av av-sm" style={{ background: hue(ownerUser.hue) }}>{ownerUser.initial}</div>
-                        <span>{ownerUser.name}</span>
-                      </div>
-                    ) : <span style={{ color: 'var(--muted)' }}>—</span>
-                  ) : (
-                    <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
-                      onChange={name => { const m = DESIGNER_USERS.find(u => u.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
-                  )}
-                </dd>
-
                 <dt>委託人</dt>
                 <dd>
                   {readOnly ? (
@@ -437,7 +421,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                       ) : (c.requester || '—');
                     })()
                   ) : (
-                    <MemberPicker value={c.requester || ''} users={ALL_USERS} onChange={name => onUpdate(c.id, { requester: name })} placeholder="開單人" />
+                    <MemberPicker value={c.requester || ''} users={ALL_USERS} onChange={(name) => onUpdate(c.id, { requester: name })} placeholder="開單人" />
                   )}
                 </dd>
 
@@ -478,6 +462,22 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   <p style={{ fontSize: 14, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                     {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
                   </p>
+                )}
+              </div>
+
+              {/* Assignee */}
+              <div className="drawer-section">
+                <h4>受託人</h4>
+                {readOnly ? (
+                  ownerUser ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="av av-sm" style={{ background: hue(ownerUser.hue) }}>{ownerUser.initial}</div>
+                      <span style={{ fontSize: 14 }}>{ownerUser.name}</span>
+                    </div>
+                  ) : <span style={{ fontSize: 14, color: 'var(--muted)' }}>—</span>
+                ) : (
+                  <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
+                    onChange={(name, id) => onUpdate(c.id, { owner: id })} />
                 )}
               </div>
 
@@ -673,12 +673,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>委託人</label>
                       <MemberPicker value={cloneDraft.requesterName} users={ALL_USERS}
-                        onChange={name => setCloneDraft(d => ({ ...d, requesterName: name }))} />
+                        onChange={(name) => setCloneDraft(d => ({ ...d, requesterName: name }))} />
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>受託人</label>
                       <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS}
-                        onChange={name => setCloneDraft(d => ({ ...d, ownerName: name }))} />
+                        onChange={(name, id) => setCloneDraft(d => ({ ...d, ownerName: name, ownerId: id }))} />
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
