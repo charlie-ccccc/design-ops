@@ -23,7 +23,8 @@ export function useFirestoreSettings() {
 
   const updateDepts = useCallback(async (newDepts: string[]) => {
     setDepts(newDepts);
-    await setDoc(doc(db, 'settings', 'config'), { depts: newDepts }, { merge: true });
+    await setDoc(doc(db, 'settings', 'config'), { depts: newDepts }, { merge: true })
+      .catch(err => console.error('Settings write error:', err));
   }, []);
 
   return { depts, updateDepts };
