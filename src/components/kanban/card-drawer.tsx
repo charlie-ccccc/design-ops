@@ -228,7 +228,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function saveLogEdit(id: string) {
     if (!c) return;
-    const updated = timeLogs.map(l => l.id === id ? { ...l, date: editLogDraft.date || l.date, time: editLogDraft.time || undefined, hours: editLogDraft.hours || l.hours, note: editLogDraft.note } : l);
+    const updated = timeLogs.map(l => l.id === id ? { ...l, date: editLogDraft.date || l.date, time: editLogDraft.time || undefined, hours: editLogDraft.hours > 0 ? editLogDraft.hours : l.hours, note: editLogDraft.note } : l);
     onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
     setEditingLogId(null);
   }
@@ -596,7 +596,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                             <div style={{ flex: '0 1 80px' }}>
                               <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工時（小時）</div>
                               <input type="number" className="input" style={{ width: '100%' }} min={0.5} step={0.5}
-                                value={editLogDraft.hours || l.hours}
+                                value={editLogDraft.hours}
                                 onChange={e => setEditLogDraft(d => ({ ...d, hours: Number(e.target.value) }))} />
                             </div>
                           </div>
