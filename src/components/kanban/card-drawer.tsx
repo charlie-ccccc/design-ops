@@ -63,19 +63,19 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
   function clear() { onChange(''); setOpen(false); setQ(''); }
   const dropdown = open ? createPortal(
     <>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onMouseDown={e => { e.preventDefault(); setOpen(false); setQ(''); }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onClick={() => { setOpen(false); setQ(''); }} />
       <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.18)', minWidth: 240, overflow: 'hidden' }}>
         <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
           <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 14 }}
             value={q} onChange={e => setQ(e.target.value)} />
         </div>
         <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-          <button onMouseDown={e => { e.preventDefault(); clear(); }}
+          <button onClick={() => clear()}
             style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, color: 'var(--muted)' }}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'none')}>— 未指定 —</button>
           {filtered.map(u => (
-            <button key={u.id} onMouseDown={e => { e.preventDefault(); pick(u); }}
+            <button key={u.id} onClick={() => pick(u)}
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}
               onMouseEnter={e => { if (value !== u.name) e.currentTarget.style.background = 'var(--surface-2)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = value === u.name ? 'var(--accent-soft)' : 'none'; }}>
@@ -87,7 +87,7 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
         </div>
       </div>
     </>,
-    document.body
+    typeof document !== 'undefined' ? document.body : null as never
   ) : null;
   return (
     <div style={{ position: 'relative' }}>
