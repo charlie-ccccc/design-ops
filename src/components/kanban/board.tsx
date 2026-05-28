@@ -8,6 +8,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragStartEvent,
   type DragEndEvent,
   type DragOverEvent,
@@ -16,7 +17,14 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Plus, MoreHorizontal } from 'lucide-react';
+function DroppableColumnBody({ id, isOver, children }: { id: string; isOver: boolean; children: React.ReactNode }) {
+  const { setNodeRef } = useDroppable({ id });
+  return (
+    <div ref={setNodeRef} className={`kcol-body${isOver ? ' is-over' : ''}`}>
+      {children}
+    </div>
+  );
+}
 import type { Card, CardStatus } from '@/lib/types';
 import { STATUSES } from '@/lib/data';
 import KCard from './card';
@@ -143,10 +151,7 @@ export default function KanbanBoard({
                 items={colCards.map((c) => c.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <div
-                  className={`kcol-body${isOver ? ' is-over' : ''}`}
-                  data-status={status.id}
-                >
+                <DroppableColumnBody id={status.id} isOver={isOver}>
                   {colCards.length === 0 ? (
                     <div className="kcol-empty">尚無任務</div>
                   ) : (
@@ -158,7 +163,7 @@ export default function KanbanBoard({
                       />
                     ))
                   )}
-                </div>
+                </DroppableColumnBody>
               </SortableContext>
             </div>
           );
