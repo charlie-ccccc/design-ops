@@ -47,13 +47,22 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
+  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
   const selected = users.find(u => u.name === value) ?? null;
   const filtered = q.trim() ? users.filter(u => u.name.includes(q) || (u.sub ?? '').includes(q)) : users;
+  function openPicker() {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 4, left: r.left });
+    }
+    setOpen(o => !o); setQ('');
+  }
   function pick(u: AnyUser) { onChange(u.name); setOpen(false); setQ(''); }
   function clear() { onChange(''); setOpen(false); setQ(''); }
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={() => { setOpen(o => !o); setQ(''); }}
+      <button ref={btnRef} onClick={openPicker}
         style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 14 }}>
         {selected ? (
           <>
@@ -65,8 +74,8 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
       </button>
       {open && (
         <>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => { setOpen(false); setQ(''); }} />
-          <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 100, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 240, overflow: 'hidden' }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 299 }} onClick={() => { setOpen(false); setQ(''); }} />
+          <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 300, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 240, overflow: 'hidden' }}>
             <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
               <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 14 }}
                 value={q} onChange={e => setQ(e.target.value)} />
@@ -419,7 +428,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     ) : <span style={{ color: 'var(--muted)' }}>—</span>
                   ) : (
                     <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
-                      onChange={name => { const m = MEMBERS.find(m => m.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
+                      onChange={name => { const m = DESIGNER_USERS.find(u => u.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
                   )}
                 </dd>
 
@@ -679,20 +688,6 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     <span style={{ fontSize: 14, fontWeight: 600 }}>記錄工時</span>
                     <button onClick={() => setLogModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}><X size={15} /></button>
                   </div>
-                  {c.est > 0 && (
-                    <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-                      <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
-                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>耗費時間</div>
-                        <div style={{ fontSize: 16, fontWeight: 600 }}>{computedActual + (newLog.hours || 0)}h</div>
-                      </div>
-                      <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
-                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>剩餘時間</div>
-                        <div style={{ fontSize: 16, fontWeight: 600, color: (computedActual + (newLog.hours || 0)) >= c.est ? 'var(--st-block)' : 'var(--ink)' }}>
-                          {c.est - computedActual - (newLog.hours || 0)}h
-                        </div>
-                      </div>
-                    </div>
-                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div style={{ display: 'flex', gap: 10 }}>
                       <div style={{ flex: 1 }}>
@@ -711,7 +706,14 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工時（小時）</label>
+                      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>工時（小時）</label>
+                        {c.est > 0 && (
+                          <span style={{ fontSize: 12, color: (computedActual + (newLog.hours || 0)) >= c.est ? 'var(--st-block)' : 'var(--muted)' }}>
+                            剩餘 {c.est - computedActual - (newLog.hours || 0)}h
+                          </span>
+                        )}
+                      </div>
                       <input type="number" className="input" style={{ width: '100%' }} min={0.5} step={0.5} placeholder="例：4"
                         value={newLog.hours || ''}
                         onChange={e => setNewLog(l => ({ ...l, hours: Number(e.target.value) }))} />
