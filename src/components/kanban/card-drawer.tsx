@@ -195,6 +195,8 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   }, [card]);
 
   const c = displayCard;
+  // Prefer dynamic Firestore members lookup (by UID); fall back to static data for legacy IDs
+  const ownerUser = c ? (DESIGNER_USERS.find(u => u.id === c.owner) ?? (MEMBER_BY_ID[c.owner] ? { id: c.owner, name: MEMBER_BY_ID[c.owner].name, initial: MEMBER_BY_ID[c.owner].initial, hue: MEMBER_BY_ID[c.owner].hue } : null)) : null;
   const owner = c ? MEMBER_BY_ID[c.owner] : null;
   const timeLogs: TimeLog[] = c?.timeLogs ?? [];
   const comments: Comment[] = c?.comments ?? [];
@@ -260,8 +262,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function openClone() {
     if (!c) return;
-    const ownerMember = MEMBER_BY_ID[c.owner];
-    setCloneDraft({ title: `CLONE - ${c.title}`, ownerName: ownerMember?.name ?? '', requesterName: c.requester ?? '' });
+    setCloneDraft({ title: `CLONE - ${c.title}`, ownerName: ownerUser?.name ?? '', requesterName: c.requester ?? '' });
     setCloneOpen(true);
     setMoreOpen(false);
   }
@@ -408,6 +409,21 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   )}
                 </dd>
 
+                <dt>受託人</dt>
+                <dd>
+                  {readOnly ? (
+                    ownerUser ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div className="av av-sm" style={{ background: hue(ownerUser.hue) }}>{ownerUser.initial}</div>
+                        <span>{ownerUser.name}</span>
+                      </div>
+                    ) : <span style={{ color: 'var(--muted)' }}>—</span>
+                  ) : (
+                    <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
+                      onChange={name => { const m = DESIGNER_USERS.find(u => u.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
+                  )}
+                </dd>
+
                 <dt>委託人</dt>
                 <dd>
                   {readOnly ? (
@@ -422,21 +438,6 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     })()
                   ) : (
                     <MemberPicker value={c.requester || ''} users={ALL_USERS} onChange={name => onUpdate(c.id, { requester: name })} placeholder="開單人" />
-                  )}
-                </dd>
-
-                <dt>受託人</dt>
-                <dd>
-                  {readOnly ? (
-                    owner ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div className="av av-sm" style={{ background: hue(owner.hue) }}>{owner.initial}</div>
-                        <span>{owner.name}</span>
-                      </div>
-                    ) : <span style={{ color: 'var(--muted)' }}>—</span>
-                  ) : (
-                    <MemberPicker value={owner?.name ?? ''} users={DESIGNER_USERS}
-                      onChange={name => { const m = DESIGNER_USERS.find(u => u.name === name); onUpdate(c.id, { owner: m?.id ?? '' }); }} />
                   )}
                 </dd>
 
