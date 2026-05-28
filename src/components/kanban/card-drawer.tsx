@@ -683,12 +683,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                       <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
                         <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>耗費時間</div>
-                        <div style={{ fontSize: 16, fontWeight: 600 }}>{computedActual}h</div>
+                        <div style={{ fontSize: 16, fontWeight: 600 }}>{computedActual + (newLog.hours || 0)}h</div>
                       </div>
                       <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
                         <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>剩餘時間</div>
-                        <div style={{ fontSize: 16, fontWeight: 600, color: computedActual >= c.est ? 'var(--st-block)' : 'var(--ink)' }}>
-                          {c.est - computedActual}h
+                        <div style={{ fontSize: 16, fontWeight: 600, color: (computedActual + (newLog.hours || 0)) >= c.est ? 'var(--st-block)' : 'var(--ink)' }}>
+                          {c.est - computedActual - (newLog.hours || 0)}h
                         </div>
                       </div>
                     </div>
