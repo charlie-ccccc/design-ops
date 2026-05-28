@@ -255,8 +255,8 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {copied && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>已複製 ✓</span>}
                 {!readOnly && (
-                  <div style={{ position: 'relative' }}>
-                    <button className="drawer-close" onClick={() => setMoreOpen(o => !o)} title="更多" style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <button className="drawer-close" onClick={() => setMoreOpen(o => !o)} title="更多">
                       <MoreHorizontal size={16} />
                     </button>
                     {moreOpen && (
