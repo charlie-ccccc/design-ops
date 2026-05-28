@@ -151,29 +151,7 @@ function makeHistoryCards(month: string, count: number, seed: number): Card[] {
   });
 }
 
-export const HISTORY: HistoryMonth[] = [
-  {
-    month: '2026/04', cards: 31, totalEst: 412, totalActual: 438, capacity: 1008,
-    topDept: '金融事業群-Money錢',
-    deptTotals: { '金融事業群-Money錢': 78, '金融事業群-流量事業-同學會': 56, '全球金融事業群-海外券商': 48, '金融事業群-大眾事業': 42, '總經理室': 36, '消費事業群': 34, '產品部': 28, '人力資源部': 22, '通用工程': 18, '金融事業群-流量事業-網站': 16, '合作夥伴事業群-法人事業': 14, '合作夥伴事業群-保險事業': 12, '金融事業群-大眾事業(券商)': 8 },
-    memberTotals: { mia: 88, annie: 76, charlie: 62, shujuan: 78, baoxuan: 60, sunny: 74 },
-    cardList: makeHistoryCards('2026/04', 31, 7),
-  },
-  {
-    month: '2026/03', cards: 28, totalEst: 396, totalActual: 372, capacity: 984,
-    topDept: '金融事業群-大眾事業',
-    deptTotals: { '金融事業群-大眾事業': 64, '金融事業群-Money錢': 58, '產品部': 48, '全球金融事業群-海外券商': 42, '總經理室': 36, '消費事業群': 32, '金融事業群-流量事業-網站': 30, '人力資源部': 24, '通用工程': 22, '金融事業群-大眾事業(券商)': 14, '合作夥伴事業群-法人事業': 12, '合作夥伴事業群-保險事業': 8 },
-    memberTotals: { mia: 82, annie: 68, charlie: 58, shujuan: 64, baoxuan: 54, sunny: 70 },
-    cardList: makeHistoryCards('2026/03', 28, 13),
-  },
-  {
-    month: '2026/02', cards: 24, totalEst: 334, totalActual: 318, capacity: 936,
-    topDept: '金融事業群-Money錢',
-    deptTotals: { '金融事業群-Money錢': 62, '金融事業群-流量事業-同學會': 52, '金融事業群-大眾事業': 44, '產品部': 38, '總經理室': 32, '消費事業群': 28, '通用工程': 20, '人力資源部': 18, '金融事業群-流量事業-網站': 16, '合作夥伴事業群-法人事業': 10, '全球金融事業群-海外券商': 14 },
-    memberTotals: { mia: 68, annie: 60, charlie: 48, shujuan: 56, baoxuan: 48, sunny: 54 },
-    cardList: makeHistoryCards('2026/02', 24, 3),
-  },
-];
+export const HISTORY: HistoryMonth[] = [];
 
 export const DEFAULT_HOLIDAYS: PublicHoliday[] = [
   { date: '01/01', name: '元旦' },
