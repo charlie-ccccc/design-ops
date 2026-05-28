@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Clock, MoreHorizontal } from 'lucide-react';
 import type { Card, TimeLog, Comment, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
@@ -60,6 +61,34 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
   }
   function pick(u: AnyUser) { onChange(u.name); setOpen(false); setQ(''); }
   function clear() { onChange(''); setOpen(false); setQ(''); }
+  const dropdown = open ? createPortal(
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onMouseDown={e => { e.preventDefault(); setOpen(false); setQ(''); }} />
+      <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.18)', minWidth: 240, overflow: 'hidden' }}>
+        <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
+          <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 14 }}
+            value={q} onChange={e => setQ(e.target.value)} />
+        </div>
+        <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+          <button onMouseDown={e => { e.preventDefault(); clear(); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, color: 'var(--muted)' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}>— 未指定 —</button>
+          {filtered.map(u => (
+            <button key={u.id} onMouseDown={e => { e.preventDefault(); pick(u); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}
+              onMouseEnter={e => { if (value !== u.name) e.currentTarget.style.background = 'var(--surface-2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = value === u.name ? 'var(--accent-soft)' : 'none'; }}>
+              <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
+              <span style={{ fontWeight: 500 }}>{u.name}</span>
+            </button>
+          ))}
+          {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12, color: 'var(--muted)' }}>無符合結果</div>}
+        </div>
+      </div>
+    </>,
+    document.body
+  ) : null;
   return (
     <div style={{ position: 'relative' }}>
       <button ref={btnRef} onClick={openPicker}
@@ -72,28 +101,7 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
         ) : <span style={{ color: 'var(--muted)' }}>{placeholder}</span>}
         <span style={{ marginLeft: 4, color: 'var(--muted)', fontSize: 12 }}>▾</span>
       </button>
-      {open && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 299 }} onClick={() => { setOpen(false); setQ(''); }} />
-          <div style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 300, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 240, overflow: 'hidden' }}>
-            <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--divider)' }}>
-              <input autoFocus className="input" placeholder="搜尋..." style={{ width: '100%', fontSize: 14 }}
-                value={q} onChange={e => setQ(e.target.value)} />
-            </div>
-            <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-              <button onClick={clear} style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, color: 'var(--muted)' }}>— 未指定 —</button>
-              {filtered.map(u => (
-                <button key={u.id} onClick={() => pick(u)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, textAlign: 'left', background: value === u.name ? 'var(--accent-soft)' : 'none' }}>
-                  <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
-                  <span style={{ fontWeight: 500 }}>{u.name}</span>
-                </button>
-              ))}
-              {filtered.length === 0 && <div style={{ padding: '10px 12px', fontSize: 12, color: 'var(--muted)' }}>無符合結果</div>}
-            </div>
-          </div>
-        </>
-      )}
+      {dropdown}
     </div>
   );
 }
@@ -260,7 +268,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function handleClone() {
     if (!c || !cloneDraft.title.trim()) return;
-    const ownerMember = MEMBERS.find(m => m.name === cloneDraft.ownerName);
+    const ownerMember = DESIGNER_USERS.find(u => u.name === cloneDraft.ownerName);
     onClone?.({ title: cloneDraft.title.trim(), owner: ownerMember?.id ?? c.owner, requester: cloneDraft.requesterName || undefined });
     setCloneOpen(false);
   }
@@ -662,14 +670,14 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                         onChange={e => setCloneDraft(d => ({ ...d, title: e.target.value }))} />
                     </div>
                     <div>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>受託人</label>
-                      <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS}
-                        onChange={name => setCloneDraft(d => ({ ...d, ownerName: name }))} />
-                    </div>
-                    <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>委託人</label>
                       <MemberPicker value={cloneDraft.requesterName} users={ALL_USERS}
                         onChange={name => setCloneDraft(d => ({ ...d, requesterName: name }))} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>受託人</label>
+                      <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS}
+                        onChange={name => setCloneDraft(d => ({ ...d, ownerName: name }))} />
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>

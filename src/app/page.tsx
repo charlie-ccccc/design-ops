@@ -202,7 +202,7 @@ export default function App() {
       actual: 0,
       timeLogs: [],
       comments: [],
-      activity: [],
+      activity: [{ who: user?.name ?? '系統', msg: '複製並建立了此任務', t: createdAt }],
       status: 'belog',
       createdAt,
     };
@@ -225,7 +225,7 @@ export default function App() {
       est: 0,
       actual: 0,
       attach: 0,
-      activity: [],
+      activity: [{ who: user?.name ?? '系統', msg: '建立了此任務', t: createdAt }],
       createdAt,
     };
     addCard(nc).catch(console.error);
