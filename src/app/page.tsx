@@ -16,6 +16,7 @@ import {
 import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
 import { useFirestoreCards } from '@/hooks/use-firestore-cards';
 import { useFirestoreUsers } from '@/hooks/use-firestore-users';
+import { useFirestoreSettings } from '@/hooks/use-firestore-settings';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
@@ -40,6 +41,7 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
+  const { depts, updateDepts } = useFirestoreSettings();
 
   // Dynamic member list: Firestore users with 成員 or Admin role
   const members = useMemo((): Member[] =>
@@ -469,7 +471,7 @@ export default function App() {
             />
           )}
           {page === 'permissions' && showAdmin && (
-            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} />
+            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} />
           )}
         </div>
       </main>
@@ -484,6 +486,7 @@ export default function App() {
         currentUser={user}
         siteUsers={siteUsers}
         members={members}
+        depts={depts}
       />
 
     </div>

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
-import { DEPTS } from '@/lib/data';
 
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
 
@@ -44,6 +43,7 @@ interface NewCardModalProps {
   currentUser: AppUser;
   siteUsers: AppUser[];
   members: Member[];
+  depts: string[];
 }
 
 const makeDefaultForm = (currentUser: AppUser) => ({
@@ -69,7 +69,7 @@ function fromDateInput(val: string): string {
   return val.slice(5).replace('-', '/');
 }
 
-export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members }: NewCardModalProps) {
+export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members, depts }: NewCardModalProps) {
   const [form, setForm] = useState(() => makeDefaultForm(currentUser));
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
                 <label>需求發起單位 *</label>
                 <select className="input" style={{ width: '100%' }} value={form.dept} onChange={e => set('dept', e.target.value)}>
                   <option value="">請選擇</option>
-                  {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+                  {depts.map((d: string) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 

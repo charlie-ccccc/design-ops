@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
-import { DEPTS } from '@/lib/data';
 
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
 
@@ -16,11 +15,12 @@ interface PermissionsProps {
   users: AppUser[];
   currentUser: AppUser;
   onUpdateUser: (uid: string, patch: Partial<AppUser>) => void;
+  depts: string[];
+  onUpdateDepts: (depts: string[]) => void;
 }
 
-export default function Permissions({ users, currentUser, onUpdateUser }: PermissionsProps) {
+export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts }: PermissionsProps) {
   const [tab, setTab] = useState<'users' | 'depts'>('users');
-  const [depts, setDepts] = useState<string[]>(DEPTS);
   const [newDept, setNewDept] = useState('');
 
   const isAdmin = currentUser.roles.includes('Admin');
@@ -33,12 +33,12 @@ export default function Permissions({ users, currentUser, onUpdateUser }: Permis
   function addDept() {
     const d = newDept.trim();
     if (!d || depts.includes(d)) return;
-    setDepts(prev => [...prev, d]);
+    onUpdateDepts([...depts, d]);
     setNewDept('');
   }
 
   function removeDept(d: string) {
-    setDepts(prev => prev.filter(x => x !== d));
+    onUpdateDepts(depts.filter(x => x !== d));
   }
 
   function toggleRole(uid: string, role: Role) {
