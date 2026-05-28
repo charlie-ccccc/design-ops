@@ -37,6 +37,13 @@ export function useFirestoreCards() {
     await deleteDoc(doc(db, 'cards', cardId));
   }, []);
 
+  const clearAllCards = useCallback(async (currentCards: Card[]) => {
+    const batch = writeBatch(db);
+    currentCards.forEach(c => batch.delete(doc(db, 'cards', c.id)));
+    await batch.commit();
+    setCards([]);
+  }, []);
+
   const seedCards = useCallback(async (seedData: Card[]) => {
     const batch = writeBatch(db);
     seedData.forEach(card => {
@@ -45,5 +52,5 @@ export function useFirestoreCards() {
     await batch.commit();
   }, []);
 
-  return { cards, initialized, addCard, updateCard, deleteCard, seedCards };
+  return { cards, initialized, addCard, updateCard, deleteCard, clearAllCards, seedCards };
 }
