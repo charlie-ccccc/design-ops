@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Clock, MoreHorizontal } from 'lucide-react';
-import type { Card, TimeLog, Comment } from '@/lib/types';
+import type { Card, TimeLog, Comment, Member } from '@/lib/types';
+import type { AppUser } from '@/contexts/auth-context';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
 
@@ -11,9 +12,11 @@ interface CardDrawerProps {
   onUpdate: (id: string, patch: Partial<Card>) => void;
   onDelete?: (id: string) => void;
   onClone?: (override: { title: string; owner: string; requester?: string }) => void;
-  readOnly?: boolean;   // full lock (history preview)
-  canEdit?: boolean;    // 成員/Admin: can change status + log time (default true)
+  readOnly?: boolean;
+  canEdit?: boolean;
   currentUserName?: string;
+  siteUsers?: AppUser[];   // all site users for 委託人 picker
+  members?: Member[];      // 成員-only for 受託人 picker
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -86,8 +89,8 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
   );
 }
 
-const DESIGNER_USERS = MEMBERS.map(toAnyUser);
-const ALL_USERS = SITE_USERS.map(siteToAnyUser);
+const STATIC_DESIGNER_USERS = MEMBERS.map(toAnyUser);
+const STATIC_ALL_USERS = SITE_USERS.map(siteToAnyUser);
 
 const tabStyle = (active: boolean): React.CSSProperties => ({
   appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
@@ -114,7 +117,13 @@ function roundToHalfHour(): string {
 const EMPTY_LOG = { date: '', time: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, siteUsers: propSiteUsers, members: propMembers }: CardDrawerProps) {
+  const DESIGNER_USERS = propMembers
+    ? propMembers.map(m => ({ id: m.id, name: m.name, initial: m.initial, hue: m.hue, sub: m.cat } as AnyUser))
+    : STATIC_DESIGNER_USERS;
+  const ALL_USERS = propSiteUsers
+    ? propSiteUsers.map(u => ({ id: u.uid, name: u.name, initial: u.initial ?? u.name[0], hue: u.hue ?? 1, sub: u.dept } as AnyUser))
+    : STATIC_ALL_USERS;
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);

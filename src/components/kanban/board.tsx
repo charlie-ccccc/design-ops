@@ -138,20 +138,6 @@ export default function KanbanBoard({
                 <div className="kcol-dot" style={{ background: status.dot }} />
                 <span className="kcol-name">{status.name}</span>
                 <span className="kcol-count">{colCards.length}</span>
-                <div className="kcol-tools">
-                  {canEdit && (
-                    <button
-                      className="kcol-tool"
-                      onClick={() => onAddCard(status.id)}
-                      title="新增需求單"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  )}
-                  <button className="kcol-tool" title="更多">
-                    <MoreHorizontal size={14} />
-                  </button>
-                </div>
               </div>
               <SortableContext
                 items={colCards.map((c) => c.id)}

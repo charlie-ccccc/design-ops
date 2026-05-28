@@ -52,7 +52,7 @@ const makeDefaultForm = (currentUser: AppUser) => ({
   requester: currentUser.uid,
   requesterName: currentUser.name,
   cat: '' as Cat | '',
-  prio: '' as Priority | '',
+  prio: 'low' as Priority | '',
   due: '',
   owner: '',
   desc: DESC_TEMPLATE,
