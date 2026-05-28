@@ -119,7 +119,7 @@ function CopyLinkButton({ cardId }: { cardId: string }) {
   );
 }
 
-const EMPTY_LOG = { date: '', hours: 0, note: '' };
+const EMPTY_LOG = { date: '', time: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
 export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly, canEdit = true, currentUserName }: CardDrawerProps) {
@@ -172,7 +172,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
 
   function submitLog() {
     if (!c || !newLog.date || newLog.hours <= 0) return;
-    const entry: TimeLog = { id: Date.now().toString(), date: newLog.date, hours: newLog.hours, note: newLog.note };
+    const entry: TimeLog = { id: Date.now().toString(), date: newLog.date, time: newLog.time || undefined, hours: newLog.hours, note: newLog.note };
     const updated = [...timeLogs, entry];
     onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
     setNewLog(EMPTY_LOG);
@@ -187,7 +187,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
 
   function saveLogEdit(id: string) {
     if (!c) return;
-    const updated = timeLogs.map(l => l.id === id ? { ...l, date: editLogDraft.date || l.date, hours: editLogDraft.hours || l.hours, note: editLogDraft.note } : l);
+    const updated = timeLogs.map(l => l.id === id ? { ...l, date: editLogDraft.date || l.date, time: editLogDraft.time || undefined, hours: editLogDraft.hours || l.hours, note: editLogDraft.note } : l);
     onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
     setEditingLogId(null);
   }
@@ -211,6 +211,13 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
     const n = new Date();
     return `${String(n.getMonth() + 1).padStart(2, '0')}/${String(n.getDate()).padStart(2, '0')}`;
   })();
+
+  function fmtLogDate(mmdd: string, cardMonth: string): string {
+    if (!mmdd) return '—';
+    const [year] = cardMonth.split('/');
+    const [mm, dd] = mmdd.split('/');
+    return `${year}/${parseInt(mm)}/${parseInt(dd)}`;
+  }
 
   return (
     <>
@@ -408,7 +415,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                     <div className="delta">小時</div>
                   </div>
                   <div className="cell" style={{ cursor: (readOnly || !canEdit) ? 'default' : 'pointer', position: 'relative' }}
-                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, hours: 0, note: '' }); setLogModal(true); } }}>
+                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, time: '', hours: 0, note: '' }); setLogModal(true); } }}>
                     <div className="lbl" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       實際消耗
                       {(!readOnly && canEdit) && <Clock size={10} style={{ color: 'var(--accent)', opacity: 0.7 }} />}
@@ -482,62 +489,71 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                 )}
 
                 {bottomTab === 'timelogs' && (
-                  <div>
-                    {timeLogs.length > 0 ? (
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 10 }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid var(--divider)' }}>
-                            <th style={{ textAlign: 'left', padding: '4px 8px 6px 0', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>日期</th>
-                            <th style={{ textAlign: 'right', padding: '4px 8px 6px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工時</th>
-                            <th style={{ textAlign: 'left', padding: '4px 8px 6px', fontSize: 12, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>工作內容</th>
-                            {(!readOnly && canEdit) && <th style={{ width: 28 }} />}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {timeLogs.map(l => (
-                            editingLogId === l.id ? (
-                              <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)', background: 'var(--surface-2)' }}>
-                                <td style={{ padding: '6px 8px 6px 0' }}>
-                                  <input type="date" className="input" style={{ fontSize: 13, width: 120 }}
-                                    value={toDateInput(editLogDraft.date || l.date, c.month)}
-                                    onChange={e => setEditLogDraft(d => ({ ...d, date: fromDateInput(e.target.value) }))} />
-                                </td>
-                                <td style={{ padding: '6px 8px', textAlign: 'right' }}>
-                                  <input type="number" className="input" style={{ fontSize: 13, width: 60, textAlign: 'right' }} min={0.5} step={0.5}
-                                    value={editLogDraft.hours || l.hours}
-                                    onChange={e => setEditLogDraft(d => ({ ...d, hours: Number(e.target.value) }))} />
-                                </td>
-                                <td style={{ padding: '6px 8px' }}>
-                                  <input className="input" style={{ fontSize: 13, width: '100%' }}
-                                    value={editLogDraft.note}
-                                    onChange={e => setEditLogDraft(d => ({ ...d, note: e.target.value }))} />
-                                </td>
-                                <td style={{ padding: '6px 0 6px 4px', whiteSpace: 'nowrap' }}>
-                                  <button className="btn btn-primary" style={{ fontSize: 12, padding: '2px 8px', marginRight: 4 }} onClick={() => saveLogEdit(l.id)}>存</button>
-                                  <button className="btn btn-ghost" style={{ fontSize: 12, padding: '2px 6px' }} onClick={() => setEditingLogId(null)}>✕</button>
-                                </td>
-                              </tr>
-                            ) : (
-                              <tr key={l.id} style={{ borderBottom: '1px solid var(--divider)' }}
-                                onDoubleClick={() => { if (!readOnly && canEdit) { setEditingLogId(l.id); setEditLogDraft({ date: l.date, hours: l.hours, note: l.note }); } }}>
-                                <td style={{ padding: '7px 8px 7px 0', fontFamily: 'var(--font-mono), monospace', fontSize: 13, color: 'var(--ink-2)' }}>{l.date}</td>
-                                <td style={{ padding: '7px 8px', textAlign: 'right', fontFamily: 'var(--font-mono), monospace', fontWeight: 600 }}>{l.hours}h</td>
-                                <td style={{ padding: '7px 8px', color: 'var(--ink-2)' }}>{l.note || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
-                                {(!readOnly && canEdit) && (
-                                  <td style={{ padding: '7px 0 7px 4px' }}>
-                                    <button onClick={() => removeLog(l.id)} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 2, borderRadius: 4 }}
-                                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--st-block)')}
-                                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}>
-                                      <Trash2 size={12} />
-                                    </button>
-                                  </td>
-                                )}
-                              </tr>
-                            )
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 10px' }}>{canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}</div>}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 4 }}>
+                    {timeLogs.length === 0 && (
+                      <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 10px' }}>
+                        {canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}
+                      </div>
+                    )}
+                    {timeLogs.map(l => (
+                      editingLogId === l.id ? (
+                        <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <div style={{ flex: '1 1 130px' }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>日期</div>
+                              <input type="date" className="input" style={{ width: '100%' }}
+                                value={toDateInput(editLogDraft.date || l.date, c.month)}
+                                onChange={e => setEditLogDraft(d => ({ ...d, date: fromDateInput(e.target.value) }))} />
+                            </div>
+                            <div style={{ flex: '1 1 100px' }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>開始時間</div>
+                              <input type="time" className="input" style={{ width: '100%' }}
+                                value={editLogDraft.time ?? (l.time ?? '')}
+                                onChange={e => setEditLogDraft(d => ({ ...d, time: e.target.value }))} />
+                            </div>
+                            <div style={{ flex: '0 1 80px' }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工時（小時）</div>
+                              <input type="number" className="input" style={{ width: '100%' }} min={0.5} step={0.5}
+                                value={editLogDraft.hours || l.hours}
+                                onChange={e => setEditLogDraft(d => ({ ...d, hours: Number(e.target.value) }))} />
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工作內容</div>
+                            <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
+                              value={editLogDraft.note}
+                              onChange={e => setEditLogDraft(d => ({ ...d, note: e.target.value }))} />
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                            <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={() => setEditingLogId(null)}>取消</button>
+                            <button className="btn btn-primary" style={{ fontSize: 13 }} onClick={() => saveLogEdit(l.id)}>儲存</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono), monospace', marginBottom: l.note ? 6 : 0 }}>
+                            {fmtLogDate(l.date, c.month)}
+                            {l.time && <span style={{ marginLeft: 6 }}>{l.time}</span>}
+                            <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
+                          </div>
+                          {l.note && (
+                            <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>{l.note}</div>
+                          )}
+                          {(!readOnly && canEdit) && (
+                            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 10px' }}
+                                onClick={() => { setEditingLogId(l.id); setEditLogDraft({ date: l.date, time: l.time ?? '', hours: l.hours, note: l.note }); }}>
+                                編輯
+                              </button>
+                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 10px', color: 'var(--st-block)' }}
+                                onClick={() => removeLog(l.id)}>
+                                刪除
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    ))}
                   </div>
                 )}
               </div>
@@ -553,11 +569,19 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                     <button onClick={() => setLogModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}><X size={15} /></button>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div>
-                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>日期</label>
-                      <input type="date" className="input" style={{ width: '100%' }}
-                        value={toDateInput(newLog.date, c.month)}
-                        onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))} />
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>日期</label>
+                        <input type="date" className="input" style={{ width: '100%' }}
+                          value={toDateInput(newLog.date, c.month)}
+                          onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>開始時間（選填）</label>
+                        <input type="time" className="input" style={{ width: '100%' }}
+                          value={newLog.time || ''}
+                          onChange={e => setNewLog(l => ({ ...l, time: e.target.value }))} />
+                      </div>
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工時（小時）</label>

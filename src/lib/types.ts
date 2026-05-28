@@ -20,6 +20,7 @@ export interface Comment {
 export interface TimeLog {
   id: string;
   date: string;   // MM/DD
+  time?: string;  // HH:MM (24h)
   hours: number;
   note: string;
 }
