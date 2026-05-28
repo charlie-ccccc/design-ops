@@ -529,8 +529,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                       {[...c.activity].reverse().map((entry, i) => (
                         <div key={i} className="tl-row">
                           <div className="tl-dot" />
-                          <div className="tl-msg"><strong>{entry.who}</strong> {entry.msg}</div>
-                          <div className="tl-time mono">{entry.t}</div>
+                          <div className="tl-content">
+                            <div className="tl-msg"><strong>{entry.who}</strong> {entry.msg}</div>
+                            <div className="tl-time mono">{entry.t}</div>
+                          </div>
                         </div>
                       ))}
                     </div>
