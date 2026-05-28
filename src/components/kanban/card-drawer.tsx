@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Clock, MoreHorizontal } from 'lucide-react';
 import type { Card, TimeLog, Comment } from '@/lib/types';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
@@ -136,26 +136,32 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   // Inline edit for time log entries in tab
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
   const [editLogDraft, setEditLogDraft] = useState(EMPTY_LOG);
+  const prevCardIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (card) {
       setDisplayCard(card);
-      setMoreOpen(false);
-      setCopied(false);
-      setConfirmDelete(false);
-      setCloneOpen(false);
-      setEditingTitle(false);
-      setDraftTitle(card.title || '');
-      setEditingDesc(false);
-      setDraftDesc(card.desc || '');
-      setCommentText('');
-      setBottomTab('activity');
-      setLogModal(false);
-      setNewLog(EMPTY_LOG);
-      setEditingLogId(null);
+      const isNewCard = card.id !== prevCardIdRef.current;
+      if (isNewCard) {
+        prevCardIdRef.current = card.id;
+        setMoreOpen(false);
+        setCopied(false);
+        setConfirmDelete(false);
+        setCloneOpen(false);
+        setEditingTitle(false);
+        setDraftTitle(card.title || '');
+        setEditingDesc(false);
+        setDraftDesc(card.desc || '');
+        setCommentText('');
+        setBottomTab('activity');
+        setLogModal(false);
+        setNewLog(EMPTY_LOG);
+        setEditingLogId(null);
+      }
       const raf = requestAnimationFrame(() => setIsOpen(true));
       return () => cancelAnimationFrame(raf);
     } else {
+      prevCardIdRef.current = null;
       setIsOpen(false);
       const t = window.setTimeout(() => setDisplayCard(null), 280);
       return () => window.clearTimeout(t);
@@ -169,13 +175,21 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   const computedActual = timeLogs.length > 0 ? sum(timeLogs.map(l => l.hours)) : (c?.actual ?? 0);
   const isOver = c ? computedActual > c.est : false;
 
+  function nowStamp(): string {
+    const n = new Date();
+    const p = (x: number) => String(x).padStart(2, '0');
+    return `${p(n.getMonth() + 1)}/${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}`;
+  }
+
   function submitLog() {
-    if (!c || !newLog.date || newLog.hours <= 0) return;
+    if (!c || !newLog.date || !newLog.time || newLog.hours <= 0) return;
     const entry: TimeLog = { id: Date.now().toString(), date: newLog.date, time: newLog.time || undefined, hours: newLog.hours, note: newLog.note };
     const updated = [...timeLogs, entry];
-    onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
+    const act = { who: currentUserName ?? '主設計師', msg: `回報實際工時 +${newLog.hours}h`, t: nowStamp() };
+    onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)), activity: [...(c.activity ?? []), act] });
     setNewLog(EMPTY_LOG);
     setLogModal(false);
+    setBottomTab('timelogs');
   }
 
   function removeLog(id: string) {
@@ -193,10 +207,13 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function addComment() {
     if (!c || !commentText.trim()) return;
-    const now = new Date();
-    const mmdd = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
-    onUpdate(c.id, { comments: [...comments, { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: mmdd }] });
+    const stamp = nowStamp();
+    const mmdd = stamp.slice(0, 5);
+    const newComment = { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: mmdd };
+    const act = { who: currentUserName ?? '主設計師', msg: '新增了留言', t: stamp };
+    onUpdate(c.id, { comments: [...comments, newComment], activity: [...(c.activity ?? []), act] });
     setCommentText('');
+    setBottomTab('comments');
   }
 
   function saveDesc() {
