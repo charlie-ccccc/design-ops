@@ -228,8 +228,13 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
   function saveLogEdit(id: string) {
     if (!c) return;
+    const orig = timeLogs.find(l => l.id === id);
     const updated = timeLogs.map(l => l.id === id ? { ...l, date: editLogDraft.date || l.date, time: editLogDraft.time || undefined, hours: editLogDraft.hours > 0 ? editLogDraft.hours : l.hours, note: editLogDraft.note } : l);
-    onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)) });
+    const newHours = editLogDraft.hours > 0 ? editLogDraft.hours : (orig?.hours ?? 0);
+    const acts = orig && orig.hours !== newHours
+      ? [...(c.activity ?? []), { who: currentUserName ?? '主設計師', msg: `修改工時紀錄：${orig.hours}h → ${newHours}h`, t: nowStamp() }]
+      : c.activity;
+    onUpdate(c.id, { timeLogs: updated, actual: sum(updated.map(l => l.hours)), activity: acts });
     setEditingLogId(null);
   }
 
