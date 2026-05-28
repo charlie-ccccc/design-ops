@@ -191,6 +191,31 @@ export default function App() {
     deleteCard(cardId).catch(console.error);
   }, [deleteCard]);
 
+  const onClone = useCallback((override: { title: string; owner: string; requester?: string }) => {
+    if (!openCard) return;
+    const maxN = cards.reduce((m, c) => {
+      const n = Number(c.id.split('-')[1]);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const createdAt = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const nc: Card = {
+      ...openCard,
+      id: formatId(maxN + 1),
+      title: override.title,
+      owner: override.owner,
+      requester: override.requester,
+      actual: 0,
+      timeLogs: [],
+      comments: [],
+      activity: [],
+      status: 'belog',
+      createdAt,
+    };
+    addCard(nc).catch(console.error);
+  }, [openCard, cards, addCard]);
+
   const onCreate = useCallback((data: import('@/components/kanban/new-card-modal').NewCardData) => {
     const maxN = cards.reduce((m, c) => {
       const n = Number(c.id.split('-')[1]);
@@ -441,7 +466,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} canEdit={isMember || showAdmin} currentUserName={user.name} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={isMember || showAdmin} currentUserName={user.name} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
       <NewCardModal
         open={newCardOpen}

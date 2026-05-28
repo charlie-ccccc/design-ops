@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Clock, Link } from 'lucide-react';
+import { X, Plus, Clock, MoreHorizontal } from 'lucide-react';
 import type { Card, TimeLog, Comment } from '@/lib/types';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
@@ -10,6 +10,7 @@ interface CardDrawerProps {
   onClose: () => void;
   onUpdate: (id: string, patch: Partial<Card>) => void;
   onDelete?: (id: string) => void;
+  onClone?: (override: { title: string; owner: string; requester?: string }) => void;
   readOnly?: boolean;   // full lock (history preview)
   canEdit?: boolean;    // 成員/Admin: can change status + log time (default true)
   currentUserName?: string;
@@ -97,35 +98,30 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
   marginBottom: -1, transition: 'color 0.15s',
 });
 
-function CopyLinkButton({ cardId }: { cardId: string }) {
-  const [copied, setCopied] = useState(false);
-  function copy() {
-    const url = `${window.location.origin}${window.location.pathname}?card=${cardId}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    });
-  }
-  return (
-    <button
-      className="drawer-close"
-      onClick={copy}
-      title="複製連結"
-      style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
-    >
-      <Link size={13} />
-      {copied ? '已複製' : '複製連結'}
-    </button>
-  );
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? '00' : '30';
+  return `${String(h).padStart(2, '0')}:${m}`;
+});
+
+function roundToHalfHour(): string {
+  const n = new Date();
+  const h = n.getHours();
+  const m = n.getMinutes() >= 30 ? 30 : 0;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
 const EMPTY_LOG = { date: '', time: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly, canEdit = true, currentUserName }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [cloneOpen, setCloneOpen] = useState(false);
+  const [cloneDraft, setCloneDraft] = useState({ title: '', ownerName: '', requesterName: '' });
   const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
   const [editingTitle, setEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -144,7 +140,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
   useEffect(() => {
     if (card) {
       setDisplayCard(card);
+      setMoreOpen(false);
+      setCopied(false);
       setConfirmDelete(false);
+      setCloneOpen(false);
       setEditingTitle(false);
       setDraftTitle(card.title || '');
       setEditingDesc(false);
@@ -206,6 +205,31 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
     setEditingDesc(false);
   }
 
+  function copyLink() {
+    if (!c) return;
+    const url = `${window.location.origin}${window.location.pathname}?card=${c.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setMoreOpen(false);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  }
+
+  function openClone() {
+    if (!c) return;
+    const ownerMember = MEMBER_BY_ID[c.owner];
+    setCloneDraft({ title: `CLONE - ${c.title}`, ownerName: ownerMember?.name ?? '', requesterName: c.requester ?? '' });
+    setCloneOpen(true);
+    setMoreOpen(false);
+  }
+
+  function handleClone() {
+    if (!c || !cloneDraft.title.trim()) return;
+    const ownerMember = MEMBERS.find(m => m.name === cloneDraft.ownerName);
+    onClone?.({ title: cloneDraft.title.trim(), owner: ownerMember?.id ?? c.owner, requester: cloneDraft.requesterName || undefined });
+    setCloneOpen(false);
+  }
+
   // Today as MM/DD for default log date
   const todayMMDD = (() => {
     const n = new Date();
@@ -229,31 +253,42 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
               <div className="drawer-h-id">{c.id}</div>
               <span style={{ flex: 1 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <CopyLinkButton cardId={c.id} />
-                {!readOnly && onDelete && (
-                  confirmDelete ? (
-                    <>
-                      <button
-                        className="drawer-close"
-                        onClick={() => { onDelete(c.id); onClose(); }}
-                        style={{ fontSize: 13, color: 'var(--st-block)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
-                      >確定刪除</button>
-                      <button
-                        className="drawer-close"
-                        onClick={() => setConfirmDelete(false)}
-                        style={{ fontSize: 13, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
-                      >取消</button>
-                    </>
-                  ) : (
-                    <button
-                      className="drawer-close"
-                      onClick={() => setConfirmDelete(true)}
-                      title="刪除卡片"
-                      style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto', color: 'var(--muted)' }}
-                    >
-                      <Trash2 size={13} />
+                {copied && <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>已複製 ✓</span>}
+                {!readOnly && (
+                  <div style={{ position: 'relative' }}>
+                    <button className="drawer-close" onClick={() => setMoreOpen(o => !o)} title="更多" style={{ display: 'flex', alignItems: 'center' }}>
+                      <MoreHorizontal size={16} />
                     </button>
-                  )
+                    {moreOpen && (
+                      <>
+                        <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setMoreOpen(false)} />
+                        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 100, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', minWidth: 140, overflow: 'hidden' }}>
+                          {[
+                            { label: '複製連結', action: copyLink },
+                            { label: '複製任務', action: openClone },
+                          ].map(item => (
+                            <button key={item.label} onClick={item.action}
+                              style={{ display: 'block', width: '100%', background: 'none', border: 'none', padding: '9px 14px', fontSize: 14, textAlign: 'left', cursor: 'pointer', color: 'var(--ink)' }}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                              onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                              {item.label}
+                            </button>
+                          ))}
+                          {onDelete && (
+                            <>
+                              <div style={{ height: 1, background: 'var(--divider)', margin: '3px 0' }} />
+                              <button onClick={() => { setConfirmDelete(true); setMoreOpen(false); }}
+                                style={{ display: 'block', width: '100%', background: 'none', border: 'none', padding: '9px 14px', fontSize: 14, textAlign: 'left', cursor: 'pointer', color: 'var(--st-block)' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                                刪除
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 )}
                 <button className="drawer-close" onClick={onClose} aria-label="關閉"><X size={16} /></button>
               </div>
@@ -415,7 +450,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                     <div className="delta">小時</div>
                   </div>
                   <div className="cell" style={{ cursor: (readOnly || !canEdit) ? 'default' : 'pointer', position: 'relative' }}
-                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, time: '', hours: 0, note: '' }); setLogModal(true); } }}>
+                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, time: roundToHalfHour(), hours: 0, note: '' }); setLogModal(true); } }}>
                     <div className="lbl" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       實際消耗
                       {(!readOnly && canEdit) && <Clock size={10} style={{ color: 'var(--accent)', opacity: 0.7 }} />}
@@ -495,8 +530,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                         {canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}
                       </div>
                     )}
-                    {timeLogs.map(l => (
-                      editingLogId === l.id ? (
+                    {timeLogs.map((l, idx) => {
+                      const runningUsed = timeLogs.slice(0, idx + 1).reduce((s, x) => s + x.hours, 0);
+                      const remaining = c.est - runningUsed;
+                      return editingLogId === l.id ? (
                         <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                             <div style={{ flex: '1 1 130px' }}>
@@ -507,9 +544,11 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                             </div>
                             <div style={{ flex: '1 1 100px' }}>
                               <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>開始時間</div>
-                              <input type="time" className="input" style={{ width: '100%' }}
-                                value={editLogDraft.time ?? (l.time ?? '')}
-                                onChange={e => setEditLogDraft(d => ({ ...d, time: e.target.value }))} />
+                              <select className="input" style={{ width: '100%' }}
+                                value={editLogDraft.time || l.time || roundToHalfHour()}
+                                onChange={e => setEditLogDraft(d => ({ ...d, time: e.target.value }))}>
+                                {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
                             </div>
                             <div style={{ flex: '0 1 80px' }}>
                               <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工時（小時）</div>
@@ -531,35 +570,90 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                         </div>
                       ) : (
                         <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono), monospace', marginBottom: l.note ? 6 : 0 }}>
-                            {fmtLogDate(l.date, c.month)}
-                            {l.time && <span style={{ marginLeft: 6 }}>{l.time}</span>}
-                            <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: l.note ? 6 : 0 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono), monospace' }}>
+                              {fmtLogDate(l.date, c.month)}
+                              {l.time && <span style={{ marginLeft: 6 }}>{l.time}</span>}
+                              <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
+                            </span>
+                            {c.est > 0 && (
+                              <span style={{ fontSize: 12, color: remaining >= 0 ? 'var(--muted)' : 'var(--st-block)', marginLeft: 'auto' }}>
+                                {remaining >= 0 ? `剩餘 ${remaining}H` : `超出 ${-remaining}H`}
+                              </span>
+                            )}
                           </div>
                           {l.note && (
                             <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>{l.note}</div>
                           )}
                           {(!readOnly && canEdit) && (
-                            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 10px' }}
-                                onClick={() => { setEditingLogId(l.id); setEditLogDraft({ date: l.date, time: l.time ?? '', hours: l.hours, note: l.note }); }}>
+                            <div style={{ display: 'flex', gap: 10, marginTop: 8, marginLeft: -8 }}>
+                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }}
+                                onClick={() => { setEditingLogId(l.id); setEditLogDraft({ date: l.date, time: l.time || roundToHalfHour(), hours: l.hours, note: l.note }); }}>
                                 編輯
                               </button>
-                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 10px', color: 'var(--st-block)' }}
+                              <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px', color: 'var(--st-block)' }}
                                 onClick={() => removeLog(l.id)}>
                                 刪除
                               </button>
                             </div>
                           )}
                         </div>
-                      )
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </div>
 
             {/* Time log modal */}
+            {confirmDelete && onDelete && (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}>
+                <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 24px', width: 300, boxShadow: '0 12px 40px rgba(0,0,0,.2)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>確定刪除這張卡片？</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>此操作無法復原</div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                    <button className="btn btn-ghost" onClick={() => setConfirmDelete(false)}>取消</button>
+                    <button className="btn" style={{ background: 'var(--st-block)', color: '#fff', border: 'none' }}
+                      onClick={() => { onDelete(c.id); onClose(); }}>確定刪除</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {cloneOpen && onClone && (
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}
+                onClick={e => e.target === e.currentTarget && setCloneOpen(false)}>
+                <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 24px', width: 360, boxShadow: '0 12px 40px rgba(0,0,0,.2)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>複製任務</span>
+                    <button onClick={() => setCloneOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}><X size={15} /></button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>摘要 <span style={{ color: 'var(--st-block)' }}>*</span></label>
+                      <input className="input" style={{ width: '100%' }}
+                        value={cloneDraft.title}
+                        onChange={e => setCloneDraft(d => ({ ...d, title: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>受託人</label>
+                      <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS}
+                        onChange={name => setCloneDraft(d => ({ ...d, ownerName: name }))} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>委託人</label>
+                      <MemberPicker value={cloneDraft.requesterName} users={ALL_USERS}
+                        onChange={name => setCloneDraft(d => ({ ...d, requesterName: name }))} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                    <button className="btn btn-ghost" onClick={() => setCloneOpen(false)}>取消</button>
+                    <button className="btn btn-primary" onClick={handleClone} disabled={!cloneDraft.title.trim()}>複製</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {logModal && (
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}
                 onClick={e => e.target === e.currentTarget && setLogModal(false)}>
@@ -577,10 +671,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                           onChange={e => setNewLog(l => ({ ...l, date: fromDateInput(e.target.value) }))} />
                       </div>
                       <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>開始時間（選填）</label>
-                        <input type="time" className="input" style={{ width: '100%' }}
-                          value={newLog.time || ''}
-                          onChange={e => setNewLog(l => ({ ...l, time: e.target.value }))} />
+                        <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>開始時間</label>
+                        <select className="input" style={{ width: '100%' }}
+                          value={newLog.time || '09:00'}
+                          onChange={e => setNewLog(l => ({ ...l, time: e.target.value }))}>
+                          {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
                       </div>
                     </div>
                     <div>
@@ -600,7 +696,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly
                   </div>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                     <button className="btn btn-ghost" onClick={() => setLogModal(false)}>取消</button>
-                    <button className="btn btn-primary" onClick={submitLog} disabled={!newLog.date || newLog.hours <= 0}>新增記錄</button>
+                    <button className="btn btn-primary" onClick={submitLog} disabled={!newLog.date || !newLog.time || newLog.hours <= 0}>新增記錄</button>
                   </div>
                 </div>
               </div>
