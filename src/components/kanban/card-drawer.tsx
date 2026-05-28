@@ -530,9 +530,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                         {canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}
                       </div>
                     )}
-                    {timeLogs.map((l, idx) => {
-                      const runningUsed = timeLogs.slice(0, idx + 1).reduce((s, x) => s + x.hours, 0);
-                      const remaining = c.est - runningUsed;
+                    {timeLogs.map(l => {
                       return editingLogId === l.id ? (
                         <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -570,17 +568,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                         </div>
                       ) : (
                         <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px' }}>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: l.note ? 6 : 0 }}>
-                            <span style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono), monospace' }}>
-                              {fmtLogDate(l.date, c.month)}
-                              {l.time && <span style={{ marginLeft: 6 }}>{l.time}</span>}
-                              <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
-                            </span>
-                            {c.est > 0 && (
-                              <span style={{ fontSize: 12, color: remaining >= 0 ? 'var(--muted)' : 'var(--st-block)', marginLeft: 'auto' }}>
-                                {remaining >= 0 ? `剩餘 ${remaining}H` : `超出 ${-remaining}H`}
-                              </span>
-                            )}
+                          <div style={{ marginBottom: l.note ? 6 : 0, fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono), monospace' }}>
+                            {fmtLogDate(l.date, c.month)}
+                            {l.time && <span style={{ marginLeft: 6 }}>{l.time}</span>}
+                            <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
                           </div>
                           {l.note && (
                             <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>{l.note}</div>
@@ -658,10 +649,24 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}
                 onClick={e => e.target === e.currentTarget && setLogModal(false)}>
                 <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 24px', width: 340, boxShadow: '0 12px 40px rgba(0,0,0,.2)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>記錄工時</span>
                     <button onClick={() => setLogModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}><X size={15} /></button>
                   </div>
+                  {c.est > 0 && (
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                      <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>耗費時間</div>
+                        <div style={{ fontSize: 16, fontWeight: 600 }}>{computedActual}h</div>
+                      </div>
+                      <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>剩餘時間</div>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: computedActual >= c.est ? 'var(--st-block)' : 'var(--ink)' }}>
+                          {c.est - computedActual}h
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div style={{ display: 'flex', gap: 10 }}>
                       <div style={{ flex: 1 }}>
