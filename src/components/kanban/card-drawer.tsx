@@ -9,8 +9,10 @@ interface CardDrawerProps {
   card: Card | null;
   onClose: () => void;
   onUpdate: (id: string, patch: Partial<Card>) => void;
+  onDelete?: (id: string) => void;
   readOnly?: boolean;   // full lock (history preview)
   canEdit?: boolean;    // 成員/Admin: can change status + log time (default true)
+  currentUserName?: string;
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -120,9 +122,10 @@ function CopyLinkButton({ cardId }: { cardId: string }) {
 const EMPTY_LOG = { date: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit = true }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, onDelete, readOnly, canEdit = true, currentUserName }: CardDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [bottomTab, setBottomTab] = useState<BottomTab>('activity');
   const [editingTitle, setEditingTitle] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -141,6 +144,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
   useEffect(() => {
     if (card) {
       setDisplayCard(card);
+      setConfirmDelete(false);
       setEditingTitle(false);
       setDraftTitle(card.title || '');
       setEditingDesc(false);
@@ -192,7 +196,7 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
     if (!c || !commentText.trim()) return;
     const now = new Date();
     const mmdd = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
-    onUpdate(c.id, { comments: [...comments, { id: Date.now().toString(), author: '主設計師', text: commentText.trim(), t: mmdd }] });
+    onUpdate(c.id, { comments: [...comments, { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: mmdd }] });
     setCommentText('');
   }
 
@@ -219,6 +223,31 @@ export default function CardDrawer({ card, onClose, onUpdate, readOnly, canEdit 
               <span style={{ flex: 1 }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CopyLinkButton cardId={c.id} />
+                {!readOnly && onDelete && (
+                  confirmDelete ? (
+                    <>
+                      <button
+                        className="drawer-close"
+                        onClick={() => { onDelete(c.id); onClose(); }}
+                        style={{ fontSize: 13, color: 'var(--st-block)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
+                      >確定刪除</button>
+                      <button
+                        className="drawer-close"
+                        onClick={() => setConfirmDelete(false)}
+                        style={{ fontSize: 13, padding: '4px 8px', borderRadius: 6, width: 'auto' }}
+                      >取消</button>
+                    </>
+                  ) : (
+                    <button
+                      className="drawer-close"
+                      onClick={() => setConfirmDelete(true)}
+                      title="刪除卡片"
+                      style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, width: 'auto', color: 'var(--muted)' }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )
+                )}
                 <button className="drawer-close" onClick={onClose} aria-label="關閉"><X size={16} /></button>
               </div>
             </div>

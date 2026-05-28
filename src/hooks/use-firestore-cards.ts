@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { collection, onSnapshot, doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Card } from '@/lib/types';
 
@@ -32,6 +32,11 @@ export function useFirestoreCards() {
     await updateDoc(doc(db, 'cards', cardId), patch as Record<string, unknown>);
   }, []);
 
+  const deleteCard = useCallback(async (cardId: string) => {
+    setCards(prev => prev.filter(c => c.id !== cardId));
+    await deleteDoc(doc(db, 'cards', cardId));
+  }, []);
+
   const seedCards = useCallback(async (seedData: Card[]) => {
     const batch = writeBatch(db);
     seedData.forEach(card => {
@@ -40,5 +45,5 @@ export function useFirestoreCards() {
     await batch.commit();
   }, []);
 
-  return { cards, initialized, addCard, updateCard, seedCards };
+  return { cards, initialized, addCard, updateCard, deleteCard, seedCards };
 }

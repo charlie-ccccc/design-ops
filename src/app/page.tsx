@@ -38,7 +38,7 @@ type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
   const { user, loading, signOutUser } = useAuth();
-  const { cards, initialized, addCard, updateCard, seedCards } = useFirestoreCards();
+  const { cards, initialized, addCard, updateCard, deleteCard, seedCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
 
   // Dynamic member list: Firestore users with 成員 or Admin role
@@ -186,6 +186,10 @@ export default function App() {
   const onUpdate = useCallback((cardId: string, patch: Partial<Card>) => {
     updateCard(cardId, patch).catch(console.error);
   }, [updateCard]);
+
+  const onDelete = useCallback((cardId: string) => {
+    deleteCard(cardId).catch(console.error);
+  }, [deleteCard]);
 
   const onCreate = useCallback((data: import('@/components/kanban/new-card-modal').NewCardData) => {
     const maxN = cards.reduce((m, c) => {
@@ -437,7 +441,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} canEdit={isMember || showAdmin} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} canEdit={isMember || showAdmin} currentUserName={user.name} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
       <NewCardModal
         open={newCardOpen}
