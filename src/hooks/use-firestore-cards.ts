@@ -24,6 +24,7 @@ export function useFirestoreCards() {
   }, []);
 
   const addCard = useCallback(async (card: Card) => {
+    setCards(prev => [...prev, card]);
     await setDoc(doc(db, 'cards', card.id), card);
   }, []);
 
