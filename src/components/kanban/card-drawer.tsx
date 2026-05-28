@@ -526,7 +526,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                 {bottomTab === 'activity' && (
                   c.activity && c.activity.length > 0 ? (
                     <div className="timeline">
-                      {c.activity.map((entry, i) => (
+                      {[...c.activity].reverse().map((entry, i) => (
                         <div key={i} className="tl-row">
                           <div className="tl-dot" />
                           <div className="tl-msg"><strong>{entry.who}</strong> {entry.msg}</div>
