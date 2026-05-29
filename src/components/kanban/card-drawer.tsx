@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Clock, MoreHorizontal, Pencil, Check } from 'lucide-react';
+import { X, Plus, Clock, MoreHorizontal, Pencil, Check, Link } from 'lucide-react';
 import type { Card, TimeLog, Comment, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
@@ -163,6 +163,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   const [draftTitle, setDraftTitle] = useState('');
   const [editingDesc, setEditingDesc] = useState(false);
   const [draftDesc, setDraftDesc] = useState('');
+  const [insertingLink, setInsertingLink] = useState(false);
+  const [linkText, setLinkText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const descRef = useRef<HTMLTextAreaElement>(null);
   const [commentText, setCommentText] = useState('');
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentDraft, setEditCommentDraft] = useState('');
@@ -466,14 +470,52 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                       onClick={() => { setDraftDesc(c.desc || ''); setEditingDesc(true); }}>編輯</button>
                   )}
                   {!readOnly && editingDesc && (
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => setEditingDesc(false)}>取消</button>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} title="插入連結"
+                        onClick={() => {
+                          const ta = descRef.current;
+                          const sel = ta ? draftDesc.slice(ta.selectionStart, ta.selectionEnd) : '';
+                          setLinkText(sel);
+                          setLinkUrl('');
+                          setInsertingLink(v => !v);
+                        }}>
+                        <Link size={13} />
+                      </button>
+                      <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => { setEditingDesc(false); setInsertingLink(false); }}>取消</button>
                       <button className="btn btn-primary" style={{ fontSize: 13, padding: '2px 10px' }} onClick={saveDesc}>儲存</button>
                     </div>
                   )}
                 </div>
+                {editingDesc && insertingLink && (
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input className="input" placeholder="連結文字" style={{ flex: 1, minWidth: 100, fontSize: 13 }}
+                      value={linkText} onChange={e => setLinkText(e.target.value)} />
+                    <input className="input" placeholder="https://..." style={{ flex: 2, minWidth: 160, fontSize: 13 }}
+                      value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.form?.requestSubmit(); }} />
+                    <button className="btn btn-primary" style={{ fontSize: 13, padding: '2px 10px' }}
+                      onClick={() => {
+                        if (!linkUrl.trim()) return;
+                        const ta = descRef.current;
+                        const text = linkText.trim() || linkUrl.trim();
+                        const md = `[${text}](${linkUrl.trim()})`;
+                        if (ta) {
+                          const s = ta.selectionStart, en = ta.selectionEnd;
+                          const next = draftDesc.slice(0, s) + md + draftDesc.slice(en);
+                          setDraftDesc(next);
+                          requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + md.length; ta.focus(); });
+                        } else {
+                          setDraftDesc(p => p + md);
+                        }
+                        setInsertingLink(false);
+                        setLinkText('');
+                        setLinkUrl('');
+                      }}>插入</button>
+                    <button className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => setInsertingLink(false)}>✕</button>
+                  </div>
+                )}
                 {editingDesc ? (
-                  <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.6 }}
+                  <textarea ref={descRef} className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.6 }}
                     value={draftDesc} onChange={e => setDraftDesc(e.target.value)}
                     onPaste={e => {
                       const html = e.clipboardData.getData('text/html');
