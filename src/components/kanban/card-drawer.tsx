@@ -671,7 +671,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                             <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
                           </div>
                           {l.note && (
-                            <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>{l.note}</div>
+                            <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{l.note}</div>
                           )}
                           {(!readOnly && canEdit) && (
                             <div style={{ display: 'flex', gap: 10, marginTop: 8, marginLeft: -8 }}>
