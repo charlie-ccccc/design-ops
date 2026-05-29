@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat } from '@/lib/types';
+import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat, HistoryMonth } from '@/lib/types';
 import {
   STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   HISTORY, DEFAULT_HOLIDAYS,
@@ -86,6 +86,7 @@ export default function App() {
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);
+  const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -241,6 +242,37 @@ export default function App() {
     };
     addCard(nc).catch(console.error);
   }, [cards, addCard]);
+
+  const onArchive = useCallback(() => {
+    const archiveCards = cards.filter(c => c.status === 'done' || c.status === 'pending');
+    if (archiveCards.length === 0) {
+      alert('目前沒有「設計完成」或「Pending」的卡片可封存。');
+      return;
+    }
+    if (!window.confirm(`確定封存本月 ${archiveCards.length} 張卡片（設計完成 + Pending）？`)) return;
+
+    const byDept: Record<string, number> = {};
+    const byMember: Record<string, number> = {};
+    for (const c of archiveCards) {
+      byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
+      byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
+    }
+    const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+    const newMonth: HistoryMonth = {
+      month: CURRENT_MONTH,
+      cards: archiveCards.length,
+      totalEst: sum(archiveCards.map(c => c.est)),
+      totalActual: sum(archiveCards.map(c => c.actual)),
+      capacity: totalCapacity,
+      topDept,
+      deptTotals: byDept,
+      memberTotals: byMember,
+      cardList: archiveCards,
+    };
+    setHistory(h => [newMonth, ...h]);
+    const toDelete = archiveCards.map(c => c.id);
+    Promise.all(toDelete.map(id => deleteCard(id))).catch(console.error);
+  }, [cards, totalCapacity, deleteCard]);
 
   const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
     const firestorePatch: Record<string, unknown> = {};
@@ -405,6 +437,11 @@ export default function App() {
               </div>
             )}
 
+            {page === 'kanban' && (isMember || showAdmin) && (
+              <button className="btn" title="封存本月設計完成 + Pending 卡片" onClick={onArchive}>
+                <Archive size={14} /> 封存本月
+              </button>
+            )}
             {page === 'kanban' && showAdmin && cards.length > 0 && (
               <button className="btn" style={{ color: 'var(--st-block)', borderColor: 'var(--st-block)' }}
                 onClick={() => { if (window.confirm(`確定清空全部 ${cards.length} 張卡片？此操作無法復原。`)) clearAllCards(cards).catch(console.error); }}>
@@ -465,10 +502,11 @@ export default function App() {
           )}
           {page === 'history' && (
             <History
-              archives={HISTORY}
+              archives={history}
               currentSnapshot={currentSnapshot}
               currentCards={cards}
               onOpenCard={card => setPreviewCard(card)}
+              onArchive={onArchive}
             />
           )}
           {page === 'permissions' && showAdmin && (

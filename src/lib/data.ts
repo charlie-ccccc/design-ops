@@ -151,7 +151,34 @@ function makeHistoryCards(month: string, count: number, seed: number): Card[] {
   });
 }
 
-export const HISTORY: HistoryMonth[] = [];
+function makeHistoryMonth(month: string, count: number, seed: number): HistoryMonth {
+  const cardList = makeHistoryCards(month, count, seed);
+  const totalEst = cardList.reduce((s, c) => s + c.est, 0);
+  const totalActual = cardList.reduce((s, c) => s + c.actual, 0);
+  const byDept: Record<string, number> = {};
+  for (const c of cardList) byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
+  const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+  const byMember: Record<string, number> = {};
+  for (const c of cardList) byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
+  return {
+    month,
+    cards: cardList.length,
+    totalEst,
+    totalActual,
+    capacity: 480 + seed * 8,
+    topDept,
+    deptTotals: byDept,
+    memberTotals: byMember,
+    cardList,
+  };
+}
+
+export const HISTORY: HistoryMonth[] = [
+  makeHistoryMonth('2026/04', 18, 7),
+  makeHistoryMonth('2026/03', 22, 3),
+  makeHistoryMonth('2026/02', 15, 11),
+  makeHistoryMonth('2026/01', 20, 5),
+];
 
 export const DEFAULT_HOLIDAYS: PublicHoliday[] = [
   { date: '01/01', name: '元旦' },
