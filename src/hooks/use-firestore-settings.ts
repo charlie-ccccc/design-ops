@@ -10,13 +10,19 @@ export function useFirestoreSettings() {
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
 
   useEffect(() => {
+    const ref = doc(db, 'settings', 'config');
     const unsub = onSnapshot(
-      doc(db, 'settings', 'config'),
+      ref,
       snap => {
         if (snap.exists()) {
           const data = snap.data();
           if (Array.isArray(data.depts)) setDepts(data.depts);
-          if (Array.isArray(data.leave)) setLeave(data.leave);
+          if (Array.isArray(data.leave)) {
+            setLeave(data.leave);
+          } else {
+            // leave field absent — seed DEFAULT_LEAVE into Firestore
+            setDoc(ref, { leave: DEFAULT_LEAVE }, { merge: true }).catch(console.error);
+          }
         }
       },
       err => console.error('Settings read error:', err),
