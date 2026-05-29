@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import type { Card, Member, Cat } from '@/lib/types';
-import { DEPT_SHORT, DEPT_HUE, MEMBERS, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES } from '@/lib/data';
+import type { AppUser } from '@/contexts/auth-context';
+import { DEPT_SHORT, DEPT_HUE, STATUSES } from '@/lib/data';
 import { sum, groupBy, hue } from '@/lib/utils';
 import CircleChart from '@/components/charts/circle-chart';
 import Crosstab from '@/components/dashboard/crosstab';
@@ -16,12 +17,19 @@ interface DashboardProps {
   onOpenCard?: (card: Card) => void;
   drillFilter?: DashFilter | null;
   onDrill?: (f: DashFilter | null) => void;
+  members: Member[];
+  siteUsers: AppUser[];
 }
 
 interface ColDef { id: string; name: string; full?: string; }
 
 // ── Card table (reused in drill view) ──────────────────────────────────────
-function DrillCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard?: (card: Card) => void }) {
+function DrillCardTable({ cards, onOpenCard, memberByUid, siteUsers }: {
+  cards: Card[];
+  onOpenCard?: (card: Card) => void;
+  memberByUid: Record<string, Member>;
+  siteUsers: AppUser[];
+}) {
   return (
     <div className="panel">
       <div className="xtab-wrap">
@@ -43,8 +51,9 @@ function DrillCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard?: (ca
             {cards.length === 0 ? (
               <tr><td colSpan={9} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px 0' }}>無符合條件的卡片</td></tr>
             ) : cards.map(card => {
-              const member = MEMBER_BY_ID[card.owner];
-              const requesterName = card.requesterName ?? (card.requester ? SITE_USER_BY_ID[card.requester]?.name : undefined);
+              const member = memberByUid[card.owner ?? ''];
+              const requesterName = card.requesterName
+                ?? (card.requester ? siteUsers.find(u => u.uid === card.requester)?.name : undefined);
               const status = STATUSES.find(s => s.id === card.status);
               const isOver = card.actual > card.est;
               return (
@@ -83,11 +92,13 @@ function DrillCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard?: (ca
 }
 
 // ── Drill detail view ──────────────────────────────────────────────────────
-function DrillView({ allCards, drillFilter, onBack, onOpenCard }: {
+function DrillView({ allCards, drillFilter, onBack, onOpenCard, memberByUid, siteUsers }: {
   allCards: Card[];
   drillFilter: DashFilter;
   onBack: () => void;
   onOpenCard?: (card: Card) => void;
+  memberByUid: Record<string, Member>;
+  siteUsers: AppUser[];
 }) {
   // Sub-filter state — pre-initialised from drillFilter
   const [subDept,  setSubDept]  = useState(drillFilter.dept  ?? '');
@@ -115,7 +126,7 @@ function DrillView({ allCards, drillFilter, onBack, onOpenCard }: {
   const pendingCount = drillCards.filter(c => c.status === 'pending').length;
 
   const deptLabel   = drillFilter.dept  ? (DEPT_SHORT[drillFilter.dept]  || drillFilter.dept)  : '';
-  const memberLabel = drillFilter.owner ? (MEMBER_BY_ID[drillFilter.owner]?.name || drillFilter.owner) : '';
+  const memberLabel = drillFilter.owner ? (memberByUid[drillFilter.owner]?.name || siteUsers.find(u => u.uid === drillFilter.owner)?.name || drillFilter.owner) : '';
   const title = [deptLabel, memberLabel].filter(Boolean).join(' × ') || '全部';
 
   const ownerIds = useMemo(() => [...new Set(allCards.map(c => c.owner).filter(Boolean))], [allCards]);
@@ -155,7 +166,7 @@ function DrillView({ allCards, drillFilter, onBack, onOpenCard }: {
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         <select className="input" style={{ minWidth: 110 }} value={subOwner} onChange={e => setSubOwner(e.target.value)}>
           <option value="">全部受託人</option>
-          {ownerIds.map(id => <option key={id} value={id}>{MEMBER_BY_ID[id]?.name ?? id}</option>)}
+          {ownerIds.map(id => <option key={id} value={id}>{memberByUid[id]?.name ?? siteUsers.find(u => u.uid === id)?.name ?? id}</option>)}
         </select>
         <select className="input" style={{ minWidth: 110 }} value={subDept} onChange={e => setSubDept(e.target.value)}>
           <option value="">全部發起單位</option>
@@ -178,13 +189,15 @@ function DrillView({ allCards, drillFilter, onBack, onOpenCard }: {
         )}
       </div>
 
-      <DrillCardTable cards={filtered} onOpenCard={onOpenCard} />
+      <DrillCardTable cards={filtered} onOpenCard={onOpenCard} memberByUid={memberByUid} siteUsers={siteUsers} />
     </div>
   );
 }
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
-export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill }: DashboardProps) {
+export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill, members, siteUsers }: DashboardProps) {
+  const memberByUid = useMemo(() => Object.fromEntries(members.map(m => [m.id, m])), [members]);
+
   const byDept = groupBy(cards, 'dept');
 
   const deptEst = Object.entries(byDept)
@@ -196,7 +209,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
     }))
     .sort((a, b) => b.value - a.value);
 
-  const memberEst = MEMBERS.map(m => {
+  const memberEst = members.map(m => {
     const mc = cards.filter(c => c.owner === m.id);
     return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, value: sum(mc.map(c => c.est)), actual: sum(mc.map(c => c.actual)), color: hue(m.hue) };
   }).filter(m => m.value > 0).sort((a, b) => b.value - a.value);
@@ -225,6 +238,8 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
           drillFilter={drillFilter}
           onBack={() => onDrill?.(null)}
           onOpenCard={onOpenCard}
+          memberByUid={memberByUid}
+          siteUsers={siteUsers}
         />
       </div>
     );
@@ -309,7 +324,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
             <span className="panel-h-spacer" />
             <span className="tag">{totalEst}h</span>
           </div>
-          <Crosstab rows={MEMBERS} cols={xtabCols}
+          <Crosstab rows={members} cols={xtabCols}
             getCell={getEstCell} getRowTotal={getEstRowTotal}
             getColTotal={getEstColTotal} grandTotal={totalEst}
             onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}
@@ -323,7 +338,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
             <span className="panel-h-spacer" />
             <span className="tag">{totalActual}h</span>
           </div>
-          <Crosstab rows={MEMBERS} cols={xtabCols}
+          <Crosstab rows={members} cols={xtabCols}
             getCell={getActCell} getRowTotal={getActRowTotal}
             getColTotal={getActColTotal} grandTotal={totalActual}
             onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}

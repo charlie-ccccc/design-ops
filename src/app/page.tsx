@@ -555,6 +555,8 @@ export default function App() {
               onOpenCard={card => setOpenCardId(card.id)}
               drillFilter={dashFilter}
               onDrill={f => setDashFilter(f)}
+              members={capacityMembers}
+              siteUsers={siteUsers}
             />
           )}
           {page === 'capacity' && showAdmin && (
