@@ -537,7 +537,7 @@ export default function App() {
       </main>
 
       <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={isMember || showAdmin} currentUserName={user.name} siteUsers={siteUsers} members={members} />
-      <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly />
+      <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly siteUsers={siteUsers} members={members} />
       <NewCardModal
         open={newCardOpen}
         onClose={() => setNewCardOpen(false)}
