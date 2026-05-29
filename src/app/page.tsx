@@ -555,7 +555,7 @@ export default function App() {
           )}
           {page === 'dashboard' && (
             <Dashboard
-              cards={monthCards.filter(c => !filterDept || c.dept === filterDept)}
+              cards={kanbanCards}
               totalCapacity={totalCapacity}
               onOpenCard={card => setOpenCardId(card.id)}
               drillFilter={dashFilter}
