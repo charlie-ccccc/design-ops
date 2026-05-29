@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
   Search, Bell, Plus, Download,
@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat, HistoryMonth } from '@/lib/types';
 import {
   STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
-  HISTORY, DEFAULT_HOLIDAYS,
+  DEFAULT_HOLIDAYS,
 } from '@/lib/data';
 import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
 import { useFirestoreCards } from '@/hooks/use-firestore-cards';
@@ -41,7 +41,7 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
-  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios } = useFirestoreSettings();
+  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady } = useFirestoreSettings();
 
   // Dynamic member list: Firestore users with 成員 or Admin role
   const members = useMemo((): Member[] =>
@@ -86,7 +86,7 @@ export default function App() {
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);
-  const [history, setHistory] = useState<HistoryMonth[]>(HISTORY);
+  const autoArchiveDoneRef = useRef(false);
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -118,6 +118,63 @@ export default function App() {
       .then((data: PublicHoliday[]) => { if (data.length > 0) setPublicHolidays(data); })
       .catch(() => {});
   }, [month.split('/')[0]]);
+
+  // Auto-archive done cards when a new month starts
+  useEffect(() => {
+    if (!settingsReady || !initialized) return;
+    if (autoArchiveDoneRef.current) return;
+    autoArchiveDoneRef.current = true;
+
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const currentRealMonth = `${now.getFullYear()}/${pad(now.getMonth() + 1)}`;
+
+    if (lastArchivedMonth === '') {
+      updateLastArchivedMonth(currentRealMonth);
+      return;
+    }
+    if (currentRealMonth <= lastArchivedMonth) return;
+
+    const prevMonth = shiftMonth(currentRealMonth, -1);
+    const doneCards = cards.filter(c => c.status === 'done');
+
+    const prevMemberDaysMap = allMemberDays[prevMonth] ?? {};
+    const prevMemberRatiosMap = allMemberRatios[prevMonth] ?? {};
+    const prevDefaultWorkDays = workingDaysInMonth(prevMonth, publicHolidays);
+    const prevLeaveByMember = Object.fromEntries(members.map(m => [m.id,
+      sum(leave.filter(l => l.member === m.id).map(l => l.hours))]));
+    const archiveCapacity = members.reduce((acc, m) => {
+      const days = prevMemberDaysMap[m.id] ?? prevDefaultWorkDays;
+      const ratio = prevMemberRatiosMap[m.id] ?? m.ratio;
+      const lv = prevLeaveByMember[m.id] || 0;
+      return acc + Math.max(0, Math.round(days * 8 * ratio) - lv);
+    }, 0);
+
+    if (doneCards.length > 0) {
+      const byDept: Record<string, number> = {};
+      const byMember: Record<string, number> = {};
+      for (const c of doneCards) {
+        byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
+        if (c.owner) byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
+      }
+      const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+      const newArchive: HistoryMonth = {
+        month: prevMonth,
+        cards: doneCards.length,
+        totalEst: sum(doneCards.map(c => c.est)),
+        totalActual: sum(doneCards.map(c => c.actual)),
+        capacity: archiveCapacity,
+        topDept,
+        deptTotals: byDept,
+        memberTotals: byMember,
+        cardList: doneCards,
+      };
+      updateHistory([newArchive, ...historyMonths]);
+      Promise.all(doneCards.map(c => deleteCard(c.id))).catch(console.error);
+    }
+
+    updateLastArchivedMonth(currentRealMonth);
+  }, [settingsReady, initialized, lastArchivedMonth, historyMonths, cards, allMemberDays, allMemberRatios, members, leave, publicHolidays]);
 
   const CURRENT_MONTH = '2026/05';
 
@@ -242,37 +299,6 @@ export default function App() {
     };
     addCard(nc).catch(console.error);
   }, [cards, addCard]);
-
-  const onArchive = useCallback(() => {
-    const archiveCards = cards.filter(c => c.status === 'done' || c.status === 'pending');
-    if (archiveCards.length === 0) {
-      alert('目前沒有「設計完成」或「Pending」的卡片可封存。');
-      return;
-    }
-    if (!window.confirm(`確定封存本月 ${archiveCards.length} 張卡片（設計完成 + Pending）？`)) return;
-
-    const byDept: Record<string, number> = {};
-    const byMember: Record<string, number> = {};
-    for (const c of archiveCards) {
-      byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
-      byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
-    }
-    const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-    const newMonth: HistoryMonth = {
-      month: CURRENT_MONTH,
-      cards: archiveCards.length,
-      totalEst: sum(archiveCards.map(c => c.est)),
-      totalActual: sum(archiveCards.map(c => c.actual)),
-      capacity: totalCapacity,
-      topDept,
-      deptTotals: byDept,
-      memberTotals: byMember,
-      cardList: archiveCards,
-    };
-    setHistory(h => [newMonth, ...h]);
-    const toDelete = archiveCards.map(c => c.id);
-    Promise.all(toDelete.map(id => deleteCard(id))).catch(console.error);
-  }, [cards, totalCapacity, deleteCard]);
 
   const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
     const firestorePatch: Record<string, unknown> = {};
@@ -437,11 +463,6 @@ export default function App() {
               </div>
             )}
 
-            {page === 'kanban' && (isMember || showAdmin) && (
-              <button className="btn" title="封存本月設計完成 + Pending 卡片" onClick={onArchive}>
-                <Archive size={14} /> 封存本月
-              </button>
-            )}
             {page === 'kanban' && showAdmin && cards.length > 0 && (
               <button className="btn" style={{ color: 'var(--st-block)', borderColor: 'var(--st-block)' }}
                 onClick={() => { if (window.confirm(`確定清空全部 ${cards.length} 張卡片？此操作無法復原。`)) clearAllCards(cards).catch(console.error); }}>
@@ -502,11 +523,11 @@ export default function App() {
           )}
           {page === 'history' && (
             <History
-              archives={history}
+              archives={historyMonths}
               currentSnapshot={currentSnapshot}
               currentCards={cards}
               onOpenCard={card => setPreviewCard(card)}
-              onArchive={onArchive}
+              siteUsers={siteUsers}
             />
           )}
           {page === 'permissions' && showAdmin && (

@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import type { HistoryMonth, Card, Cat } from '@/lib/types';
-import { DEPT_SHORT, MEMBER_BY_ID, SITE_USER_BY_ID, STATUSES } from '@/lib/data';
+import type { AppUser } from '@/contexts/auth-context';
+import { DEPT_SHORT, MEMBER_BY_ID, STATUSES } from '@/lib/data';
 import { sum, groupBy } from '@/lib/utils';
 
 interface CurrentSnapshot {
@@ -19,7 +20,7 @@ interface HistoryProps {
   currentSnapshot: CurrentSnapshot;
   currentCards: Card[];
   onOpenCard: (card: Card) => void;
-  onArchive: () => void;
+  siteUsers: AppUser[];
 }
 
 // ── Archive summary card ─────────────────────────────────────────
@@ -94,7 +95,7 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
 }
 
 // ── Card table ───────────────────────────────────────────────────
-function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (card: Card) => void }) {
+function HistoryCardTable({ cards, onOpenCard, siteUsers }: { cards: Card[]; onOpenCard: (card: Card) => void; siteUsers: AppUser[] }) {
   return (
     <div className="panel">
       <div className="xtab-wrap">
@@ -114,8 +115,11 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
           </thead>
           <tbody>
             {cards.map(card => {
-              const member = MEMBER_BY_ID[card.owner];
-              const requesterName = card.requesterName ?? (card.requester ? SITE_USER_BY_ID[card.requester]?.name : undefined);
+              const ownerName = (card.owner ? siteUsers.find(u => u.uid === card.owner)?.name : undefined)
+                ?? MEMBER_BY_ID[card.owner ?? '']?.name
+                ?? card.owner;
+              const requesterName = card.requesterName
+                ?? (card.requester ? siteUsers.find(u => u.uid === card.requester)?.name : undefined);
               const status = STATUSES.find(s => s.id === card.status);
               const isOver = card.actual > card.est;
               return (
@@ -146,7 +150,7 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
                   <td style={{ textAlign: 'left' }}>
                     <span className="kcard-cat" data-cat={card.cat}>{card.cat}</span>
                   </td>
-                  <td style={{ textAlign: 'left' }}>{member?.name ?? card.owner}</td>
+                  <td style={{ textAlign: 'left' }}>{ownerName ?? '—'}</td>
                   <td className="cell-num">{card.est}</td>
                   <td className="cell-num" style={{ color: isOver ? 'var(--st-block)' : undefined }}>
                     {card.actual}
@@ -175,11 +179,12 @@ function HistoryCardTable({ cards, onOpenCard }: { cards: Card[]; onOpenCard: (c
 }
 
 // ── Month detail view ────────────────────────────────────────────
-function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
+function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
   archive: HistoryMonth;
   isLive?: boolean;
   onBack: () => void;
   onOpenCard: (card: Card) => void;
+  siteUsers: AppUser[];
 }) {
   const [year, mon] = archive.month.split('/');
   const capPct = archive.capacity > 0 ? Math.round((archive.totalEst / archive.capacity) * 100) : 0;
@@ -248,7 +253,9 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
         <select className="input" style={{ minWidth: 110 }} value={filterOwner} onChange={e => setFilterOwner(e.target.value)}>
           <option value="">全部受託人</option>
           {ownerIds.map(id => (
-            <option key={id} value={id}>{MEMBER_BY_ID[id]?.name ?? id}</option>
+            <option key={id} value={id}>
+              {siteUsers.find(u => u.uid === id)?.name ?? MEMBER_BY_ID[id]?.name ?? id}
+            </option>
           ))}
         </select>
         <select className="input" style={{ minWidth: 110 }} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
@@ -272,13 +279,13 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard }: {
         )}
       </div>
 
-      <HistoryCardTable cards={filtered} onOpenCard={onOpenCard} />
+      <HistoryCardTable cards={filtered} onOpenCard={onOpenCard} siteUsers={siteUsers} />
     </div>
   );
 }
 
 // ── Main export ──────────────────────────────────────────────────
-export default function History({ archives, currentSnapshot, currentCards, onOpenCard, onArchive }: HistoryProps) {
+export default function History({ archives, currentSnapshot, currentCards, onOpenCard, siteUsers }: HistoryProps) {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const LIVE_MONTH = currentSnapshot.month;
@@ -314,6 +321,7 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
           isLive={selectedMonth === LIVE_MONTH}
           onBack={() => setSelectedMonth(null)}
           onOpenCard={onOpenCard}
+          siteUsers={siteUsers}
         />
       </div>
     );

@@ -2,14 +2,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { DEPTS, DEFAULT_LEAVE } from '@/lib/data';
-import type { LeaveEntry } from '@/lib/types';
+import { DEPTS, DEFAULT_LEAVE, HISTORY } from '@/lib/data';
+import type { LeaveEntry, HistoryMonth } from '@/lib/types';
 
 export function useFirestoreSettings() {
   const [depts, setDepts] = useState<string[]>(DEPTS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [allMemberDays, setAllMemberDays] = useState<Record<string, Record<string, number>>>({});
   const [allMemberRatios, setAllMemberRatios] = useState<Record<string, Record<string, number>>>({});
+  const [historyMonths, setHistoryMonths] = useState<HistoryMonth[]>(HISTORY);
+  const [lastArchivedMonth, setLastArchivedMonth] = useState('');
+  const [settingsReady, setSettingsReady] = useState(false);
 
   useEffect(() => {
     const ref = doc(db, 'settings', 'config');
@@ -26,9 +29,12 @@ export function useFirestoreSettings() {
           }
           if (data.memberDays && typeof data.memberDays === 'object') setAllMemberDays(data.memberDays);
           if (data.memberRatios && typeof data.memberRatios === 'object') setAllMemberRatios(data.memberRatios);
+          if (Array.isArray(data.historyMonths)) setHistoryMonths(data.historyMonths);
+          if (typeof data.lastArchivedMonth === 'string') setLastArchivedMonth(data.lastArchivedMonth);
         }
+        setSettingsReady(true);
       },
-      err => console.error('Settings read error:', err),
+      err => { console.error('Settings read error:', err); setSettingsReady(true); },
     );
     return unsub;
   }, []);
@@ -60,5 +66,15 @@ export function useFirestoreSettings() {
     await save({ memberRatios: updated });
   }, [allMemberRatios, save]);
 
-  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios };
+  const updateHistory = useCallback(async (newHistory: HistoryMonth[]) => {
+    setHistoryMonths(newHistory);
+    await save({ historyMonths: newHistory });
+  }, [save]);
+
+  const updateLastArchivedMonth = useCallback(async (month: string) => {
+    setLastArchivedMonth(month);
+    await save({ lastArchivedMonth: month });
+  }, [save]);
+
+  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady };
 }
