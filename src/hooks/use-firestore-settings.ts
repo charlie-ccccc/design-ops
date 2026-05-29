@@ -51,7 +51,8 @@ export function useFirestoreSettings() {
 
   const updateLeave = useCallback(async (newLeave: LeaveEntry[]) => {
     setLeave(newLeave);
-    await save({ leave: newLeave });
+    const clean = newLeave.map(l => Object.fromEntries(Object.entries(l).filter(([, v]) => v !== undefined)));
+    await save({ leave: clean });
   }, [save]);
 
   const updateMemberDays = useCallback(async (month: string, days: Record<string, number>) => {

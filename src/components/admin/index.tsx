@@ -215,13 +215,14 @@ export default function Admin({
   function addLeave() {
     if (!newLeave.startDate.trim() || !newLeave.endDate.trim() || newLeaveHours <= 0 || !newLeave.member) return;
     const isSameDay = newLeave.startDate === newLeave.endDate;
-    setLeave([...leave, {
+    const entry: LeaveEntry = {
       id: `lv${Date.now()}`,
       member: newLeave.member,
       date: newLeave.startDate,
-      endDate: isSameDay ? undefined : newLeave.endDate,
       hours: newLeaveHours,
-    }]);
+    };
+    if (!isSameDay) entry.endDate = newLeave.endDate;
+    setLeave([...leave, entry]);
     setNewLeave(p => ({ ...p, startDate: '', endDate: '', startMin: 510, endMin: 1080 }));
     setLeaveModal(false);
   }
