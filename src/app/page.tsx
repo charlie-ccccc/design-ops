@@ -72,6 +72,13 @@ export default function App() {
     }
     return 'kanban';
   });
+  const [adminTab, setAdminTab] = useState<'capacity' | 'members' | 'leave'>(() => {
+    if (typeof window !== 'undefined') {
+      const t = new URLSearchParams(window.location.search).get('tab');
+      if (t === 'members' || t === 'leave') return t;
+    }
+    return 'capacity';
+  });
   const [month, setMonth] = useState('2026/05');
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
@@ -227,9 +234,10 @@ export default function App() {
     if (openCardId) { params.set('card', openCardId); } else { params.delete('card'); }
     if (page === 'dashboard' && dashFilter?.dept)  { params.set('dept',  dashFilter.dept);  } else { params.delete('dept'); }
     if (page === 'dashboard' && dashFilter?.owner) { params.set('owner', dashFilter.owner); } else { params.delete('owner'); }
+    if (page === 'capacity' && adminTab !== 'capacity') { params.set('tab', adminTab); } else { params.delete('tab'); }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [page, openCardId, dashFilter]);
+  }, [page, openCardId, dashFilter, adminTab]);
 
   const openCard = cards.find(c => c.id === openCardId) ?? null;
 
@@ -519,6 +527,8 @@ export default function App() {
               publicHolidays={publicHolidays}
               month={month}
               defaultWorkDays={defaultWorkDays}
+              tab={adminTab}
+              onTabChange={setAdminTab}
             />
           )}
           {page === 'history' && (

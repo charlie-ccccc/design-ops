@@ -69,6 +69,8 @@ interface AdminProps {
   publicHolidays: PublicHoliday[];
   month: string;
   defaultWorkDays: number;
+  tab: MainTab;
+  onTabChange: (t: MainTab) => void;
 }
 
 function capClass(pct: number) { return pct > 100 ? 'over' : pct > 85 ? 'warn' : 'ok'; }
@@ -146,11 +148,10 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, ye
 
 export default function Admin({
   cards, members, memberRatios, setMemberRatios, memberDays, setMemberDays,
-  leave, setLeave, publicHolidays, month, defaultWorkDays,
+  leave, setLeave, publicHolidays, month, defaultWorkDays, tab, onTabChange: setTab,
 }: AdminProps) {
   const memberById = Object.fromEntries(members.map(m => [m.id, m]));
   const year = Number(month.split('/')[0]);
-  const [tab, setTab] = useState<MainTab>('capacity');
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [leaveModal, setLeaveModal] = useState(false);
