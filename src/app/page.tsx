@@ -49,6 +49,7 @@ export default function App() {
     cat: (u.cat ?? 'UIUX') as Cat,
     hue: u.hue ?? 1, base: 168,
     ratio: u.roles.includes('Admin') ? 0.625 : 0.875,
+    photo: u.photo,
   });
 
   // Current 成員 only — for kanban filter, assignment dropdowns
@@ -486,7 +487,9 @@ export default function App() {
                         transition: 'opacity 0.15s, box-shadow 0.15s',
                       }}
                     >
-                      <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>
+                      {m.photo
+                        ? <img src={m.photo} alt={m.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                        : <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>}
                     </button>
                   ))}
                 </div>

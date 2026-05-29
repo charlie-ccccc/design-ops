@@ -56,6 +56,7 @@ export interface Member {
   hue: number;
   base: number;
   ratio: number; // work hour ratio: 0.625 (manager) or 0.875 (regular)
+  photo?: string;
 }
 
 export interface PublicHoliday {

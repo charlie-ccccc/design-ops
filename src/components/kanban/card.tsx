@@ -76,13 +76,9 @@ export default function KCard({ card, onOpen, memberById = {} }: KCardProps) {
           <span className="ratio">/{card.est}h</span>
         </span>
         {owner && (
-          <span
-            className="kcard-avatar av av-sm"
-            style={{ background: hue(owner.hue) }}
-            title={owner.name}
-          >
-            {owner.initial}
-          </span>
+          owner.photo
+            ? <img src={owner.photo} alt={owner.name} title={owner.name} className="kcard-avatar av av-sm" style={{ objectFit: 'cover' }} />
+            : <span className="kcard-avatar av av-sm" style={{ background: hue(owner.hue) }} title={owner.name}>{owner.initial}</span>
         )}
       </div>
     </div>
