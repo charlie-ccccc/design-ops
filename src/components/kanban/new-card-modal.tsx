@@ -1,20 +1,16 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Link } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 
-function htmlToMarkdownText(html: string): string {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  div.querySelectorAll('a').forEach(a => {
-    const href = a.getAttribute('href');
-    const text = a.textContent;
-    if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
-  });
-  div.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
-  div.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6').forEach(el => el.after('\n'));
-  return (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+function plainToHtml(text: string): string {
+  if (!text) return '';
+  if (/<[a-z]/i.test(text)) return text;
+  return text.split(/\n{2,}/).map(para =>
+    `<p>${para.replace(/\n/g, '<br>')}</p>`
+  ).join('');
 }
 
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
@@ -84,13 +80,10 @@ function fromDateInput(val: string): string {
 
 export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members, depts }: NewCardModalProps) {
   const [form, setForm] = useState(() => makeDefaultForm(currentUser));
-  const [insertingLink, setInsertingLink] = useState(false);
-  const [linkText, setLinkText] = useState('');
-  const [linkUrl, setLinkUrl] = useState('');
-  const descRef = useRef<HTMLTextAreaElement>(null);
+  const [openCount, setOpenCount] = useState(0);
 
   useEffect(() => {
-    if (open) setForm(makeDefaultForm(currentUser));
+    if (open) { setForm(makeDefaultForm(currentUser)); setOpenCount(c => c + 1); }
   }, [open, currentUser]);
 
   function set<K extends keyof ReturnType<typeof makeDefaultForm>>(key: K, val: ReturnType<typeof makeDefaultForm>[K]) {
@@ -202,64 +195,12 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
 
             {/* 描述 */}
             <div className="form-row">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                描述
-                <button type="button" className="btn btn-ghost" style={{ fontSize: 12, padding: '1px 6px' }} title="插入連結"
-                  onClick={() => {
-                    const ta = descRef.current;
-                    const sel = ta ? form.desc.slice(ta.selectionStart, ta.selectionEnd) : '';
-                    setLinkText(sel);
-                    setLinkUrl('');
-                    setInsertingLink(v => !v);
-                  }}>
-                  <Link size={12} />
-                </button>
-              </label>
-              {insertingLink && (
-                <div style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <input className="input" placeholder="連結文字" style={{ flex: 1, minWidth: 100, fontSize: 13 }}
-                    value={linkText} onChange={e => setLinkText(e.target.value)} />
-                  <input className="input" placeholder="https://..." style={{ flex: 2, minWidth: 160, fontSize: 13 }}
-                    value={linkUrl} onChange={e => setLinkUrl(e.target.value)} />
-                  <button type="button" className="btn btn-primary" style={{ fontSize: 13, padding: '2px 10px' }}
-                    onClick={() => {
-                      if (!linkUrl.trim()) return;
-                      const ta = descRef.current;
-                      const text = linkText.trim() || linkUrl.trim();
-                      const md = `[${text}](${linkUrl.trim()})`;
-                      if (ta) {
-                        const s = ta.selectionStart, en = ta.selectionEnd;
-                        const next = form.desc.slice(0, s) + md + form.desc.slice(en);
-                        set('desc', next);
-                        requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + md.length; ta.focus(); });
-                      } else {
-                        set('desc', form.desc + md);
-                      }
-                      setInsertingLink(false);
-                      setLinkText('');
-                      setLinkUrl('');
-                    }}>插入</button>
-                  <button type="button" className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => setInsertingLink(false)}>✕</button>
-                </div>
-              )}
-              <textarea
-                ref={descRef}
-                className="input"
-                style={{ width: '100%', minHeight: 220, resize: 'vertical', fontFamily: 'inherit', fontSize: 12.5, lineHeight: 1.7 }}
-                value={form.desc}
-                onChange={e => set('desc', e.target.value)}
-                onPaste={e => {
-                  const html = e.clipboardData.getData('text/html');
-                  if (!html) return;
-                  const converted = htmlToMarkdownText(html);
-                  if (!converted) return;
-                  e.preventDefault();
-                  const ta = e.currentTarget;
-                  const s = ta.selectionStart, en = ta.selectionEnd;
-                  const next = form.desc.slice(0, s) + converted + form.desc.slice(en);
-                  set('desc', next);
-                  requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + converted.length; });
-                }}
+              <label>描述</label>
+              <RichTextEditor
+                key={openCount}
+                value={plainToHtml(form.desc)}
+                onChange={v => set('desc', v)}
+                minHeight={220}
               />
             </div>
           </div>

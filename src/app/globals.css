@@ -350,3 +350,23 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 /* Scrollbars */
 .body::-webkit-scrollbar, .kcol-body::-webkit-scrollbar, .xtab-wrap::-webkit-scrollbar, .drawer-body::-webkit-scrollbar { width: 10px; height: 10px; }
 .body::-webkit-scrollbar-thumb, .kcol-body::-webkit-scrollbar-thumb, .xtab-wrap::-webkit-scrollbar-thumb, .drawer-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+
+/* ── TipTap Rich Text Editor ─────────────────────────────────── */
+.ProseMirror { outline: none; }
+.ProseMirror p { margin: 0 0 0.4em; }
+.ProseMirror p:last-child { margin-bottom: 0; }
+.ProseMirror ul { list-style: disc; padding-left: 1.5em; margin: 0.3em 0; }
+.ProseMirror ol { list-style: decimal; padding-left: 1.5em; margin: 0.3em 0; }
+.ProseMirror li { margin: 2px 0; }
+.ProseMirror a { color: var(--accent); text-decoration: underline; cursor: pointer; }
+.ProseMirror a:hover { opacity: 0.8; }
+
+/* Prose display (view mode) */
+.prose-content { font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+.prose-content p { margin: 0 0 0.4em; }
+.prose-content p:last-child { margin-bottom: 0; }
+.prose-content ul { list-style: disc; padding-left: 1.5em; margin: 0.3em 0; }
+.prose-content ol { list-style: decimal; padding-left: 1.5em; margin: 0.3em 0; }
+.prose-content li { margin: 2px 0; }
+.prose-content a { color: var(--accent); text-decoration: underline; }
+.prose-content a:hover { opacity: 0.8; }
