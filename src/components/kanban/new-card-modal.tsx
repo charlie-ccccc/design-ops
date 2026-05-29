@@ -4,6 +4,19 @@ import { X, Link } from 'lucide-react';
 import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 
+function htmlToMarkdownText(html: string): string {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href');
+    const text = a.textContent;
+    if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
+  });
+  div.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  div.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6').forEach(el => el.after('\n'));
+  return (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 const DESC_TEMPLATE = `– 此欄位用於請需求方填寫需求的完整資料，平面視覺與 UIUX 需要的資料不同，請自行刪除不需要的段落 –
 
 ．平面視覺
@@ -238,14 +251,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
                 onPaste={e => {
                   const html = e.clipboardData.getData('text/html');
                   if (!html) return;
-                  const div = document.createElement('div');
-                  div.innerHTML = html;
-                  div.querySelectorAll('a').forEach(a => {
-                    const href = a.getAttribute('href');
-                    const text = a.textContent;
-                    if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
-                  });
-                  const converted = (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+                  const converted = htmlToMarkdownText(html);
                   if (!converted) return;
                   e.preventDefault();
                   const ta = e.currentTarget;

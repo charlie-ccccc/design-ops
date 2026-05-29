@@ -20,6 +20,19 @@ interface CardDrawerProps {
   members?: Member[];      // 成員-only for 受託人 picker
 }
 
+function htmlToMarkdownText(html: string): string {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href');
+    const text = a.textContent;
+    if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
+  });
+  div.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  div.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6').forEach(el => el.after('\n'));
+  return (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 const LINK_RE = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)|(https?:\/\/[^\s]+)/g;
 function renderWithLinks(text: string) {
   const parts: React.ReactNode[] = [];
@@ -520,20 +533,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     onPaste={e => {
                       const html = e.clipboardData.getData('text/html');
                       if (!html) return;
-                      const div = document.createElement('div');
-                      div.innerHTML = html;
-                      div.querySelectorAll('a').forEach(a => {
-                        const href = a.getAttribute('href');
-                        const text = a.textContent;
-                        if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
-                      });
-                      const converted = (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+                      const converted = htmlToMarkdownText(html);
                       if (!converted) return;
                       e.preventDefault();
                       const ta = e.currentTarget;
                       const s = ta.selectionStart, en = ta.selectionEnd;
-                      const next = draftDesc.slice(0, s) + converted + draftDesc.slice(en);
-                      setDraftDesc(next);
+                      setDraftDesc(draftDesc.slice(0, s) + converted + draftDesc.slice(en));
                       requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + converted.length; });
                     }} />
                 ) : (
