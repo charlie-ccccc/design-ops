@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Clock, MoreHorizontal } from 'lucide-react';
+import { X, Plus, Clock, MoreHorizontal, Pencil, Check } from 'lucide-react';
 import type { Card, TimeLog, Comment, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
@@ -154,6 +154,8 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   const [editingDesc, setEditingDesc] = useState(false);
   const [draftDesc, setDraftDesc] = useState('');
   const [commentText, setCommentText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentDraft, setEditCommentDraft] = useState('');
 
   // Time log modal state
   const [logModal, setLogModal] = useState(false);
@@ -179,6 +181,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
         setEditingDesc(false);
         setDraftDesc(card.desc || '');
         setCommentText('');
+        setEditingCommentId(null);
         setBottomTab('activity');
         setLogModal(false);
         setNewLog(EMPTY_LOG);
@@ -548,18 +551,61 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   <div>
                     {comments.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
-                        {comments.map(cm => (
-                          <div key={cm.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                            <div className="av av-sm" style={{ background: 'var(--accent)', flexShrink: 0 }}>{cm.author[0]}</div>
-                            <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                <span style={{ fontSize: 14, fontWeight: 600 }}>{cm.author}</span>
-                                <span style={{ fontSize: 12, color: 'var(--muted)' }}>{cm.t}</span>
+                        {comments.map(cm => {
+                          const isEditing = editingCommentId === cm.id;
+                          const canEditThis = canEdit && cm.author === currentUserName;
+                          return (
+                            <div key={cm.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                              <div className="av av-sm" style={{ background: 'var(--accent)', flexShrink: 0 }}>{cm.author[0]}</div>
+                              <div style={{ flex: 1, background: 'var(--surface-2)', borderRadius: 8, padding: '8px 12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                  <span style={{ fontSize: 14, fontWeight: 600 }}>{cm.author}</span>
+                                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{cm.t}</span>
+                                    {canEditThis && !isEditing && (
+                                      <button
+                                        onClick={() => { setEditingCommentId(cm.id); setEditCommentDraft(cm.text); }}
+                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: 2, display: 'flex', borderRadius: 4 }}
+                                        title="編輯留言"
+                                      >
+                                        <Pencil size={12} />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {isEditing ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <textarea
+                                      className="input"
+                                      style={{ width: '100%', minHeight: 72, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
+                                      value={editCommentDraft}
+                                      onChange={e => setEditCommentDraft(e.target.value)}
+                                      autoFocus
+                                    />
+                                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                                      <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={() => setEditingCommentId(null)}>取消</button>
+                                      <button
+                                        className="btn btn-primary"
+                                        style={{ fontSize: 13 }}
+                                        disabled={!editCommentDraft.trim()}
+                                        onClick={() => {
+                                          if (!c || !editCommentDraft.trim()) return;
+                                          const updated = comments.map(x => x.id === cm.id ? { ...x, text: editCommentDraft.trim() } : x);
+                                          onUpdate(c.id, { comments: updated });
+                                          setEditingCommentId(null);
+                                        }}
+                                      >
+                                        <Check size={13} /> 儲存
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{renderWithLinks(cm.text)}</div>
+                                )}
                               </div>
-                              <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{renderWithLinks(cm.text)}</div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無留言</div>}
                     {!readOnly && (
