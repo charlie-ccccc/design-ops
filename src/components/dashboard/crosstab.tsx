@@ -67,12 +67,9 @@ export default function Crosstab({
                 <td style={onRowClick ? { cursor: 'pointer' } : undefined}
                   onClick={() => onRowClick?.(row)}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div
-                      className="av av-sm"
-                      style={{ background: hue(row.hue) }}
-                    >
-                      {row.initial}
-                    </div>
+                    {row.photo
+                      ? <img src={row.photo} alt={row.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                      : <div className="av av-sm" style={{ background: hue(row.hue) }}>{row.initial}</div>}
                     <span style={{ fontSize: 12.5 }}>{row.name}</span>
                   </div>
                 </td>

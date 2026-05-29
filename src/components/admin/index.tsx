@@ -359,7 +359,9 @@ export default function Admin({
                   <tr key={m.id}>
                     <td>
                       <div className="member">
-                        <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>
+                        {m.photo
+                          ? <img src={m.photo} alt={m.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                          : <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>}
                         <div>
                           <div style={{ fontSize: 14 }}>{m.name}</div>
                           <div style={{ fontSize: 12, color: 'var(--muted)' }}>{m.cat}</div>
@@ -453,7 +455,9 @@ export default function Admin({
                     return (
                       <div key={entry.id} className="leave-row">
                         <div className="who">
-                          {mb && <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>}
+                          {mb && (mb.photo
+                            ? <img src={mb.photo} alt={mb.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                            : <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>)}
                           <span>{mb ? mb.name : entry.member}</span>
                         </div>
                         <span className="date">{dateRangeLabel(entry.date, entry.endDate)}</span>
