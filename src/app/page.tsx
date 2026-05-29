@@ -13,7 +13,7 @@ import {
   STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
   DEFAULT_HOLIDAYS,
 } from '@/lib/data';
-import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, dueMonthOf } from '@/lib/utils';
+import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, workingDaysBetween, dueMonthOf } from '@/lib/utils';
 import { useFirestoreCards } from '@/hooks/use-firestore-cards';
 import { useFirestoreUsers } from '@/hooks/use-firestore-users';
 import { useFirestoreSettings } from '@/hooks/use-firestore-settings';
@@ -43,20 +43,17 @@ export default function App() {
   const siteUsers = useFirestoreUsers();
   const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady } = useFirestoreSettings();
 
-  // Dynamic member list: Firestore users with 成員 or Admin role
+  const toMember = (u: typeof siteUsers[0]): Member => ({
+    id: u.uid, name: u.name, alias: u.name,
+    initial: u.initial ?? u.name[0] ?? '?',
+    cat: (u.cat ?? 'UIUX') as Cat,
+    hue: u.hue ?? 1, base: 168,
+    ratio: u.roles.includes('Admin') ? 0.625 : 0.875,
+  });
+
+  // Current 成員 only — for kanban filter, assignment dropdowns
   const members = useMemo((): Member[] =>
-    siteUsers
-      .filter(u => u.roles.includes('成員'))
-      .map(u => ({
-        id: u.uid,
-        name: u.name,
-        alias: u.name,
-        initial: u.initial ?? u.name[0] ?? '?',
-        cat: (u.cat ?? 'UIUX') as Cat,
-        hue: u.hue ?? 1,
-        base: 168,
-        ratio: u.roles.includes('Admin') ? 0.625 : 0.875,
-      })),
+    siteUsers.filter(u => u.roles.includes('成員')).map(toMember),
     [siteUsers],
   );
 
@@ -80,6 +77,16 @@ export default function App() {
     return 'capacity';
   });
   const [month, setMonth] = useState('2026/05');
+
+  // Current 成員 + former members who have a days entry for the selected month — for capacity calculation
+  const capacityMembers = useMemo((): Member[] => {
+    const monthDaysMap = allMemberDays[month] ?? {};
+    const activeIds = new Set(members.map(m => m.id));
+    const former = siteUsers
+      .filter(u => !activeIds.has(u.uid) && u.uid in monthDaysMap)
+      .map(toMember);
+    return [...members, ...former];
+  }, [members, siteUsers, allMemberDays, month]);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
   const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
@@ -198,9 +205,9 @@ export default function App() {
     [cards, month]);
 
   const leaveByMember = useMemo(() =>
-    Object.fromEntries(members.map(m => [m.id,
+    Object.fromEntries(capacityMembers.map(m => [m.id,
       sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
-    [members, leave]);
+    [capacityMembers, leave]);
 
   const defaultWorkDays = useMemo(
     () => workingDaysInMonth(month, publicHolidays),
@@ -208,7 +215,7 @@ export default function App() {
   );
 
   const totalCapacity = useMemo(() =>
-    members.reduce((acc, m) => {
+    capacityMembers.reduce((acc, m) => {
       const days = memberDays[m.id] ?? defaultWorkDays;
       const ratio = memberRatios[m.id] ?? m.ratio;
       const lv = leaveByMember[m.id] || 0;
@@ -309,12 +316,33 @@ export default function App() {
   }, [cards, addCard]);
 
   const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
+    if (patch.roles) {
+      const currentUser = siteUsers.find(u => u.uid === uid);
+      const wasMember = currentUser?.roles.includes('成員') ?? false;
+      const becomesMember = patch.roles.includes('成員');
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const currentRealMonth = `${now.getFullYear()}/${pad(now.getMonth() + 1)}`;
+      const today = now.getDate();
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+      if (!wasMember && becomesMember) {
+        // 加入：從今天到月底的工作天
+        const days = workingDaysBetween(currentRealMonth, today, lastDay, publicHolidays);
+        await updateMemberDays(currentRealMonth, { ...(allMemberDays[currentRealMonth] ?? {}), [uid]: days });
+      } else if (wasMember && !becomesMember) {
+        // 離開：從月初到今天的工作天
+        const days = workingDaysBetween(currentRealMonth, 1, today, publicHolidays);
+        await updateMemberDays(currentRealMonth, { ...(allMemberDays[currentRealMonth] ?? {}), [uid]: days });
+      }
+    }
+
     const firestorePatch: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(patch)) {
       firestorePatch[k] = v === undefined ? deleteField() : v;
     }
     await updateDoc(doc(db, 'users', uid), firestorePatch);
-  }, []);
+  }, [siteUsers, allMemberDays, updateMemberDays, publicHolidays]);
 
   const currentSnapshot = useMemo(() => {
     const currentMonthCards = cards.filter(c => dueMonthOf(c) === CURRENT_MONTH);
@@ -517,7 +545,7 @@ export default function App() {
           {page === 'capacity' && showAdmin && (
             <Admin
               cards={monthCards}
-              members={members}
+              members={capacityMembers}
               memberRatios={memberRatios}
               setMemberRatios={setMemberRatios}
               memberDays={memberDays}

@@ -29,6 +29,21 @@ export function dueMonthOf(card: { due: string; month: string }): string {
   return `${year}/${mm}`;
 }
 
+export function workingDaysBetween(month: string, fromDay: number, toDay: number, holidays: Array<{ date: string }>): number {
+  const [y, mo] = month.split('/').map(Number);
+  const total = new Date(y, mo, 0).getDate();
+  const holidaySet = new Set(holidays.map(h => h.date));
+  let count = 0;
+  for (let d = Math.max(1, fromDay); d <= Math.min(total, toDay); d++) {
+    const dow = new Date(y, mo - 1, d).getDay();
+    if (dow === 0 || dow === 6) continue;
+    const key = `${String(mo).padStart(2, '0')}/${String(d).padStart(2, '0')}`;
+    if (holidaySet.has(key)) continue;
+    count++;
+  }
+  return count;
+}
+
 export function workingDaysInMonth(month: string, holidays: Array<{ date: string }>): number {
   const [y, mo] = month.split('/').map(Number);
   const total = new Date(y, mo, 0).getDate();
