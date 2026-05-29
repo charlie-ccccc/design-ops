@@ -8,6 +8,8 @@ import type { LeaveEntry } from '@/lib/types';
 export function useFirestoreSettings() {
   const [depts, setDepts] = useState<string[]>(DEPTS);
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
+  const [allMemberDays, setAllMemberDays] = useState<Record<string, Record<string, number>>>({});
+  const [allMemberRatios, setAllMemberRatios] = useState<Record<string, Record<string, number>>>({});
 
   useEffect(() => {
     const ref = doc(db, 'settings', 'config');
@@ -20,9 +22,10 @@ export function useFirestoreSettings() {
           if (Array.isArray(data.leave)) {
             setLeave(data.leave);
           } else {
-            // leave field absent — seed DEFAULT_LEAVE into Firestore
             setDoc(ref, { leave: DEFAULT_LEAVE }, { merge: true }).catch(console.error);
           }
+          if (data.memberDays && typeof data.memberDays === 'object') setAllMemberDays(data.memberDays);
+          if (data.memberRatios && typeof data.memberRatios === 'object') setAllMemberRatios(data.memberRatios);
         }
       },
       err => console.error('Settings read error:', err),
@@ -45,5 +48,17 @@ export function useFirestoreSettings() {
     await save({ leave: newLeave });
   }, [save]);
 
-  return { depts, updateDepts, leave, updateLeave };
+  const updateMemberDays = useCallback(async (month: string, days: Record<string, number>) => {
+    const updated = { ...allMemberDays, [month]: days };
+    setAllMemberDays(updated);
+    await save({ memberDays: updated });
+  }, [allMemberDays, save]);
+
+  const updateMemberRatios = useCallback(async (month: string, ratios: Record<string, number>) => {
+    const updated = { ...allMemberRatios, [month]: ratios };
+    setAllMemberRatios(updated);
+    await save({ memberRatios: updated });
+  }, [allMemberRatios, save]);
+
+  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios };
 }

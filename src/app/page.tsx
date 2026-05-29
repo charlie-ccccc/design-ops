@@ -41,7 +41,7 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
-  const { depts, updateDepts, leave, updateLeave } = useFirestoreSettings();
+  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios } = useFirestoreSettings();
 
   // Dynamic member list: Firestore users with 成員 or Admin role
   const members = useMemo((): Member[] =>
@@ -79,8 +79,10 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [filterMember, setFilterMember] = useState('');
   const [filterDept, setFilterDept] = useState('');
-  const [memberRatios, setMemberRatios] = useState<Record<string, number>>({});
-  const [memberDays, setMemberDays] = useState<Record<string, number>>({});
+  const memberDays = allMemberDays[month] ?? {};
+  const memberRatios = allMemberRatios[month] ?? {};
+  const setMemberDays = useCallback((d: Record<string, number>) => updateMemberDays(month, d), [updateMemberDays, month]);
+  const setMemberRatios = useCallback((r: Record<string, number>) => updateMemberRatios(month, r), [updateMemberRatios, month]);
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);

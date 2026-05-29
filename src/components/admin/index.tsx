@@ -493,7 +493,7 @@ export default function Admin({
                                value={newLeave.startDate ? `${year}-${newLeave.startDate.replace('/', '-')}` : ''}
                                onChange={e => {
                                  const v = e.target.value ? e.target.value.slice(5).replace('-', '/') : '';
-                                 setNewLeave(p => ({ ...p, startDate: v, endDate: p.endDate || v }));
+                                 setNewLeave(p => ({ ...p, startDate: v, endDate: (!p.endDate || v > p.endDate) ? v : p.endDate }));
                                }} />
                         <select className="input" style={{ flex: 1 }} value={newLeave.startMin}
                                 onChange={e => setNewLeave(p => ({ ...p, startMin: Number(e.target.value) }))}>
