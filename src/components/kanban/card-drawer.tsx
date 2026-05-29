@@ -20,13 +20,23 @@ interface CardDrawerProps {
   members?: Member[];      // 成員-only for 受託人 picker
 }
 
-const URL_RE = /(https?:\/\/[^\s]+)/g;
+const LINK_RE = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)|(https?:\/\/[^\s]+)/g;
 function renderWithLinks(text: string) {
-  return text.split(URL_RE).map((part, i) =>
-    URL_RE.test(part)
-      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', wordBreak: 'break-all' }}>{part}</a>
-      : part
-  );
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  LINK_RE.lastIndex = 0;
+  while ((m = LINK_RE.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[1] && m[2]) {
+      parts.push(<a key={m.index} href={m[2]} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', wordBreak: 'break-all' }}>{m[1]}</a>);
+    } else {
+      parts.push(<a key={m.index} href={m[3]} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', wordBreak: 'break-all' }}>{m[3]}</a>);
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
 }
 
 function toDateInput(mmdd: string, cardMonth: string): string {
@@ -464,7 +474,26 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                 </div>
                 {editingDesc ? (
                   <textarea className="input" style={{ width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.6 }}
-                    value={draftDesc} onChange={e => setDraftDesc(e.target.value)} />
+                    value={draftDesc} onChange={e => setDraftDesc(e.target.value)}
+                    onPaste={e => {
+                      const html = e.clipboardData.getData('text/html');
+                      if (!html) return;
+                      const div = document.createElement('div');
+                      div.innerHTML = html;
+                      div.querySelectorAll('a').forEach(a => {
+                        const href = a.getAttribute('href');
+                        const text = a.textContent;
+                        if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
+                      });
+                      const converted = (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+                      if (!converted) return;
+                      e.preventDefault();
+                      const ta = e.currentTarget;
+                      const s = ta.selectionStart, en = ta.selectionEnd;
+                      const next = draftDesc.slice(0, s) + converted + draftDesc.slice(en);
+                      setDraftDesc(next);
+                      requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + converted.length; });
+                    }} />
                 ) : (
                   <p style={{ fontSize: 14, color: c.desc ? 'var(--ink-2)' : 'var(--muted)', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                     {c.desc ? renderWithLinks(c.desc) : '尚無說明'}
