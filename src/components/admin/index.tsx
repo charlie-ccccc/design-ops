@@ -489,10 +489,10 @@ export default function Admin({
                     <div className="form-row">
                       <label>開始</label>
                       <div style={{ display: 'flex', gap: 8, width: '100%' }}>
-                        <input className="input" type="text" placeholder="MM/DD" style={{ width: 90 }}
-                               value={newLeave.startDate}
+                        <input className="input" type="date" style={{ width: 150 }}
+                               value={newLeave.startDate ? `${year}-${newLeave.startDate.replace('/', '-')}` : ''}
                                onChange={e => {
-                                 const v = e.target.value;
+                                 const v = e.target.value ? e.target.value.slice(5).replace('-', '/') : '';
                                  setNewLeave(p => ({ ...p, startDate: v, endDate: p.endDate || v }));
                                }} />
                         <select className="input" style={{ flex: 1 }} value={newLeave.startMin}
@@ -505,9 +505,12 @@ export default function Admin({
                     <div className="form-row">
                       <label>結束</label>
                       <div style={{ display: 'flex', gap: 8, width: '100%' }}>
-                        <input className="input" type="text" placeholder="MM/DD" style={{ width: 90 }}
-                               value={newLeave.endDate}
-                               onChange={e => setNewLeave(p => ({ ...p, endDate: e.target.value }))} />
+                        <input className="input" type="date" style={{ width: 150 }}
+                               value={newLeave.endDate ? `${year}-${newLeave.endDate.replace('/', '-')}` : ''}
+                               onChange={e => {
+                                 const v = e.target.value ? e.target.value.slice(5).replace('-', '/') : '';
+                                 setNewLeave(p => ({ ...p, endDate: v }));
+                               }} />
                         <select className="input" style={{ flex: 1 }} value={newLeave.endMin}
                                 onChange={e => setNewLeave(p => ({ ...p, endMin: Number(e.target.value) }))}>
                           {TIME_SLOTS.map(s => <option key={s.min} value={s.min}>{s.label}</option>)}
