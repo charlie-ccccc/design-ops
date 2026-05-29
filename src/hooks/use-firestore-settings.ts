@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { DEPTS, DEFAULT_LEAVE, HISTORY } from '@/lib/data';
+import { DEPTS, DEFAULT_LEAVE } from '@/lib/data';
 import type { LeaveEntry, HistoryMonth } from '@/lib/types';
 
 export function useFirestoreSettings() {
@@ -10,7 +10,7 @@ export function useFirestoreSettings() {
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [allMemberDays, setAllMemberDays] = useState<Record<string, Record<string, number>>>({});
   const [allMemberRatios, setAllMemberRatios] = useState<Record<string, Record<string, number>>>({});
-  const [historyMonths, setHistoryMonths] = useState<HistoryMonth[]>(HISTORY);
+  const [historyMonths, setHistoryMonths] = useState<HistoryMonth[]>([]);
   const [lastArchivedMonth, setLastArchivedMonth] = useState('');
   const [settingsReady, setSettingsReady] = useState(false);
 

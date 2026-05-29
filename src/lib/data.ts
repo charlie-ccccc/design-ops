@@ -1,4 +1,4 @@
-import type { Card, CardStatus, Member, Status, LeaveEntry, HistoryMonth, PublicHoliday } from './types';
+import type { Card, CardStatus, Member, Status, LeaveEntry, PublicHoliday } from './types';
 import { formatId } from './utils';
 
 export const DEPTS = [
@@ -118,67 +118,6 @@ export const CURRENT_CARDS: Card[] = SEED.map((c, i) => ({
   activity: seedActivity(c),
 }));
 
-function makeHistoryCards(month: string, count: number, seed: number): Card[] {
-  const prefix = month.replace('/', '');
-  const [, mon] = month.split('/');
-  return Array.from({ length: count }, (_, i) => {
-    const s = SEED[i % SEED.length];
-    const r = (seed * 31 + i * 17) % 100;
-    const est = Math.max(4, Math.round(s.est * (0.7 + (r % 5) * 0.08)));
-    const actual = Math.max(1, Math.round(s.actual > 0 ? s.actual * (0.65 + (r % 4) * 0.1) : est * 0.8));
-    const status: CardStatus = i % 7 === 0 ? 'pending' : 'done';
-    const owner = MEMBER_BY_ID[s.owner].name;
-    return {
-      ...s,
-      id: `${prefix}-${formatId(i + 1)}`,
-      month,
-      status,
-      est,
-      actual,
-      desc: s.cat === 'UIUX'
-        ? '本單為 UIUX 設計需求，交付物含 Figma 原型、規格、互動 demo 影片。'
-        : '本單為平面視覺需求，交付物含主視覺、延伸 SocialKV、可編輯原始檔。',
-      attach: 2 + (i % 4),
-      activity: [
-        { who: '系統', msg: `${owner} 接下此單`, t: `${mon}/06 10:12` },
-        { who: owner, msg: `回報實際工時 +${Math.round(actual * 0.6)}h`, t: `${mon}/14 15:20` },
-        { who: owner, msg: '送出審核', t: `${mon}/22 09:48` },
-        status === 'done'
-          ? { who: 'Lead', msg: '結案，已存入結算', t: `${mon}/28 17:05` }
-          : { who: '系統', msg: '需求單位取消需求，移至 Pending 保留工時', t: `${mon}/28 11:20` },
-      ],
-    };
-  });
-}
-
-function makeHistoryMonth(month: string, count: number, seed: number): HistoryMonth {
-  const cardList = makeHistoryCards(month, count, seed);
-  const totalEst = cardList.reduce((s, c) => s + c.est, 0);
-  const totalActual = cardList.reduce((s, c) => s + c.actual, 0);
-  const byDept: Record<string, number> = {};
-  for (const c of cardList) byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
-  const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-  const byMember: Record<string, number> = {};
-  for (const c of cardList) byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
-  return {
-    month,
-    cards: cardList.length,
-    totalEst,
-    totalActual,
-    capacity: 480 + seed * 8,
-    topDept,
-    deptTotals: byDept,
-    memberTotals: byMember,
-    cardList,
-  };
-}
-
-export const HISTORY: HistoryMonth[] = [
-  makeHistoryMonth('2026/04', 18, 7),
-  makeHistoryMonth('2026/03', 22, 3),
-  makeHistoryMonth('2026/02', 15, 11),
-  makeHistoryMonth('2026/01', 20, 5),
-];
 
 export const DEFAULT_HOLIDAYS: PublicHoliday[] = [
   { date: '01/01', name: '元旦' },
