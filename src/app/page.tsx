@@ -76,7 +76,10 @@ export default function App() {
     }
     return 'capacity';
   });
-  const [month, setMonth] = useState('2026/05');
+  const [month, setMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   // Current 成員 + former members who have a days entry for the selected month — for capacity calculation
   const capacityMembers = useMemo((): Member[] => {
@@ -155,9 +158,18 @@ export default function App() {
     const prevMemberDaysMap = allMemberDays[prevMonth] ?? {};
     const prevMemberRatiosMap = allMemberRatios[prevMonth] ?? {};
     const prevDefaultWorkDays = workingDaysInMonth(prevMonth, publicHolidays);
-    const prevLeaveByMember = Object.fromEntries(members.map(m => [m.id,
+    // Include anyone who was a member last month (current 成員 + anyone with a days entry for prevMonth)
+    const currentMemberIds = new Set(members.map(m => m.id));
+    const prevMonthMemberIds = new Set([
+      ...currentMemberIds,
+      ...Object.keys(prevMemberDaysMap),
+    ]);
+    const prevMonthMembers = siteUsers
+      .filter(u => prevMonthMemberIds.has(u.uid))
+      .map(toMember);
+    const prevLeaveByMember = Object.fromEntries(prevMonthMembers.map(m => [m.id,
       sum(leave.filter(l => l.member === m.id).map(l => l.hours))]));
-    const archiveCapacity = members.reduce((acc, m) => {
+    const archiveCapacity = prevMonthMembers.reduce((acc, m) => {
       const days = prevMemberDaysMap[m.id] ?? prevDefaultWorkDays;
       const ratio = prevMemberRatiosMap[m.id] ?? m.ratio;
       const lv = prevLeaveByMember[m.id] || 0;
@@ -190,7 +202,10 @@ export default function App() {
     updateLastArchivedMonth(currentRealMonth);
   }, [settingsReady, initialized, lastArchivedMonth, historyMonths, cards, allMemberDays, allMemberRatios, members, leave, publicHolidays]);
 
-  const CURRENT_MONTH = '2026/05';
+  const CURRENT_MONTH = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }, []);
 
   // Kanban: active cards always visible; done/pending only if due month ≥ current month
   const kanbanCards = useMemo(() =>
@@ -305,7 +320,7 @@ export default function App() {
       ...data,
       requester: data.requesterName || undefined,
       id: formatId(maxN + 1),
-      month: '2026/05',
+      month: CURRENT_MONTH,
       est: 0,
       actual: 0,
       attach: 0,
