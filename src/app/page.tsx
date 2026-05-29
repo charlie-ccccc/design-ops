@@ -55,7 +55,7 @@ export default function App() {
         cat: (u.cat ?? 'UIUX') as Cat,
         hue: u.hue ?? 1,
         base: 168,
-        ratio: 0.875,
+        ratio: u.roles.includes('Admin') ? 0.625 : 0.875,
       })),
     [siteUsers],
   );
