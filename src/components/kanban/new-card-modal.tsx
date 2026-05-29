@@ -1,6 +1,6 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Link } from 'lucide-react';
 import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 
@@ -71,6 +71,10 @@ function fromDateInput(val: string): string {
 
 export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members, depts }: NewCardModalProps) {
   const [form, setForm] = useState(() => makeDefaultForm(currentUser));
+  const [insertingLink, setInsertingLink] = useState(false);
+  const [linkText, setLinkText] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const descRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (open) setForm(makeDefaultForm(currentUser));
@@ -185,12 +189,71 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
 
             {/* 描述 */}
             <div className="form-row">
-              <label>描述</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                描述
+                <button type="button" className="btn btn-ghost" style={{ fontSize: 12, padding: '1px 6px' }} title="插入連結"
+                  onClick={() => {
+                    const ta = descRef.current;
+                    const sel = ta ? form.desc.slice(ta.selectionStart, ta.selectionEnd) : '';
+                    setLinkText(sel);
+                    setLinkUrl('');
+                    setInsertingLink(v => !v);
+                  }}>
+                  <Link size={12} />
+                </button>
+              </label>
+              {insertingLink && (
+                <div style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input className="input" placeholder="連結文字" style={{ flex: 1, minWidth: 100, fontSize: 13 }}
+                    value={linkText} onChange={e => setLinkText(e.target.value)} />
+                  <input className="input" placeholder="https://..." style={{ flex: 2, minWidth: 160, fontSize: 13 }}
+                    value={linkUrl} onChange={e => setLinkUrl(e.target.value)} />
+                  <button type="button" className="btn btn-primary" style={{ fontSize: 13, padding: '2px 10px' }}
+                    onClick={() => {
+                      if (!linkUrl.trim()) return;
+                      const ta = descRef.current;
+                      const text = linkText.trim() || linkUrl.trim();
+                      const md = `[${text}](${linkUrl.trim()})`;
+                      if (ta) {
+                        const s = ta.selectionStart, en = ta.selectionEnd;
+                        const next = form.desc.slice(0, s) + md + form.desc.slice(en);
+                        set('desc', next);
+                        requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + md.length; ta.focus(); });
+                      } else {
+                        set('desc', form.desc + md);
+                      }
+                      setInsertingLink(false);
+                      setLinkText('');
+                      setLinkUrl('');
+                    }}>插入</button>
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 13, padding: '2px 8px' }} onClick={() => setInsertingLink(false)}>✕</button>
+                </div>
+              )}
               <textarea
+                ref={descRef}
                 className="input"
                 style={{ width: '100%', minHeight: 220, resize: 'vertical', fontFamily: 'inherit', fontSize: 12.5, lineHeight: 1.7 }}
                 value={form.desc}
                 onChange={e => set('desc', e.target.value)}
+                onPaste={e => {
+                  const html = e.clipboardData.getData('text/html');
+                  if (!html) return;
+                  const div = document.createElement('div');
+                  div.innerHTML = html;
+                  div.querySelectorAll('a').forEach(a => {
+                    const href = a.getAttribute('href');
+                    const text = a.textContent;
+                    if (href && text && href.startsWith('http')) a.replaceWith(`[${text}](${href})`);
+                  });
+                  const converted = (div.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+                  if (!converted) return;
+                  e.preventDefault();
+                  const ta = e.currentTarget;
+                  const s = ta.selectionStart, en = ta.selectionEnd;
+                  const next = form.desc.slice(0, s) + converted + form.desc.slice(en);
+                  set('desc', next);
+                  requestAnimationFrame(() => { ta.selectionStart = ta.selectionEnd = s + converted.length; });
+                }}
               />
             </div>
           </div>
