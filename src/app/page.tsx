@@ -167,8 +167,9 @@ export default function App() {
     const prevMonthMembers = siteUsers
       .filter(u => prevMonthMemberIds.has(u.uid))
       .map(toMember);
+    const prevMM = prevMonth.split('/')[1];
     const prevLeaveByMember = Object.fromEntries(prevMonthMembers.map(m => [m.id,
-      sum(leave.filter(l => l.member === m.id).map(l => l.hours))]));
+      sum(leave.filter(l => l.member === m.id && l.date.startsWith(prevMM + '/')).map(l => l.hours))]));
     const archiveCapacity = prevMonthMembers.reduce((acc, m) => {
       const days = prevMemberDaysMap[m.id] ?? prevDefaultWorkDays;
       const ratio = prevMemberRatiosMap[m.id] ?? m.ratio;
@@ -219,10 +220,11 @@ export default function App() {
     cards.filter(c => dueMonthOf(c) === month),
     [cards, month]);
 
-  const leaveByMember = useMemo(() =>
-    Object.fromEntries(capacityMembers.map(m => [m.id,
-      sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
-    [capacityMembers, leave]);
+  const leaveByMember = useMemo(() => {
+    const mm = month.split('/')[1];
+    return Object.fromEntries(capacityMembers.map(m => [m.id,
+      sum(leave.filter(l => l.member === m.id && l.date.startsWith(mm + '/')).map(l => l.hours))]));
+  }, [capacityMembers, leave, month]);
 
   const defaultWorkDays = useMemo(
     () => workingDaysInMonth(month, publicHolidays),
@@ -545,13 +547,13 @@ export default function App() {
               onOpen={id => setOpenCardId(id)}
               onAddCard={status => { setNewCardDefaultStatus(status as CardStatus); setNewCardOpen(true); }}
               canEdit={isMember || showAdmin}
+              memberById={memberById}
             />
           )}
           {page === 'dashboard' && (
             <Dashboard
               cards={monthCards.filter(c => !filterDept || c.dept === filterDept)}
               totalCapacity={totalCapacity}
-              filterDept={filterDept}
               onOpenCard={card => setOpenCardId(card.id)}
               drillFilter={dashFilter}
               onDrill={f => setDashFilter(f)}

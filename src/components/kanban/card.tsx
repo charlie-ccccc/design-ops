@@ -3,13 +3,14 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Clock, Calendar, Flag } from 'lucide-react';
-import type { Card } from '@/lib/types';
-import { DEPT_SHORT, DEPT_HUE, MEMBER_BY_ID } from '@/lib/data';
+import type { Card, Member } from '@/lib/types';
+import { DEPT_SHORT, DEPT_HUE } from '@/lib/data';
 import { hue } from '@/lib/utils';
 
 interface KCardProps {
   card: Card;
   onOpen: () => void;
+  memberById?: Record<string, Member>;
 }
 
 function isOverdue(due: string, status: string, cardMonth: string): boolean {
@@ -24,7 +25,7 @@ function isOverdue(due: string, status: string, cardMonth: string): boolean {
   return dueDate < today;
 }
 
-export default function KCard({ card, onOpen }: KCardProps) {
+export default function KCard({ card, onOpen, memberById = {} }: KCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.id,
   });
@@ -34,7 +35,7 @@ export default function KCard({ card, onOpen }: KCardProps) {
     transition,
   };
 
-  const owner = MEMBER_BY_ID[card.owner];
+  const owner = card.owner ? memberById[card.owner] : undefined;
   const over = card.actual > card.est;
   const overdue = isOverdue(card.due, card.status, card.month);
   const deptColor = hue(DEPT_HUE[card.dept] || 1);

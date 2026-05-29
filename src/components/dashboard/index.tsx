@@ -13,7 +13,6 @@ export interface DashFilter { dept?: string; owner?: string; }
 interface DashboardProps {
   cards: Card[];
   totalCapacity: number;
-  filterDept: string;
   onOpenCard?: (card: Card) => void;
   drillFilter?: DashFilter | null;
   onDrill?: (f: DashFilter | null) => void;
@@ -207,6 +206,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
       value: sum(items.map(c => c.est)),
       color: hue(DEPT_HUE[dept] || 1),
     }))
+    .filter(d => d.value > 0)
     .sort((a, b) => b.value - a.value);
 
   const memberEst = members.map(m => {

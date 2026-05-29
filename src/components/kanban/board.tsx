@@ -25,7 +25,7 @@ function DroppableColumnBody({ id, isOver, children }: { id: string; isOver: boo
     </div>
   );
 }
-import type { Card, CardStatus } from '@/lib/types';
+import type { Card, CardStatus, Member } from '@/lib/types';
 import { STATUSES } from '@/lib/data';
 import KCard from './card';
 
@@ -38,6 +38,7 @@ interface KanbanBoardProps {
   filterMember: string;
   filterDept: string;
   canEdit: boolean;
+  memberById?: Record<string, Member>;
 }
 
 export default function KanbanBoard({
@@ -49,6 +50,7 @@ export default function KanbanBoard({
   filterMember,
   filterDept,
   canEdit,
+  memberById = {},
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
@@ -160,6 +162,7 @@ export default function KanbanBoard({
                         key={card.id}
                         card={card}
                         onOpen={() => onOpen(card.id)}
+                        memberById={memberById}
                       />
                     ))
                   )}
@@ -173,7 +176,7 @@ export default function KanbanBoard({
       <DragOverlay dropAnimation={null}>
         {activeCard ? (
           <div style={{ opacity: 0.85, transform: 'rotate(1.5deg)' }}>
-            <KCard card={activeCard} onOpen={() => {}} />
+            <KCard card={activeCard} onOpen={() => {}} memberById={memberById} />
           </div>
         ) : null}
       </DragOverlay>

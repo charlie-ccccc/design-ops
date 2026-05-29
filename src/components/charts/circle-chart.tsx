@@ -71,18 +71,16 @@ export default function CircleChart({
   const rInner = kind === 'donut' ? rOuter * 0.62 : 0;
   const rMid = (rOuter + rInner) / 2;
 
-  const slices: { path: string; color: string; a0: number; a1: number }[] = [];
+  const slices: { path: string; color: string; a0: number; a1: number; full?: boolean }[] = [];
   let running = 0;
   for (const item of data) {
     const a0 = running;
-    const a1 = a0 + (item.value / total) * TAU;
-    slices.push({
-      path: arcPath(cx, cy, rOuter, rInner, a0, a1),
-      color: item.color,
-      a0,
-      a1,
-    });
-    running = a1;
+    const frac = item.value / total;
+    // SVG arc can't draw a full circle — use a special flag for 100% slices
+    const full = frac >= 0.9999;
+    const a1 = full ? a0 + TAU - 0.0001 : a0 + frac * TAU;
+    slices.push({ path: arcPath(cx, cy, rOuter, rInner, a0, a1), color: item.color, a0, a1, full });
+    running = full ? a0 + TAU : a1;
   }
 
   // Hairline separator points
