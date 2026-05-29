@@ -165,10 +165,15 @@ export default function Admin({
     return calcLeaveHours(newLeave.startDate, newLeave.startMin, newLeave.endDate, newLeave.endMin, publicHolidays, year);
   }, [newLeave, publicHolidays, year]);
 
+  const currentMM = month.slice(5, 7);
+  const leaveInMonth = useMemo(() =>
+    leave.filter(l => l.date.slice(0, 2) === currentMM || (l.endDate || l.date).slice(0, 2) === currentMM),
+    [leave, currentMM]);
+
   const leaveByMember = useMemo(() =>
     Object.fromEntries(members.map(m => [m.id,
-      sum(leave.filter(l => l.member === m.id).map(l => l.hours))])),
-    [members, leave]);
+      sum(leaveInMonth.filter(l => l.member === m.id).map(l => l.hours))])),
+    [members, leaveInMonth]);
 
   const memberRows = useMemo(() => members.map(m => {
     const days  = memberDays[m.id]   ?? defaultWorkDays;
@@ -198,11 +203,11 @@ export default function Admin({
   const totalPct        = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
 
   const visibleLeave = (selectedDate
-    ? leave.filter(l => {
+    ? leaveInMonth.filter(l => {
         const end = l.endDate || l.date;
         return l.date <= selectedDate && selectedDate <= end;
       })
-    : leave
+    : leaveInMonth
   ).slice().sort((a, b) => a.date.localeCompare(b.date));
 
   const catLabel = catFilter === 'all' ? '整體' : catFilter;
