@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { collection, onSnapshot, doc, setDoc, updateDoc, writeBatch, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Card } from '@/lib/types';
 
@@ -38,20 +38,5 @@ export function useFirestoreCards() {
     await deleteDoc(doc(db, 'cards', cardId));
   }, []);
 
-  const clearAllCards = useCallback(async (currentCards: Card[]) => {
-    const batch = writeBatch(db);
-    currentCards.forEach(c => batch.delete(doc(db, 'cards', c.id)));
-    await batch.commit();
-    setCards([]);
-  }, []);
-
-  const seedCards = useCallback(async (seedData: Card[]) => {
-    const batch = writeBatch(db);
-    seedData.forEach(card => {
-      batch.set(doc(db, 'cards', card.id), card);
-    });
-    await batch.commit();
-  }, []);
-
-  return { cards, initialized, addCard, updateCard, deleteCard, clearAllCards, seedCards };
+  return { cards, initialized, addCard, updateCard, deleteCard };
 }

@@ -39,7 +39,7 @@ type Page = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
 
 export default function App() {
   const { user, loading, signOutUser } = useAuth();
-  const { cards, initialized, addCard, updateCard, deleteCard, clearAllCards } = useFirestoreCards();
+  const { cards, initialized, addCard, updateCard, deleteCard } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
   const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady } = useFirestoreSettings();
 
@@ -549,12 +549,6 @@ export default function App() {
               </div>
             )}
 
-            {page === 'kanban' && showAdmin && cards.length > 0 && (
-              <button className="btn" style={{ color: 'var(--st-block)', borderColor: 'var(--st-block)' }}
-                onClick={() => { if (window.confirm(`確定清空全部 ${cards.length} 張卡片？此操作無法復原。`)) clearAllCards(cards).catch(console.error); }}>
-                清空所有卡片
-              </button>
-            )}
             {page === 'kanban' && (
               <button className="btn btn-primary"
                       onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
