@@ -223,6 +223,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
   const getActCell     = (m: Member, col: ColDef) => sum(cards.filter(c => c.owner === m.id && c.dept === col.id).map(c => c.actual));
   const getEstRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.est));
   const getActRowTotal = (m: Member) => sum(cards.filter(c => c.owner === m.id).map(c => c.actual));
+  const activeMembers  = members.filter(m => cards.some(c => c.owner === m.id));
   const getEstColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.est));
   const getActColTotal = (col: ColDef) => sum(cards.filter(c => c.dept === col.id).map(c => c.actual));
 
@@ -324,7 +325,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
             <span className="panel-h-spacer" />
             <span className="tag">{totalEst}h</span>
           </div>
-          <Crosstab rows={members} cols={xtabCols}
+          <Crosstab rows={activeMembers} cols={xtabCols}
             getCell={getEstCell} getRowTotal={getEstRowTotal}
             getColTotal={getEstColTotal} grandTotal={totalEst}
             onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}
@@ -338,7 +339,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
             <span className="panel-h-spacer" />
             <span className="tag">{totalActual}h</span>
           </div>
-          <Crosstab rows={members} cols={xtabCols}
+          <Crosstab rows={activeMembers} cols={xtabCols}
             getCell={getActCell} getRowTotal={getActRowTotal}
             getColTotal={getActColTotal} grandTotal={totalActual}
             onCellClick={(m, col) => drill({ owner: m.id, dept: col.id })}
