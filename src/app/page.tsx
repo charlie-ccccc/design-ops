@@ -144,18 +144,14 @@ export default function App() {
     const pad = (n: number) => String(n).padStart(2, '0');
     const currentRealMonth = `${now.getFullYear()}/${pad(now.getMonth() + 1)}`;
 
-    if (lastArchivedMonth === '') {
-      updateLastArchivedMonth(currentRealMonth);
-      return;
-    }
-
     // Any done/pending card from a past month should be in history
+    // (don't gate on lastArchivedMonth — rely on allInHistory / existingIds for idempotency)
     const toArchive = cards.filter(c =>
       (c.status === 'done' || c.status === 'pending') && dueMonthOf(c) < currentRealMonth
     );
 
     if (toArchive.length === 0) {
-      if (currentRealMonth > lastArchivedMonth) updateLastArchivedMonth(currentRealMonth);
+      if (lastArchivedMonth !== currentRealMonth) updateLastArchivedMonth(currentRealMonth);
       return;
     }
 
