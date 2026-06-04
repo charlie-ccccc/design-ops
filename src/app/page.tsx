@@ -244,9 +244,12 @@ export default function App() {
     }), [cards]);
 
   // Dashboard/Admin: all cards whose due month matches the selected month
-  const monthCards = useMemo(() =>
-    cards.filter(c => dueMonthOf(c) === month),
-    [cards, month]);
+  const monthCards = useMemo(() => {
+    const live = cards.filter(c => dueMonthOf(c) === month);
+    if (live.length > 0) return live;
+    // Past month: fall back to archived card list so Admin capacity still shows data
+    return historyMonths.find(h => h.month === month)?.cardList ?? [];
+  }, [cards, month, historyMonths]);
 
   const leaveByMember = useMemo(() => {
     const mm = month.split('/')[1];
