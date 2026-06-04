@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
   Search, Bell, Plus, Download,
@@ -104,7 +104,6 @@ export default function App() {
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);
-  const autoArchiveDoneRef = useRef(false);
 
   // Tweaks
   const [dark, setDark] = useState(false);
@@ -137,11 +136,9 @@ export default function App() {
       .catch(() => {});
   }, [month.split('/')[0]]);
 
-  // Auto-archive done cards when a new month starts
+  // Auto-archive: done/pending cards whose due month < current month → history
   useEffect(() => {
     if (!settingsReady || !initialized) return;
-    if (autoArchiveDoneRef.current) return;
-    autoArchiveDoneRef.current = true;
 
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -151,58 +148,92 @@ export default function App() {
       updateLastArchivedMonth(currentRealMonth);
       return;
     }
-    if (currentRealMonth <= lastArchivedMonth) return;
 
-    const prevMonth = shiftMonth(currentRealMonth, -1);
-    const doneCards = cards.filter(c => c.status === 'done');
+    // Any done/pending card from a past month should be in history
+    const toArchive = cards.filter(c =>
+      (c.status === 'done' || c.status === 'pending') && dueMonthOf(c) < currentRealMonth
+    );
 
-    const prevMemberDaysMap = allMemberDays[prevMonth] ?? {};
-    const prevMemberRatiosMap = allMemberRatios[prevMonth] ?? {};
-    const prevDefaultWorkDays = workingDaysInMonth(prevMonth, publicHolidays);
-    // Include anyone who was a member last month (current 成員 + anyone with a days entry for prevMonth)
-    const currentMemberIds = new Set(members.map(m => m.id));
-    const prevMonthMemberIds = new Set([
-      ...currentMemberIds,
-      ...Object.keys(prevMemberDaysMap),
-    ]);
-    const prevMonthMembers = siteUsers
-      .filter(u => prevMonthMemberIds.has(u.uid))
-      .map(toMember);
-    const prevMM = prevMonth.split('/')[1];
-    const prevLeaveByMember = Object.fromEntries(prevMonthMembers.map(m => [m.id,
-      sum(leave.filter(l => l.member === m.id && l.date.startsWith(prevMM + '/')).map(l => l.hours))]));
-    const archiveCapacity = prevMonthMembers.reduce((acc, m) => {
-      const days = prevMemberDaysMap[m.id] ?? prevDefaultWorkDays;
-      const ratio = prevMemberRatiosMap[m.id] ?? m.ratio;
-      const lv = prevLeaveByMember[m.id] || 0;
-      return acc + Math.max(0, Math.round(days * 8 * ratio) - lv);
-    }, 0);
+    if (toArchive.length === 0) {
+      if (currentRealMonth > lastArchivedMonth) updateLastArchivedMonth(currentRealMonth);
+      return;
+    }
 
-    if (doneCards.length > 0) {
+    // Check if every card is already recorded in history (avoid re-processing)
+    const allInHistory = toArchive.every(c => {
+      const entry = historyMonths.find(h => h.month === dueMonthOf(c));
+      return entry?.cardList?.some(hc => hc.id === c.id);
+    });
+    if (allInHistory) {
+      // Cards in history but not yet cleaned from Firestore
+      Promise.all(toArchive.map(c => deleteCard(c.id))).catch(console.error);
+      return;
+    }
+
+    // Group by archive month and process each
+    const grouped = groupBy(toArchive, c => dueMonthOf(c));
+    let updatedHistory = [...historyMonths];
+
+    for (const [archiveMonth, monthCards] of Object.entries(grouped)) {
+      const existingEntry = updatedHistory.find(h => h.month === archiveMonth);
+      const existingIds = new Set((existingEntry?.cardList ?? []).map(c => c.id));
+      const newCards = monthCards.filter(c => !existingIds.has(c.id));
+
+      if (newCards.length === 0) {
+        Promise.all(monthCards.map(c => deleteCard(c.id))).catch(console.error);
+        continue;
+      }
+
+      const allCards = [...(existingEntry?.cardList ?? []), ...newCards];
       const byDept: Record<string, number> = {};
       const byMember: Record<string, number> = {};
-      for (const c of doneCards) {
+      for (const c of allCards) {
         byDept[c.dept] = (byDept[c.dept] ?? 0) + c.est;
         if (c.owner) byMember[c.owner] = (byMember[c.owner] ?? 0) + c.actual;
       }
       const topDept = Object.entries(byDept).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-      const newArchive: HistoryMonth = {
-        month: prevMonth,
-        cards: doneCards.length,
-        totalEst: sum(doneCards.map(c => c.est)),
-        totalActual: sum(doneCards.map(c => c.actual)),
-        capacity: archiveCapacity,
+
+      // Compute capacity only when creating a new entry
+      let capacity = existingEntry?.capacity ?? 0;
+      if (!existingEntry) {
+        const daysMap = allMemberDays[archiveMonth] ?? {};
+        const ratiosMap = allMemberRatios[archiveMonth] ?? {};
+        const defaultDays = workingDaysInMonth(archiveMonth, publicHolidays);
+        const mm = archiveMonth.split('/')[1];
+        const archiveMemberIds = new Set([...members.map(m => m.id), ...Object.keys(daysMap)]);
+        const archiveMembers = siteUsers.filter(u => archiveMemberIds.has(u.uid)).map(toMember);
+        const leaveByMember = Object.fromEntries(archiveMembers.map(m => [m.id,
+          sum(leave.filter(l => l.member === m.id && l.date.startsWith(mm + '/')).map(l => l.hours))]));
+        capacity = archiveMembers.reduce((acc, m) => {
+          const days = daysMap[m.id] ?? defaultDays;
+          const ratio = ratiosMap[m.id] ?? m.ratio;
+          const lv = leaveByMember[m.id] || 0;
+          return acc + Math.max(0, Math.round(days * 8 * ratio) - lv);
+        }, 0);
+      }
+
+      const entry: HistoryMonth = {
+        month: archiveMonth,
+        cards: allCards.length,
+        totalEst: sum(allCards.map(c => c.est)),
+        totalActual: sum(allCards.map(c => c.actual)),
+        capacity,
         topDept,
         deptTotals: byDept,
         memberTotals: byMember,
-        cardList: doneCards,
+        cardList: allCards,
       };
-      updateHistory([newArchive, ...historyMonths]);
-      Promise.all(doneCards.map(c => deleteCard(c.id))).catch(console.error);
+
+      updatedHistory = existingEntry
+        ? updatedHistory.map(h => h.month === archiveMonth ? entry : h)
+        : [entry, ...updatedHistory];
+
+      Promise.all(newCards.map(c => deleteCard(c.id))).catch(console.error);
     }
 
-    updateLastArchivedMonth(currentRealMonth);
-  }, [settingsReady, initialized, lastArchivedMonth, historyMonths, cards, allMemberDays, allMemberRatios, members, leave, publicHolidays]);
+    updateHistory(updatedHistory.sort((a, b) => b.month.localeCompare(a.month)));
+    if (currentRealMonth > lastArchivedMonth) updateLastArchivedMonth(currentRealMonth);
+  }, [settingsReady, initialized, lastArchivedMonth, historyMonths, cards, allMemberDays, allMemberRatios, members, leave, publicHolidays, siteUsers]);
 
   const CURRENT_MONTH = useMemo(() => {
     const now = new Date();

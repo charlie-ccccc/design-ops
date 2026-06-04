@@ -37,13 +37,10 @@ interface ArchiveCardItem {
 
 function ArchiveCard({ item }: { item: ArchiveCardItem }) {
   const [year, mon] = item.month.split('/');
-  const capPct = item.capacity > 0 ? Math.round((item.totalEst / item.capacity) * 100) : 0;
-
   const stats = [
     { l: '需求單', v: item.cards, sub: '張' },
     { l: '原始預估', v: item.totalEst, sub: 'h' },
     { l: '實際消耗', v: item.totalActual, sub: 'h' },
-    { l: '量能使用', v: `${capPct}%`, sub: `${item.capacity}h 可用` },
   ];
 
   return (
@@ -52,9 +49,6 @@ function ArchiveCard({ item }: { item: ArchiveCardItem }) {
         <div className="month">
           <span className="y">{year}</span>
           {mon}
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>
-          最多：{DEPT_SHORT[item.topDept] || item.topDept}
         </div>
       </div>
 
@@ -187,7 +181,6 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
   siteUsers: AppUser[];
 }) {
   const [year, mon] = archive.month.split('/');
-  const capPct = archive.capacity > 0 ? Math.round((archive.totalEst / archive.capacity) * 100) : 0;
   const doneCount = archive.cardList.filter(c => c.status === 'done').length;
   const pendingCount = archive.cardList.filter(c => c.status === 'pending').length;
 
@@ -236,10 +229,8 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
         {[
           { l: '原始預估', v: `${archive.totalEst}h` },
           { l: '實際消耗', v: `${archive.totalActual}h` },
-          { l: '量能使用', v: `${capPct}%` },
           { l: '設計完成', v: `${doneCount} 張` },
           { l: 'Pending', v: `${pendingCount} 張` },
-          { l: '最多發起單位', v: DEPT_SHORT[archive.topDept] || archive.topDept },
         ].map((s, i) => (
           <div key={i} className="stat-item">
             <div className="l">{s.l}</div>
