@@ -843,7 +843,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
             {logModal && (
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}
                 onClick={e => e.target === e.currentTarget && setLogModal(false)}>
-                <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 24px', width: 340, boxShadow: '0 12px 40px rgba(0,0,0,.2)' }}>
+                <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 24px', width: 340, boxShadow: '0 12px 40px rgba(0,0,0,.2)', maxHeight: 'calc(100% - 40px)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>記錄工時</span>
                     <button onClick={() => setLogModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex' }}><X size={15} /></button>
@@ -880,7 +880,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工作內容（選填）</label>
-                      <textarea className="input" style={{ width: '100%', minHeight: 72, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
+                      <textarea className="input" style={{ width: '100%', minHeight: 72, maxHeight: 160, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
                         placeholder="簡述這段時間做了什麼..."
                         value={newLog.note}
                         onChange={e => setNewLog(l => ({ ...l, note: e.target.value }))}
