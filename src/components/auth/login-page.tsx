@@ -1,9 +1,18 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
+
+function isInAppBrowser(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /Line\/|FBAN|FBAV|Instagram|MicroMessenger|Twitter|Snapchat/.test(ua);
+}
 
 export default function LoginPage() {
   const { signInWithGoogle, error, loading } = useAuth();
+  const [inApp, setInApp] = useState(false);
+
+  useEffect(() => { setInApp(isInAppBrowser()); }, []);
 
   return (
     <div style={{
@@ -34,6 +43,19 @@ export default function LoginPage() {
             僅限 @cmoney.com.tw 帳號存取
           </div>
         </div>
+
+        {inApp && (
+          <div style={{
+            width: '100%', padding: '12px 14px', borderRadius: 8,
+            background: 'color-mix(in oklab, #f59e0b 12%, transparent)',
+            border: '1px solid color-mix(in oklab, #f59e0b 40%, transparent)',
+            fontSize: 13, color: '#92400e', lineHeight: 1.6,
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>⚠️ 無法在 LINE 內登入</div>
+            Google 不允許在 App 內建瀏覽器中登入。<br />
+            請點右上角 <strong>「⋯」→「在瀏覽器中開啟」</strong>，再用 Safari 或 Chrome 登入。
+          </div>
+        )}
 
         {error && (
           <div style={{
