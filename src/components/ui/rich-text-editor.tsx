@@ -18,10 +18,11 @@ interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
   minHeight?: number;
+  maxHeight?: number;
   placeholder?: string;
 }
 
-export default function RichTextEditor({ value, onChange, minHeight = 200, placeholder }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange, minHeight = 200, maxHeight, placeholder }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -169,7 +170,7 @@ export default function RichTextEditor({ value, onChange, minHeight = 200, place
         )}
       </div>
 
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', overflowY: maxHeight ? 'auto' : undefined, maxHeight: maxHeight }}>
         {editor.isEmpty && placeholder && (
           <div style={{
             position: 'absolute', top: 10, left: 12, pointerEvents: 'none',

@@ -753,7 +753,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                           </div>
                           <div>
                             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工作內容</div>
-                            <RichTextEditor value={editLogDraft.note} onChange={v => setEditLogDraft(d => ({ ...d, note: v }))} minHeight={72} />
+                            <RichTextEditor value={editLogDraft.note} onChange={v => setEditLogDraft(d => ({ ...d, note: v }))} minHeight={72} maxHeight={200} />
                           </div>
                           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={() => setEditingLogId(null)}>取消</button>
@@ -879,7 +879,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工作內容（選填）</label>
-                      <RichTextEditor key={logKey} value={newLog.note} onChange={v => setNewLog(l => ({ ...l, note: v }))} minHeight={80} placeholder="簡述這段時間做了什麼..." />
+                      <RichTextEditor key={logKey} value={newLog.note} onChange={v => setNewLog(l => ({ ...l, note: v }))} minHeight={80} maxHeight={200} placeholder="簡述這段時間做了什麼..." />
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
