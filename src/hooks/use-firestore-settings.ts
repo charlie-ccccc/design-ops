@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import { DEPTS, DEFAULT_LEAVE } from '@/lib/data';
 import type { LeaveEntry, HistoryMonth } from '@/lib/types';
 
@@ -15,28 +16,36 @@ export function useFirestoreSettings() {
   const [settingsReady, setSettingsReady] = useState(false);
 
   useEffect(() => {
-    const ref = doc(db, 'settings', 'config');
-    const unsub = onSnapshot(
-      ref,
-      snap => {
-        if (snap.exists()) {
-          const data = snap.data();
-          if (Array.isArray(data.depts)) setDepts(data.depts);
-          if (Array.isArray(data.leave)) {
-            setLeave(data.leave);
-          } else {
-            setDoc(ref, { leave: DEFAULT_LEAVE }, { merge: true }).catch(console.error);
+    let firestoreUnsub: (() => void) | null = null;
+
+    const authUnsub = onAuthStateChanged(auth, user => {
+      if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+      if (!user) { setSettingsReady(false); return; }
+
+      const ref = doc(db, 'settings', 'config');
+      firestoreUnsub = onSnapshot(
+        ref,
+        snap => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (Array.isArray(data.depts)) setDepts(data.depts);
+            if (Array.isArray(data.leave)) {
+              setLeave(data.leave);
+            } else {
+              setDoc(ref, { leave: DEFAULT_LEAVE }, { merge: true }).catch(console.error);
+            }
+            if (data.memberDays && typeof data.memberDays === 'object') setAllMemberDays(data.memberDays);
+            if (data.memberRatios && typeof data.memberRatios === 'object') setAllMemberRatios(data.memberRatios);
+            if (Array.isArray(data.historyMonths)) setHistoryMonths(data.historyMonths);
+            if (typeof data.lastArchivedMonth === 'string') setLastArchivedMonth(data.lastArchivedMonth);
           }
-          if (data.memberDays && typeof data.memberDays === 'object') setAllMemberDays(data.memberDays);
-          if (data.memberRatios && typeof data.memberRatios === 'object') setAllMemberRatios(data.memberRatios);
-          if (Array.isArray(data.historyMonths)) setHistoryMonths(data.historyMonths);
-          if (typeof data.lastArchivedMonth === 'string') setLastArchivedMonth(data.lastArchivedMonth);
-        }
-        setSettingsReady(true);
-      },
-      err => { console.error('Settings read error:', err); setSettingsReady(true); },
-    );
-    return unsub;
+          setSettingsReady(true);
+        },
+        err => { console.error('Settings read error:', err); setSettingsReady(true); },
+      );
+    });
+
+    return () => { authUnsub(); firestoreUnsub?.(); };
   }, []);
 
   const save = useCallback(async (patch: Record<string, unknown>) => {
