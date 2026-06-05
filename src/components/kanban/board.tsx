@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -16,7 +16,9 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
+  arrayMove,
 } from '@dnd-kit/sortable';
+
 function DroppableColumnBody({ id, isOver, children }: { id: string; isOver: boolean; children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id });
   return (
@@ -25,13 +27,31 @@ function DroppableColumnBody({ id, isOver, children }: { id: string; isOver: boo
     </div>
   );
 }
-import type { Card, CardStatus, Member } from '@/lib/types';
+
+import type { Card, Member } from '@/lib/types';
 import { STATUSES } from '@/lib/data';
 import KCard from './card';
+
+// These columns sort by due date; manual reordering is disabled inside them
+const FIXED_SORT = new Set(['done', 'pending']);
+
+function buildColIds(status: string, cards: Card[], savedOrder: string[]): string[] {
+  const inCol = cards.filter(c => c.status === status);
+  if (FIXED_SORT.has(status)) {
+    return [...inCol]
+      .sort((a, b) => (a.due || '99/99').localeCompare(b.due || '99/99'))
+      .map(c => c.id);
+  }
+  const inColSet = new Set(inCol.map(c => c.id));
+  const ordered = savedOrder.filter(id => inColSet.has(id));
+  const extras = inCol.filter(c => !ordered.includes(c.id)).map(c => c.id);
+  return [...ordered, ...extras];
+}
 
 interface KanbanBoardProps {
   cards: Card[];
   onMove: (cardId: string, newStatus: string) => void;
+  onReorder: (order: Record<string, string[]>) => void;
   onOpen: (id: string) => void;
   onAddCard: (status: string) => void;
   query: string;
@@ -39,11 +59,13 @@ interface KanbanBoardProps {
   filterDept: string;
   canEdit: boolean;
   memberById?: Record<string, Member>;
+  cardOrder: Record<string, string[]>;
 }
 
 export default function KanbanBoard({
   cards,
   onMove,
+  onReorder,
   onOpen,
   onAddCard,
   query,
@@ -51,19 +73,39 @@ export default function KanbanBoard({
   filterDept,
   canEdit,
   memberById = {},
+  cardOrder,
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
+
+  // items tracks display order per column; updated optimistically during drag
+  const [items, setItems] = useState<Record<string, string[]>>(() => {
+    const r: Record<string, string[]> = {};
+    for (const s of STATUSES) r[s.id] = buildColIds(s.id, cards, cardOrder[s.id] ?? []);
+    return r;
+  });
+
+  const dragging = useRef(false);
+
+  // Sync from Firestore when not dragging
+  useEffect(() => {
+    if (dragging.current) return;
+    setItems(() => {
+      const r: Record<string, string[]> = {};
+      for (const s of STATUSES) r[s.id] = buildColIds(s.id, cards, cardOrder[s.id] ?? []);
+      return r;
+    });
+  }, [cards, cardOrder]);
 
   const allSensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
   );
-  const noSensors = useSensors();
-  const sensors = canEdit ? allSensors : noSensors;
+  const sensors = canEdit ? allSensors : useSensors();
 
-  // Filter cards
-  const filtered = cards.filter((c) => {
+  const cardMap = useMemo(() => Object.fromEntries(cards.map(c => [c.id, c])), [cards]);
+
+  function passes(c: Card): boolean {
     if (filterMember && c.owner !== filterMember) return false;
     if (filterDept && c.dept !== filterDept) return false;
     if (query) {
@@ -71,63 +113,78 @@ export default function KanbanBoard({
       if (!c.title.toLowerCase().includes(q) && !c.id.toLowerCase().includes(q)) return false;
     }
     return true;
-  });
-
-  // Group by status
-  const grouped: Record<string, Card[]> = {};
-  for (const s of STATUSES) {
-    grouped[s.id] = filtered.filter((c) => c.status === s.id);
   }
 
-  const activeCard = activeId ? cards.find((c) => c.id === activeId) ?? null : null;
+  // Find which column a card ID currently lives in (by items state)
+  function findColumn(id: string): string | undefined {
+    return Object.entries(items).find(([, ids]) => ids.includes(id))?.[0];
+  }
 
   function handleDragStart(event: DragStartEvent) {
+    dragging.current = true;
     setActiveId(event.active.id as string);
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const { over } = event;
-    if (!over) {
-      setOverColumn(null);
-      return;
-    }
-    // over.id may be a column status id or a card id
-    const overId = over.id as string;
-    // Check if it's a column id
-    const colStatus = STATUSES.find((s) => s.id === overId);
-    if (colStatus) {
-      setOverColumn(colStatus.id);
-      return;
-    }
-    // Otherwise it's a card — find which column it belongs to
-    const overCard = cards.find((c) => c.id === overId);
-    if (overCard) {
-      setOverColumn(overCard.status);
-    }
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    setActiveId(null);
-    setOverColumn(null);
-
-    if (!over || !active) return;
+    if (!over) { setOverColumn(null); return; }
 
     const cardId = active.id as string;
     const overId = over.id as string;
+    const sourceStatus = findColumn(cardId);
+    if (!sourceStatus) return;
 
-    // Determine target status
-    const colStatus = STATUSES.find((s) => s.id === overId);
-    if (colStatus) {
-      onMove(cardId, colStatus.id);
-      return;
-    }
-    // over is a card
-    const overCard = cards.find((c) => c.id === overId);
-    if (overCard) {
-      onMove(cardId, overCard.status);
-    }
+    const targetCol = STATUSES.find(s => s.id === overId)?.id ?? findColumn(overId);
+    if (!targetCol) return;
+    setOverColumn(targetCol);
+
+    setItems(prev => {
+      const next = { ...prev };
+
+      if (sourceStatus === targetCol) {
+        if (FIXED_SORT.has(targetCol)) return prev;
+        const col = [...next[targetCol]];
+        const from = col.indexOf(cardId);
+        const to = col.indexOf(overId);
+        if (from === -1 || to === -1 || from === to) return prev;
+        next[targetCol] = arrayMove(col, from, to);
+      } else {
+        // Cross-column: remove from source, insert into target
+        next[sourceStatus] = next[sourceStatus].filter(id => id !== cardId);
+        const col = [...next[targetCol]];
+        const insertAt = col.indexOf(overId);
+        if (insertAt >= 0) col.splice(insertAt, 0, cardId);
+        else col.push(cardId);
+        next[targetCol] = col;
+      }
+      return next;
+    });
   }
+
+  function handleDragEnd(event: DragEndEvent) {
+    dragging.current = false;
+    setActiveId(null);
+    setOverColumn(null);
+
+    const cardId = event.active.id as string;
+    const sourceCard = cardMap[cardId];
+    if (!sourceCard) return;
+
+    const finalStatus = findColumn(cardId) ?? sourceCard.status;
+
+    if (finalStatus !== sourceCard.status) {
+      onMove(cardId, finalStatus);
+    }
+
+    // Save order for all manually-sorted columns
+    const order: Record<string, string[]> = {};
+    for (const s of STATUSES) {
+      if (!FIXED_SORT.has(s.id)) order[s.id] = items[s.id] ?? [];
+    }
+    onReorder(order);
+  }
+
+  const activeCard = activeId ? cardMap[activeId] ?? null : null;
 
   return (
     <DndContext
@@ -138,8 +195,9 @@ export default function KanbanBoard({
       onDragEnd={handleDragEnd}
     >
       <div className="kanban">
-        {STATUSES.map((status) => {
-          const colCards = grouped[status.id] || [];
+        {STATUSES.map(status => {
+          const colIds = items[status.id] ?? [];
+          const colCards = colIds.map(id => cardMap[id]).filter((c): c is Card => !!c && passes(c));
           const isOver = overColumn === status.id;
 
           return (
@@ -149,15 +207,12 @@ export default function KanbanBoard({
                 <span className="kcol-name">{status.name}</span>
                 <span className="kcol-count">{colCards.length}</span>
               </div>
-              <SortableContext
-                items={colCards.map((c) => c.id)}
-                strategy={verticalListSortingStrategy}
-              >
+              <SortableContext items={colCards.map(c => c.id)} strategy={verticalListSortingStrategy}>
                 <DroppableColumnBody id={status.id} isOver={isOver}>
                   {colCards.length === 0 ? (
                     <div className="kcol-empty">尚無任務</div>
                   ) : (
-                    colCards.map((card) => (
+                    colCards.map(card => (
                       <KCard
                         key={card.id}
                         card={card}

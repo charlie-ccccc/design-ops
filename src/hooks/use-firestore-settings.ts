@@ -13,6 +13,7 @@ export function useFirestoreSettings() {
   const [allMemberRatios, setAllMemberRatios] = useState<Record<string, Record<string, number>>>({});
   const [historyMonths, setHistoryMonths] = useState<HistoryMonth[]>([]);
   const [lastArchivedMonth, setLastArchivedMonth] = useState('');
+  const [cardOrder, setCardOrder] = useState<Record<string, string[]>>({});
   const [settingsReady, setSettingsReady] = useState(false);
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export function useFirestoreSettings() {
             if (data.memberRatios && typeof data.memberRatios === 'object') setAllMemberRatios(data.memberRatios);
             if (Array.isArray(data.historyMonths)) setHistoryMonths(data.historyMonths);
             if (typeof data.lastArchivedMonth === 'string') setLastArchivedMonth(data.lastArchivedMonth);
+            if (data.cardOrder && typeof data.cardOrder === 'object') setCardOrder(data.cardOrder as Record<string, string[]>);
           }
           setSettingsReady(true);
         },
@@ -86,5 +88,10 @@ export function useFirestoreSettings() {
     await save({ lastArchivedMonth: month });
   }, [save]);
 
-  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady };
+  const updateCardOrder = useCallback(async (order: Record<string, string[]>) => {
+    setCardOrder(order);
+    await save({ cardOrder: order });
+  }, [save]);
+
+  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady };
 }

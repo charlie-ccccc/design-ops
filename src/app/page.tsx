@@ -45,7 +45,7 @@ export default function App() {
   const { cards, initialized, addCard, updateCard, deleteCard } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
   const { notifications, markRead, markAllRead } = useNotifications(user?.uid ?? null);
-  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady } = useFirestoreSettings();
+  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady } = useFirestoreSettings();
 
   const toMember = (u: typeof siteUsers[0]): Member => ({
     id: u.uid, name: u.name, alias: u.name,
@@ -617,10 +617,12 @@ export default function App() {
               filterMember={filterMember}
               filterDept={filterDept}
               onMove={onMove}
+              onReorder={updateCardOrder}
               onOpen={id => setOpenCardId(id)}
               onAddCard={status => { setNewCardDefaultStatus(status as CardStatus); setNewCardOpen(true); }}
               canEdit={isMember || showAdmin}
               memberById={memberById}
+              cardOrder={cardOrder}
             />
           )}
           {page === 'dashboard' && (
