@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 
@@ -25,10 +25,30 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
 
   const isAdmin = currentUser.roles.includes('Admin');
 
-  const sorted = [...users].sort((a, b) => {
-    const rank = (u: AppUser) => u.roles.includes('Admin') ? 0 : u.roles.includes('成員') ? 1 : 2;
-    return rank(a) - rank(b);
-  });
+  const rank = (u: AppUser) => u.roles.includes('Admin') ? 0 : u.roles.includes('成員') ? 1 : 2;
+
+  const [displayOrder, setDisplayOrder] = useState<string[]>(() =>
+    [...users].sort((a, b) => rank(a) - rank(b)).map(u => u.uid)
+  );
+  const orderRef = useRef(displayOrder);
+
+  useEffect(() => {
+    const userUids = new Set(users.map(u => u.uid));
+    const current = orderRef.current;
+    const membershipChanged =
+      users.some(u => !new Set(current).has(u.uid)) ||
+      current.some(uid => !userUids.has(uid));
+    if (membershipChanged) {
+      const next = [...users].sort((a, b) => rank(a) - rank(b)).map(u => u.uid);
+      orderRef.current = next;
+      setDisplayOrder(next);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users]);
+
+  const sorted = displayOrder
+    .map(uid => users.find(u => u.uid === uid))
+    .filter((u): u is AppUser => u !== undefined);
 
   function addDept() {
     const d = newDept.trim();
