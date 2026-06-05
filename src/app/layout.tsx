@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Noto_Sans_TC } from 'next/font/google';
-import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/auth-context';
 
@@ -11,12 +10,6 @@ const notoSansTC = Noto_Sans_TC({
   display: 'swap',
 });
 
-const jetBrainsMono = JetBrains_Mono({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'CMoneyDesign · 設計部工作看板',
@@ -25,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-Hant" className={`${notoSansTC.variable} ${jetBrainsMono.variable}`}>
+    <html lang="zh-Hant" className={notoSansTC.variable}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>
