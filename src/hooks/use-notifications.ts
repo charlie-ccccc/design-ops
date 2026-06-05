@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import type { AppNotification } from '@/lib/types';
 
 export function useNotifications(uid: string | null) {
@@ -9,13 +10,26 @@ export function useNotifications(uid: string | null) {
 
   useEffect(() => {
     if (!uid) { setNotifications([]); return; }
-    const q = query(collection(db, 'notifications'), where('uid', '==', uid), limit(60));
-    const unsub = onSnapshot(q, snap => {
-      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as AppNotification));
-      all.sort((a, b) => b.createdAt - a.createdAt);
-      setNotifications(all);
-    }, err => console.error('Notifications error:', err));
-    return unsub;
+
+    let firestoreUnsub: (() => void) | null = null;
+
+    const authUnsub = onAuthStateChanged(auth, user => {
+      if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+      if (!user) { setNotifications([]); return; }
+
+      const q = query(collection(db, 'notifications'), where('uid', '==', uid), limit(60));
+      firestoreUnsub = onSnapshot(
+        q,
+        snap => {
+          const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as AppNotification));
+          all.sort((a, b) => b.createdAt - a.createdAt);
+          setNotifications(all);
+        },
+        err => console.error('[notifications] onSnapshot error:', err),
+      );
+    });
+
+    return () => { authUnsub(); firestoreUnsub?.(); };
   }, [uid]);
 
   const markRead = useCallback(async (notifId: string) => {
