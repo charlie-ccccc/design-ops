@@ -101,7 +101,21 @@ button { font-family: inherit; cursor: pointer; }
 .sb-hamburger:hover { background: var(--surface-2); color: var(--ink); }
 .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 
-/* ── Mobile ── */
+/* ── Main ──────────────────────────────────────────────────── */
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg-elev); }
+.topbar { display: flex; align-items: center; gap: 8px; padding: 14px 22px; background: var(--bg); border-bottom: 1px solid var(--divider); min-height: 56px; }
+.tb-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tb-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+.tb-crumb { font-size: 12px; color: var(--muted); margin-top: 2px; letter-spacing: 0.02em; white-space: nowrap; }
+.tb-spacer { flex: 1; }
+.tb-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.tb-desktop-only { display: flex; }
+.tb-mobile-only { display: none; }
+.tb-mobile-filters { display: none; gap: 8px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--divider); align-items: center; }
+.tb-mobile-filters .input { min-width: 0; height: 34px; font-size: 13px; }
+.tb-icon-btn { width: 32px; padding: 0; justify-content: center; }
+
+/* ── Mobile (must come AFTER global styles to take effect) ── */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; }
   .sidebar {
@@ -115,27 +129,13 @@ button { font-family: inherit; cursor: pointer; }
   .sb-overlay.open { opacity: 1; pointer-events: all; }
   .sb-hamburger { display: flex; }
   .main { overflow-x: hidden; }
+  .topbar { flex-wrap: nowrap; padding: 0 16px; min-height: 52px; }
   .tb-desktop-only { display: none !important; }
   .tb-mobile-only { display: flex !important; }
   .tb-mobile-filters { display: flex; }
-  .topbar { flex-wrap: nowrap; padding: 0 14px; }
-  .kanban { padding: 12px; gap: 10px; }
+  .kanban { padding: 12px 16px; gap: 10px; }
   .kcol { width: min(280px, 85vw); }
 }
-
-/* ── Main ──────────────────────────────────────────────────── */
-.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg-elev); }
-.topbar { display: flex; align-items: center; gap: 8px; padding: 14px 22px; background: var(--bg); border-bottom: 1px solid var(--divider); min-height: 56px; }
-.tb-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.tb-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
-.tb-crumb { font-size: 12px; color: var(--muted); margin-top: 2px; letter-spacing: 0.02em; white-space: nowrap; }
-.tb-spacer { flex: 1; }
-.tb-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.tb-desktop-only { display: flex; }
-.tb-mobile-only { display: none; }
-.tb-mobile-filters { display: none; gap: 8px; padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--divider); align-items: center; }
-.tb-mobile-filters .input { min-width: 0; height: 34px; font-size: 13px; }
-.tb-icon-btn { width: 32px; padding: 0; justify-content: center; }
 .tb-search-btn { width: 32px; padding: 0; justify-content: center; flex-shrink: 0; }
 
 .btn { appearance: none; border: 1px solid var(--border); background: var(--surface); color: var(--ink); padding: 6px 12px; height: 32px; border-radius: var(--r); font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.12s, transform 0.05s; }
