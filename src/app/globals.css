@@ -132,7 +132,7 @@ button { font-family: inherit; cursor: pointer; }
   .sb-overlay { display: block; }
   .sb-overlay.open { opacity: 1; pointer-events: all; }
   .sb-hamburger { display: flex; }
-  .main { overflow-x: hidden; }
+  .app { overflow: hidden; }
   .topbar { flex-wrap: nowrap; padding: 0 16px; min-height: 52px; }
   .tb-desktop-only { display: none !important; }
   .tb-mobile-only { display: flex !important; }
@@ -163,7 +163,7 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .month-pill button:hover { background: var(--surface-2); }
 .month-pill-val { padding: 0 10px; font: 500 14px/1 inherit; letter-spacing: 0.02em; color: var(--ink); border-left: 1px solid var(--divider); border-right: 1px solid var(--divider); display: grid; place-items: center; min-width: 100px; height: 100%; }
 
-.body { flex: 1; min-height: 0; overflow: auto; }
+.body { flex: 1; min-height: 0; min-width: 0; overflow: auto; }
 
 /* Panel */
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
