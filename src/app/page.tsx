@@ -481,8 +481,8 @@ export default function App() {
 
       {/* ── Main ── */}
       <main className="main">
-        <header className="topbar" style={{ position: 'relative' }}>
-          <div>
+        <header className="topbar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div className="tb-title">
               {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
               {page === 'kanban' && (filterMember || filterDept || query) && (
@@ -491,17 +491,14 @@ export default function App() {
                 </span>
               )}
             </div>
-          </div>
-
-          {page === 'capacity' && (
-            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            {page === 'capacity' && (
               <div className="month-pill">
                 <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
                 <span className="month-pill-val">{month}</span>
                 <button onClick={() => setMonth(m => shiftMonth(m, 1))}><ChevronRight size={14} /></button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <span className="tb-spacer" />
 
