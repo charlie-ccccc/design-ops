@@ -556,7 +556,9 @@ export default function App() {
                       title={m.name}
                       style={{
                         appearance: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                        borderRadius: '50%', background: 'transparent',
+                        width: 22, height: 22, borderRadius: '50%', background: 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                        flexShrink: 0,
                         opacity: filterMember && filterMember !== m.id ? 0.3 : 1,
                         boxShadow: filterMember === m.id
                           ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}`
@@ -565,7 +567,7 @@ export default function App() {
                       }}
                     >
                       {m.photo
-                        ? <img src={m.photo} alt={m.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                        ? <img src={m.photo} alt={m.name} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
                         : <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>}
                     </button>
                   ))}
