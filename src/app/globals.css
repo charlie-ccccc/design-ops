@@ -111,7 +111,7 @@ button { font-family: inherit; cursor: pointer; }
 .tb-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .tb-desktop-only { display: flex; }
 .tb-mobile-only { display: none; }
-.tb-mobile-filters { display: none; gap: 8px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--divider); align-items: center; }
+.tb-mobile-filters { display: none; gap: 8px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--divider); align-items: center; width: 100%; box-sizing: border-box; overflow: hidden; }
 .tb-mobile-filters .input { min-width: 0; height: 34px; font-size: 14px; }
 .tb-icon-btn { width: 32px; padding: 0; justify-content: center; }
 .tb-search-bar { flex: 1; display: flex; align-items: center; gap: 6px; background: var(--surface-2); border-radius: 10px; padding: 0 10px; height: 36px; }
