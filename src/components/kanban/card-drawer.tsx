@@ -352,9 +352,9 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   }
 
   return (
-    <>
-      <div className={`drawer-scrim${isOpen ? ' open' : ''}`} onClick={onClose} />
-      <div className={`drawer${isOpen ? ' open' : ''}`} role="dialog" aria-modal="true">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 90, pointerEvents: 'none', overflow: 'hidden' }}>
+      <div className={`drawer-scrim${isOpen ? ' open' : ''}`} style={{ position: 'absolute' }} onClick={onClose} />
+      <div className={`drawer${isOpen ? ' open' : ''}`} style={{ position: 'absolute', pointerEvents: isOpen ? 'auto' : 'none' }} role="dialog" aria-modal="true">
         {c && (
           <>
             <div className="drawer-h" style={{ alignItems: 'center' }}>
@@ -892,6 +892,6 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }
