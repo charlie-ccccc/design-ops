@@ -135,6 +135,7 @@ button { font-family: inherit; cursor: pointer; }
   .tb-mobile-filters { display: flex; }
   .kanban { padding: 12px 16px; gap: 10px; }
   .kcol { width: min(280px, 85vw); }
+  .tb-tools { gap: 12px; }
   /* Notification bell — same size as hamburger */
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
