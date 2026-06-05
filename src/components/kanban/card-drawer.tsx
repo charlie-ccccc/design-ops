@@ -168,6 +168,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   // Time log modal state
   const [logModal, setLogModal] = useState(false);
   const [newLog, setNewLog] = useState(EMPTY_LOG);
+  const [logKey, setLogKey] = useState(0);
 
   // Inline edit for time log entries in tab
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
@@ -562,7 +563,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     <div className="delta">小時</div>
                   </div>
                   <div className="cell" style={{ cursor: (readOnly || !canEdit) ? 'default' : 'pointer', position: 'relative' }}
-                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, time: roundToHalfHour(), hours: 0, note: '' }); setLogModal(true); } }}>
+                    onClick={() => { if (!readOnly && canEdit) { setNewLog({ date: todayMMDD, time: roundToHalfHour(), hours: 0, note: '' }); setLogKey(k => k + 1); setLogModal(true); } }}>
                     <div className="lbl" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       實際消耗
                       {(!readOnly && canEdit) && <Clock size={10} style={{ color: 'var(--accent)', opacity: 0.7 }} />}
@@ -752,9 +753,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                           </div>
                           <div>
                             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>工作內容</div>
-                            <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
-                              value={editLogDraft.note}
-                              onChange={e => setEditLogDraft(d => ({ ...d, note: e.target.value }))} />
+                            <RichTextEditor value={editLogDraft.note} onChange={v => setEditLogDraft(d => ({ ...d, note: v }))} minHeight={72} />
                           </div>
                           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={() => setEditingLogId(null)}>取消</button>
@@ -769,7 +768,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                             <span style={{ marginLeft: 8, color: 'var(--accent)' }}>紀錄 {l.hours}H</span>
                           </div>
                           {l.note && (
-                            <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{l.note}</div>
+                            <div className="prose-content" dangerouslySetInnerHTML={{ __html: l.note }} />
                           )}
                           {(!readOnly && canEdit) && (
                             <div style={{ display: 'flex', gap: 10, marginTop: 8, marginLeft: -8 }}>
@@ -880,11 +879,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: 4 }}>工作內容（選填）</label>
-                      <textarea className="input" style={{ width: '100%', minHeight: 72, maxHeight: 160, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
-                        placeholder="簡述這段時間做了什麼..."
-                        value={newLog.note}
-                        onChange={e => setNewLog(l => ({ ...l, note: e.target.value }))}
-                        onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitLog(); }} />
+                      <RichTextEditor key={logKey} value={newLog.note} onChange={v => setNewLog(l => ({ ...l, note: v }))} minHeight={80} placeholder="簡述這段時間做了什麼..." />
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
