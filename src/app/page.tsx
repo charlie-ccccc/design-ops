@@ -621,15 +621,22 @@ export default function App() {
         {/* Mobile-only filter bar (kanban page) */}
         {page === 'kanban' && (
           <div className="tb-mobile-filters">
-            <button className="sb-hamburger tb-search-btn" onClick={() => { setSearchOpen(o => !o); setQuery(''); }}
-              style={{ color: searchOpen ? 'var(--accent)' : 'var(--ink-2)' }}>
-              <Search size={20} />
-            </button>
             {searchOpen ? (
-              <input className="input" placeholder="搜尋標題 / ID" style={{ flex: 1 }}
-                value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+              <>
+                <div className="tb-search-bar">
+                  <Search size={15} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+                  <input placeholder="搜尋標題 / ID"
+                    value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+                </div>
+                <button className="tb-search-cancel" onClick={() => { setSearchOpen(false); setQuery(''); }}>
+                  取消
+                </button>
+              </>
             ) : (
               <>
+                <button className="sb-hamburger tb-search-btn" onClick={() => setSearchOpen(true)}>
+                  <Search size={20} />
+                </button>
                 <select className="input" style={{ flex: 1 }} value={filterMember} onChange={e => setFilterMember(e.target.value)}>
                   <option value="">全部成員</option>
                   {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
