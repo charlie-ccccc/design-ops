@@ -68,6 +68,7 @@ export default function App() {
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const [page, setPage] = useState<Page>(() => {
     if (typeof window !== 'undefined') {
@@ -530,16 +531,15 @@ export default function App() {
       {/* ── Main ── */}
       <main className="main">
         <header className="topbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Left */}
+          <div className="tb-left">
             <button className="sb-hamburger" onClick={() => setSidebarOpen(o => !o)}>
               <Menu size={20} />
             </button>
             <div className="tb-title">
               {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
               {page === 'kanban' && (filterMember || filterDept || query) && (
-                <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginLeft: 8 }}>
-                  · 篩選中
-                </span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginLeft: 8 }}>· 篩選中</span>
               )}
             </div>
             {page === 'capacity' && (
@@ -553,27 +553,21 @@ export default function App() {
 
           <span className="tb-spacer" />
 
-          <div className="tb-tools">
+          {/* Desktop-only filters */}
+          <div className="tb-tools tb-desktop-only">
             {page === 'kanban' && (
               <>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {members.map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)}
-                      title={m.name}
+                    <button key={m.id} onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)} title={m.name}
                       style={{
                         appearance: 'none', border: 'none', padding: 0, cursor: 'pointer',
                         width: 22, height: 22, borderRadius: '50%', background: 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                        flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
                         opacity: filterMember && filterMember !== m.id ? 0.3 : 1,
-                        boxShadow: filterMember === m.id
-                          ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}`
-                          : 'none',
+                        boxShadow: filterMember === m.id ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}` : 'none',
                         transition: 'opacity 0.15s, box-shadow 0.15s',
-                      }}
-                    >
+                      }}>
                       {m.photo
                         ? <img src={m.photo} alt={m.name} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
                         : <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>}
@@ -586,28 +580,35 @@ export default function App() {
                     <Search size={13} />
                   </span>
                   <input className="input" placeholder="搜尋" style={{ paddingLeft: 26, width: 130 }}
-                         value={query} onChange={e => setQuery(e.target.value)} />
+                    value={query} onChange={e => setQuery(e.target.value)} />
                 </div>
               </>
             )}
-
             {(page === 'kanban' || (page === 'dashboard' && !dashFilter)) && (
               <select className="input" value={filterDept} onChange={e => setFilterDept(e.target.value)}>
                 <option value="">全部單位</option>
                 {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
               </select>
             )}
+          </div>
 
+          {/* Right — always visible */}
+          <div className="tb-tools">
             {page === 'kanban' && (
-              <button className="btn btn-primary"
-                      onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                <Plus size={14} /> 新需求單
-              </button>
+              <>
+                <button className="btn btn-primary tb-desktop-only"
+                  onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
+                  <Plus size={14} /> 新需求單
+                </button>
+                <button className="btn btn-primary tb-mobile-only tb-icon-btn"
+                  onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
+                  <Plus size={16} />
+                </button>
+              </>
             )}
             {page === 'dashboard' && (
-              <button className="btn"><Download size={14} /> 匯出</button>
+              <button className="btn tb-desktop-only"><Download size={14} /> 匯出</button>
             )}
-
             <NotificationPanel
               notifications={notifications}
               onMarkRead={markRead}
@@ -616,6 +617,28 @@ export default function App() {
             />
           </div>
         </header>
+
+        {/* Mobile-only filter bar (kanban page) */}
+        {page === 'kanban' && (
+          <div className="tb-mobile-filters">
+            <select className="input" style={{ flex: 1 }} value={filterMember} onChange={e => setFilterMember(e.target.value)}>
+              <option value="">全部成員</option>
+              {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+            <select className="input" style={{ flex: 1 }} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
+              <option value="">全部單位</option>
+              {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
+            </select>
+            <button className="btn tb-search-btn" onClick={() => setSearchOpen(o => !o)}
+              style={{ color: searchOpen ? 'var(--accent)' : undefined }}>
+              <Search size={15} />
+            </button>
+            {searchOpen && (
+              <input className="input" placeholder="搜尋標題 / ID" style={{ flex: 2 }}
+                value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+            )}
+          </div>
+        )}
 
         <div className="body">
           {page === 'kanban' && (
