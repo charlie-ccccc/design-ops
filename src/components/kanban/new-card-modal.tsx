@@ -136,20 +136,24 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
 
               <div className="form-row">
                 <label>委託人</label>
-                <select
-                  className="input"
-                  style={{ width: '100%' }}
-                  value={form.requester}
-                  onChange={e => {
-                    const uid = e.target.value;
-                    const u = siteUsers.find(x => x.uid === uid);
-                    set('requester', uid);
-                    set('requesterName', u?.name ?? '');
-                  }}
-                >
-                  <option value="">未指定</option>
-                  {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
-                </select>
+                {currentUser.roles.includes('一般') ? (
+                  <input className="input" style={{ width: '100%', color: 'var(--ink-2)' }} value={form.requesterName} disabled />
+                ) : (
+                  <select
+                    className="input"
+                    style={{ width: '100%' }}
+                    value={form.requester}
+                    onChange={e => {
+                      const uid = e.target.value;
+                      const u = siteUsers.find(x => x.uid === uid);
+                      set('requester', uid);
+                      set('requesterName', u?.name ?? '');
+                    }}
+                  >
+                    <option value="">未指定</option>
+                    {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
+                  </select>
+                )}
               </div>
 
               {/* Row 2: 截止日 | 優先級 */}
