@@ -540,7 +540,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   ) : <span style={{ fontSize: 14, color: 'var(--muted)' }}>—</span>
                 ) : (
                   <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
-                    onChange={(name, id) => onUpdate(c.id, { owner: id })} />
+                    onChange={(name, id) => {
+                      const stamp = nowStamp();
+                      const msg = id ? `指派「${name}」為受託人` : '移除受託人';
+                      const act = { who: currentUserName ?? '', msg, t: stamp };
+                      onUpdate(c.id, { owner: id, activity: [...(c.activity ?? []), act] });
+                    }} />
                 )}
               </div>
 

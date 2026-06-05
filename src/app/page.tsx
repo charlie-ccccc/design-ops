@@ -336,17 +336,17 @@ export default function App() {
   }, [updateCard, cards, user]);
 
   const onUpdate = useCallback((cardId: string, patch: Partial<Card>) => {
-    // Notify new owner when assigned
-    if (patch.owner !== undefined) {
+    // Notify new owner when assigned (including self-assignment)
+    if (patch.owner !== undefined && patch.owner) {
       const card = cards.find(c => c.id === cardId);
-      if (card && patch.owner && patch.owner !== card.owner) {
+      if (card && (card.owner || '') !== patch.owner) {
         createNotification({
           uid: patch.owner,
           type: 'assigned',
           cardId,
-          cardTitle: patch.title ?? card.title,
+          cardTitle: card.title,
           from: user?.name ?? '',
-          message: `${user?.name} 指派你為「${patch.title ?? card.title}」的受託人`,
+          message: `${user?.name} 指派你為「${card.title}」的受託人`,
           read: false,
           createdAt: Date.now(),
         });
