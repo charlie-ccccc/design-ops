@@ -600,9 +600,9 @@ export default function App() {
                   onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
                   <Plus size={14} /> 新需求單
                 </button>
-                <button className="btn btn-primary tb-mobile-only tb-icon-btn"
+                <button className="sb-hamburger tb-mobile-only"
                   onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                  <Plus size={16} />
+                  <Plus size={20} />
                 </button>
               </>
             )}

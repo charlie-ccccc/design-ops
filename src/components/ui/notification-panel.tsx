@@ -51,12 +51,12 @@ export default function NotificationPanel({ notifications, onMarkRead, onMarkAll
   return (
     <div ref={panelRef} style={{ position: 'relative' }}>
       <button
-        className="btn btn-ghost"
+        className="btn btn-ghost notif-btn"
         title="通知"
         onClick={() => setOpen(o => !o)}
         style={{ position: 'relative' }}
       >
-        <Bell size={14} />
+        <Bell size={16} />
         {unread > 0 && (
           <span style={{
             position: 'absolute', top: 2, right: 2,
