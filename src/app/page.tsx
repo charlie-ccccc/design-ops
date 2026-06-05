@@ -481,7 +481,7 @@ export default function App() {
 
       {/* ── Main ── */}
       <main className="main">
-        <header className="topbar">
+        <header className="topbar" style={{ position: 'relative' }}>
           <div>
             <div className="tb-title">
               {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
@@ -491,10 +491,17 @@ export default function App() {
                 </span>
               )}
             </div>
-            {page === 'capacity' && (
-              <div className="tb-crumb">{month}</div>
-            )}
           </div>
+
+          {page === 'capacity' && (
+            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="month-pill">
+                <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
+                <span className="month-pill-val">{month}</span>
+                <button onClick={() => setMonth(m => shiftMonth(m, 1))}><ChevronRight size={14} /></button>
+              </div>
+            </div>
+          )}
 
           <span className="tb-spacer" />
 
@@ -539,14 +546,6 @@ export default function App() {
                 <option value="">全部單位</option>
                 {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
               </select>
-            )}
-
-            {page === 'capacity' && (
-              <div className="month-pill">
-                <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
-                <span className="month-pill-val">{month}</span>
-                <button onClick={() => setMonth(m => shiftMonth(m, 1))}><ChevronRight size={14} /></button>
-              </div>
             )}
 
             {page === 'kanban' && (
