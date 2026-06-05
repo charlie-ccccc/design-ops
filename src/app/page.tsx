@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
   Search, Plus, Download,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Menu,
 } from 'lucide-react';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -66,6 +66,8 @@ export default function App() {
     Object.fromEntries(members.map(m => [m.id, m])),
     [members],
   );
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [page, setPage] = useState<Page>(() => {
     if (typeof window !== 'undefined') {
@@ -473,8 +475,11 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* ── Mobile overlay ── */}
+      <div className={`sb-overlay${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
+
       {/* ── Sidebar ── */}
-      <aside className="sidebar">
+      <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="sb-brand">
           <div className="sb-mark">C</div>
           <div>
@@ -487,7 +492,7 @@ export default function App() {
           <div className="sb-group-h">工作台</div>
           {workspacePages.map(p => (
             <button key={p.id} className="sb-item" data-on={page === p.id ? '1' : '0'}
-                    onClick={() => { setPage(p.id); if (p.id !== 'dashboard') setDashFilter(null); }}>
+                    onClick={() => { setPage(p.id); if (p.id !== 'dashboard') setDashFilter(null); setSidebarOpen(false); }}>
               {p.icon}
               <span>{p.name}</span>
               {p.count != null && <span className="sb-item-tag">{p.count}</span>}
@@ -499,7 +504,7 @@ export default function App() {
             <div className="sb-group-h">管理</div>
             {adminPages.map(p => (
               <button key={p.id} className="sb-item" data-on={page === p.id ? '1' : '0'}
-                      onClick={() => setPage(p.id)}>
+                      onClick={() => { setPage(p.id); setSidebarOpen(false); }}>
                 {p.icon}
                 <span>{p.name}</span>
               </button>
@@ -526,6 +531,9 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button className="sb-hamburger" onClick={() => setSidebarOpen(o => !o)}>
+              <Menu size={20} />
+            </button>
             <div className="tb-title">
               {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
               {page === 'kanban' && (filterMember || filterDept || query) && (
