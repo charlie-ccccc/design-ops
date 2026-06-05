@@ -154,6 +154,10 @@ export default function Admin({
   const year = Number(month.split('/')[0]);
   const [catFilter, setCatFilter] = useState<CatFilter>('all');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // Local draft state for numeric inputs — only saved to Firestore on blur
+  const [draftDays, setDraftDays] = useState<Record<string, string>>({});
+  const [draftRatios, setDraftRatios] = useState<Record<string, string>>({});
   const [leaveModal, setLeaveModal] = useState(false);
   const [newLeave, setNewLeave] = useState({
     member: '',
@@ -369,13 +373,24 @@ export default function Admin({
                       </div>
                     </td>
                     <td>
-                      <input className="num-input" type="number" min={0} max={31} value={days}
-                             onChange={e => setMemberDays({ ...memberDays, [m.id]: Number(e.target.value) })} />
+                      <input className="num-input" type="number" min={0} max={31}
+                             value={draftDays[m.id] ?? days}
+                             onChange={e => setDraftDays(d => ({ ...d, [m.id]: e.target.value }))}
+                             onBlur={() => {
+                               const v = Number(draftDays[m.id] ?? days);
+                               setDraftDays(d => { const c = { ...d }; delete c[m.id]; return c; });
+                               setMemberDays({ ...memberDays, [m.id]: v });
+                             }} />
                     </td>
                     <td>
                       <input className="num-input" type="number" min={10} max={100} step={0.5}
-                             value={Math.round(ratio * 1000) / 10}
-                             onChange={e => setMemberRatios({ ...memberRatios, [m.id]: Number(e.target.value) / 100 })} />
+                             value={draftRatios[m.id] ?? Math.round(ratio * 1000) / 10}
+                             onChange={e => setDraftRatios(r => ({ ...r, [m.id]: e.target.value }))}
+                             onBlur={() => {
+                               const v = Number(draftRatios[m.id] ?? Math.round(ratio * 1000) / 10);
+                               setDraftRatios(r => { const c = { ...r }; delete c[m.id]; return c; });
+                               setMemberRatios({ ...memberRatios, [m.id]: v / 100 });
+                             }} />
                     </td>
                     <td>{lv}</td>
                     <td style={{ fontWeight: 600 }}>{monthHours}</td>
