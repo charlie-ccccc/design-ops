@@ -7,6 +7,7 @@ import type { Card, TimeLog, Comment, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 import { STATUSES, MEMBERS, MEMBER_BY_ID, DEPTS, DEPT_SHORT, SITE_USERS, SiteUser } from '@/lib/data';
 import { hue, sum } from '@/lib/utils';
+import { createNotification } from '@/lib/notifications';
 
 interface CardDrawerProps {
   card: Card | null;
@@ -17,6 +18,7 @@ interface CardDrawerProps {
   readOnly?: boolean;
   canEdit?: boolean;
   currentUserName?: string;
+  currentUserUid?: string;
   siteUsers?: AppUser[];   // all site users for 委託人 picker
   members?: Member[];      // 成員-only for 受託人 picker
 }
@@ -136,7 +138,7 @@ function roundToHalfHour(): string {
 const EMPTY_LOG = { date: '', time: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, siteUsers: propSiteUsers, members: propMembers }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, currentUserUid, siteUsers: propSiteUsers, members: propMembers }: CardDrawerProps) {
   const DESIGNER_USERS = propMembers
     ? propMembers.map(m => ({ id: m.id, name: m.name, initial: m.initial, hue: m.hue, sub: m.cat } as AnyUser))
     : STATIC_DESIGNER_USERS;
@@ -158,6 +160,10 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   const [commentText, setCommentText] = useState('');
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentDraft, setEditCommentDraft] = useState('');
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const [mentionFilter, setMentionFilter] = useState('');
+  const [mentionStart, setMentionStart] = useState(-1);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
 
   // Time log modal state
   const [logModal, setLogModal] = useState(false);
@@ -243,13 +249,62 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
     setEditingLogId(null);
   }
 
+  function handleCommentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value;
+    setCommentText(val);
+    const sel = e.target.selectionStart ?? val.length;
+    const m = val.slice(0, sel).match(/@([^@\s]*)$/);
+    if (m) {
+      setMentionFilter(m[1]);
+      setMentionStart(sel - m[0].length);
+      setMentionOpen(true);
+    } else {
+      setMentionOpen(false);
+    }
+  }
+
+  function insertMention(u: AppUser) {
+    const ta = commentRef.current;
+    if (!ta) return;
+    const cursor = ta.selectionStart ?? commentText.length;
+    const newText = `${commentText.slice(0, mentionStart)}@${u.name} ${commentText.slice(cursor)}`;
+    setCommentText(newText);
+    setMentionOpen(false);
+    setTimeout(() => { ta.focus(); const pos = mentionStart + u.name.length + 2; ta.setSelectionRange(pos, pos); }, 0);
+  }
+
   function addComment() {
     if (!c || !commentText.trim()) return;
     const stamp = nowStamp();
-    const newComment = { id: Date.now().toString(), author: currentUserName ?? '主設計師', text: commentText.trim(), t: stamp };
+    const text = commentText.trim();
+    const newComment = { id: Date.now().toString(), author: currentUserName ?? '主設計師', text, t: stamp };
     const act = { who: currentUserName ?? '主設計師', msg: '新增了留言', t: stamp };
     onUpdate(c.id, { comments: [...comments, newComment], activity: [...(c.activity ?? []), act] });
+
+    // Fire notifications asynchronously
+    void (async () => {
+      const notified = new Set<string>();
+      // @mention notifications
+      const mentionRe = /@([^\s@]+)/g;
+      let m: RegExpExecArray | null;
+      while ((m = mentionRe.exec(text)) !== null) {
+        const mentioned = (propSiteUsers ?? []).find(u => u.name === m![1]);
+        if (mentioned && mentioned.uid !== currentUserUid && !notified.has(mentioned.uid)) {
+          notified.add(mentioned.uid);
+          await createNotification({ uid: mentioned.uid, type: 'mention', cardId: c.id, cardTitle: c.title, from: currentUserName ?? '', message: `${currentUserName} 在「${c.title}」提到了你`, read: false, createdAt: Date.now() });
+        }
+      }
+      // Notify requester (委託人) and owner (受託人) — anyone not the commenter
+      for (const uid of [c.requester, c.owner]) {
+        if (uid && uid !== currentUserUid && !notified.has(uid)) {
+          notified.add(uid);
+          await createNotification({ uid, type: 'comment', cardId: c.id, cardTitle: c.title, from: currentUserName ?? '', message: `${currentUserName} 在「${c.title}」留了言`, read: false, createdAt: Date.now() });
+        }
+      }
+    })();
+
     setCommentText('');
+    setMentionOpen(false);
     setBottomTab('comments');
   }
 
@@ -611,9 +666,47 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     ) : <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0 12px' }}>尚無留言</div>}
                     {!readOnly && (
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                        <textarea className="input" placeholder="新增留言..." style={{ flex: 1, minHeight: 64, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
-                          value={commentText} onChange={e => setCommentText(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addComment(); }} />
+                        <div style={{ flex: 1, position: 'relative' }}>
+                          {/* @mention dropdown */}
+                          {mentionOpen && (() => {
+                            const candidates = (propSiteUsers ?? [])
+                              .filter(u => u.uid !== currentUserUid && u.name.toLowerCase().includes(mentionFilter.toLowerCase()))
+                              .slice(0, 6);
+                            return candidates.length > 0 ? (
+                              <div style={{
+                                position: 'absolute', bottom: 'calc(100% + 4px)', left: 0, right: 0,
+                                background: 'var(--surface)', border: '1px solid var(--border)',
+                                borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', zIndex: 50, overflow: 'hidden',
+                              }}>
+                                {candidates.map(u => (
+                                  <button key={u.uid} type="button"
+                                    onMouseDown={e => { e.preventDefault(); insertMention(u); }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '7px 12px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 13, textAlign: 'left' }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                                  >
+                                    {u.photo
+                                      ? <img src={u.photo} alt={u.name} className="av av-sm" style={{ objectFit: 'cover' }} />
+                                      : <span className="av av-sm" style={{ background: hue(u.hue ?? 1), fontSize: 11 }}>{u.initial ?? u.name[0]}</span>}
+                                    <span>{u.name}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null;
+                          })()}
+                          <textarea
+                            ref={commentRef}
+                            className="input"
+                            placeholder="新增留言… 輸入 @ 提及成員"
+                            style={{ width: '100%', minHeight: 64, resize: 'vertical', fontFamily: 'inherit', fontSize: 14 }}
+                            value={commentText}
+                            onChange={handleCommentChange}
+                            onKeyDown={e => {
+                              if (e.key === 'Escape') setMentionOpen(false);
+                              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addComment();
+                            }}
+                          />
+                        </div>
                         <button className="btn btn-primary" style={{ flexShrink: 0 }} onClick={addComment} disabled={!commentText.trim()}>送出</button>
                       </div>
                     )}

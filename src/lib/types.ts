@@ -91,6 +91,18 @@ export interface HistoryMonth {
   cardList: Card[];
 }
 
+export interface AppNotification {
+  id: string;
+  uid: string;           // recipient user ID
+  type: 'mention' | 'assigned' | 'comment' | 'due';
+  cardId: string;
+  cardTitle: string;
+  from: string;          // who triggered (name string)
+  message: string;
+  read: boolean;
+  createdAt: number;     // Date.now()
+}
+
 export interface ChartDataItem {
   name: string;
   full?: string;

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
-  Search, Bell, Plus, Download,
+  Search, Plus, Download,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
@@ -25,8 +25,11 @@ import Admin from '@/components/admin/index';
 import History from '@/components/history/index';
 import Permissions from '@/components/permissions/index';
 import LoginPage from '@/components/auth/login-page';
+import NotificationPanel from '@/components/ui/notification-panel';
 import { useAuth } from '@/contexts/auth-context';
 import type { AppUser } from '@/contexts/auth-context';
+import { useNotifications } from '@/hooks/use-notifications';
+import { createNotification } from '@/lib/notifications';
 
 const ACCENT_PRESETS = {
   violet: { hex: '#6B5BD9', light: 'oklch(0.52 0.14 282)', soft: 'oklch(0.94 0.03 282)', dark: 'oklch(0.74 0.14 282)', darkSoft: 'oklch(0.28 0.05 282)' },
@@ -41,6 +44,7 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, deleteCard } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
+  const { notifications, markRead, markAllRead } = useNotifications(user?.uid ?? null);
   const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, settingsReady } = useFirestoreSettings();
 
   const toMember = (u: typeof siteUsers[0]): Member => ({
@@ -236,6 +240,29 @@ export default function App() {
     return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
   }, []);
 
+  // Due date reminders for 成員 role (once per card per day, stored in sessionStorage)
+  const dueReminderRef = useRef(false);
+  useEffect(() => {
+    if (!user || !initialized || dueReminderRef.current) return;
+    if (!user.roles.includes('成員') && !user.roles.includes('Admin')) return;
+    dueReminderRef.current = true;
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `due-sent-${today}-${user.uid}`;
+    const sent = new Set<string>(JSON.parse(sessionStorage.getItem(key) ?? '[]'));
+    const now = new Date();
+    const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    cards.forEach(c => {
+      if (c.owner !== user.uid || !c.due || sent.has(c.id)) return;
+      const [mm, dd] = c.due.split('/').map(Number);
+      const [yr] = c.month.split('/').map(Number);
+      const due = new Date(yr, mm - 1, dd);
+      if (due < now || due > in3Days) return;
+      sent.add(c.id);
+      createNotification({ uid: user.uid, type: 'due', cardId: c.id, cardTitle: c.title, from: 'system', message: `「${c.title}」即將截止（${c.due}）`, read: false, createdAt: Date.now() });
+    });
+    sessionStorage.setItem(key, JSON.stringify([...sent]));
+  }, [user, initialized, cards]);
+
   // Kanban: active cards always visible; done/pending only if due month ≥ current month
   const kanbanCards = useMemo(() =>
     cards.filter(c => {
@@ -309,8 +336,24 @@ export default function App() {
   }, [updateCard, cards, user]);
 
   const onUpdate = useCallback((cardId: string, patch: Partial<Card>) => {
+    // Notify new owner when assigned
+    if (patch.owner !== undefined) {
+      const card = cards.find(c => c.id === cardId);
+      if (card && patch.owner && patch.owner !== card.owner) {
+        createNotification({
+          uid: patch.owner,
+          type: 'assigned',
+          cardId,
+          cardTitle: patch.title ?? card.title,
+          from: user?.name ?? '',
+          message: `${user?.name} 指派你為「${patch.title ?? card.title}」的受託人`,
+          read: false,
+          createdAt: Date.now(),
+        });
+      }
+    }
     updateCard(cardId, patch).catch(console.error);
-  }, [updateCard]);
+  }, [updateCard, cards, user]);
 
   const onDelete = useCallback((cardId: string) => {
     deleteCard(cardId).catch(console.error);
@@ -555,7 +598,12 @@ export default function App() {
               <button className="btn"><Download size={14} /> 匯出</button>
             )}
 
-            <button className="btn btn-ghost" title="通知"><Bell size={14} /></button>
+            <NotificationPanel
+              notifications={notifications}
+              onMarkRead={markRead}
+              onMarkAllRead={markAllRead}
+              onOpenCard={id => setOpenCardId(id)}
+            />
           </div>
         </header>
 
@@ -616,7 +664,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={isMember || showAdmin} currentUserName={user.name} siteUsers={siteUsers} members={members} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={isMember || showAdmin} currentUserName={user.name} currentUserUid={user.uid} siteUsers={siteUsers} members={members} />
       <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly siteUsers={siteUsers} members={members} />
       <NewCardModal
         open={newCardOpen}
