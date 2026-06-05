@@ -140,7 +140,7 @@ button { font-family: inherit; cursor: pointer; }
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
 }
-.tb-search-btn { width: 32px; padding: 0; justify-content: center; flex-shrink: 0; }
+.tb-search-btn { flex-shrink: 0; }
 
 .btn { appearance: none; border: 1px solid var(--border); background: var(--surface); color: var(--ink); padding: 6px 12px; height: 32px; border-radius: var(--r); font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.12s, transform 0.05s; }
 .btn:hover { background: var(--surface-2); }
