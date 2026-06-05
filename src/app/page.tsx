@@ -579,7 +579,7 @@ export default function App() {
                   <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-2)', pointerEvents: 'none' }}>
                     <Search size={13} />
                   </span>
-                  <input className="input" placeholder="搜尋" style={{ paddingLeft: 26, width: 130 }}
+                  <input className="input" placeholder="搜尋標題 / ID" style={{ paddingLeft: 26, width: 150 }}
                     value={query} onChange={e => setQuery(e.target.value)} />
                 </div>
               </>
