@@ -38,10 +38,11 @@ interface PermissionsProps {
   onUpdateDepts: (depts: string[]) => void;
   deptColors: Record<string, string>;
   onUpdateDeptColors: (colors: Record<string, string>) => void;
+  tab: 'users' | 'depts';
+  onTabChange: (t: 'users' | 'depts') => void;
 }
 
-export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors }: PermissionsProps) {
-  const [tab, setTab] = useState<'users' | 'depts'>('users');
+export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors, tab, onTabChange: setTab }: PermissionsProps) {
   const [newDept, setNewDept] = useState('');
   const [infoOpen, setInfoOpen] = useState(false);
   const [pickerDept, setPickerDept] = useState<string | null>(null);

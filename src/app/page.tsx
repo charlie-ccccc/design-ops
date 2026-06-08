@@ -84,6 +84,13 @@ export default function App() {
     }
     return 'capacity';
   });
+  const [permTab, setPermTab] = useState<'users' | 'depts'>(() => {
+    if (typeof window !== 'undefined') {
+      const t = new URLSearchParams(window.location.search).get('tab');
+      if (t === 'depts') return 'depts';
+    }
+    return 'users';
+  });
   const [month, setMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -319,7 +326,9 @@ export default function App() {
     if (openCardId) { params.set('card', openCardId); } else { params.delete('card'); }
     if (page === 'dashboard' && dashFilter?.dept)  { params.set('dept',  dashFilter.dept);  } else { params.delete('dept'); }
     if (page === 'dashboard' && dashFilter?.owner) { params.set('owner', dashFilter.owner); } else { params.delete('owner'); }
-    if (page === 'capacity' && adminTab !== 'capacity') { params.set('tab', adminTab); } else { params.delete('tab'); }
+    if (page === 'capacity' && adminTab !== 'capacity') { params.set('tab', adminTab); }
+    else if (page === 'permissions' && permTab !== 'users') { params.set('tab', permTab); }
+    else { params.delete('tab'); }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
   }, [page, openCardId, dashFilter, adminTab]);
@@ -707,7 +716,7 @@ export default function App() {
             />
           )}
           {page === 'permissions' && showAdmin && (
-            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} deptColors={deptColors} onUpdateDeptColors={updateDeptColors} />
+            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} deptColors={deptColors} onUpdateDeptColors={updateDeptColors} tab={permTab} onTabChange={setPermTab} />
           )}
         </div>
       </main>
