@@ -195,14 +195,6 @@ function DrillView({ allCards, drillFilter, onBack, onOpenCard, memberByUid, sit
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
 export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill, members, siteUsers }: DashboardProps) {
-  const [isMobile, setIsMobile] = React.useState(false);
-  React.useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
   const memberByUid = useMemo(() => Object.fromEntries(members.map(m => [m.id, m])), [members]);
 
   const byDept = groupBy(cards, 'dept');
@@ -257,7 +249,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
   // ── Overview ─────────────────────────────────────────────────────────────
   return (
     <div className="body">
-      <div className="dash layout-grid" style={isMobile ? { gridTemplateColumns: '1fr 1fr' } : undefined}>
+      <div className="dash layout-grid">
         <div className="kpi" style={{ cursor: 'pointer' }} onClick={() => drill({})}>
           <div className="kpi-lbl">需求單總數</div>
           <div className="kpi-val">{cards.length}<span className="unit">張</span></div>
@@ -279,7 +271,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
           <div className={`kpi-delta${totalEst / totalCapacity > 1 ? ' down' : ' up'}`}>{totalCapacity}h 可用</div>
         </div>
 
-        <div className="panel chart-card pie-card" style={isMobile ? { gridColumn: 'span 2' } : undefined}>
+        <div className="panel chart-card pie-card">
           <div className="panel-h">
             <span className="panel-h-title">部門預估工時</span>
             <span className="panel-h-sub">本月</span>
@@ -303,7 +295,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
           </div>
         </div>
 
-        <div className="panel chart-card pie-card" style={isMobile ? { gridColumn: 'span 2' } : undefined}>
+        <div className="panel chart-card pie-card">
           <div className="panel-h">
             <span className="panel-h-title">成員預估工時</span>
             <span className="panel-h-sub">本月</span>
@@ -327,7 +319,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
           </div>
         </div>
 
-        <div className="panel table-card" style={isMobile ? { gridColumn: 'span 2' } : undefined}>
+        <div className="panel table-card">
           <div className="panel-h">
             <span className="panel-h-title">成員 × 部門 (預估工時)</span>
             <span className="panel-h-spacer" />
@@ -341,7 +333,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
             onColClick={col => drill({ dept: col.id })} />
         </div>
 
-        <div className="panel table-card" style={isMobile ? { gridColumn: 'span 2' } : undefined}>
+        <div className="panel table-card">
           <div className="panel-h">
             <span className="panel-h-title">成員 × 部門 (實際工時)</span>
             <span className="panel-h-spacer" />
