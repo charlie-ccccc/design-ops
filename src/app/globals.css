@@ -144,6 +144,13 @@ button { font-family: inherit; cursor: pointer; }
   /* Notification bell — same size as hamburger */
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
+  /* Dashboard — 2-col grid on mobile */
+  .dash { padding: 16px; gap: 10px; }
+  .dash.layout-grid { grid-template-columns: 1fr 1fr; }
+  .dash.layout-grid .pie-card { grid-column: span 2; }
+  .dash.layout-grid .table-card { grid-column: span 2; }
+  .kpi-val { font-size: 22px; }
+  .legend { grid-template-columns: 1fr; }
 }
 .tb-search-btn { flex-shrink: 0; }
 
