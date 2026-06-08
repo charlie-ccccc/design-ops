@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Info } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
@@ -22,6 +22,7 @@ interface PermissionsProps {
 export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts }: PermissionsProps) {
   const [tab, setTab] = useState<'users' | 'depts'>('users');
   const [newDept, setNewDept] = useState('');
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const isAdmin = currentUser.roles.includes('Admin');
 
@@ -104,18 +105,11 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
 
         {tab === 'users' && (
           <>
-            <div className="perm-roles" style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
-              {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
-                <div key={role} style={{ flex: '0 0 auto', width: 'calc(33.33% - 8px)', minWidth: 0, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{role}</div>
-                  <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ padding: '4px 16px 8px', fontSize: 13, color: 'var(--muted)' }}>
-              僅 @cmoney.com.tw 帳號可透過 Google 登入
-              {!isAdmin && <span style={{ marginLeft: 8, color: 'var(--st-block)' }}>（需 Admin 權限才能修改角色）</span>}
-            </div>
+            {!isAdmin && (
+              <div style={{ padding: '6px 16px 6px', fontSize: 13, color: 'var(--st-block)' }}>
+                需 Admin 權限才能修改角色
+              </div>
+            )}
             <div className="cap-table-wrap" style={{ overflowX: 'auto' }}>
               <table className="cap-table">
                 <thead>
@@ -128,7 +122,7 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
                 </thead>
                 <tbody>
                   {sorted.map(u => (
-                    <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, transparent)' : undefined }}>
+                    <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, var(--surface))' : undefined }}>
                       <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>
                         {u.name}
                         {u.uid === currentUser.uid && <span style={{ fontSize: 12, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
@@ -229,6 +223,36 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
         )}
 
       </div>
+
+      {/* ── Floating info button ── */}
+      <button className="perm-info-btn" onClick={() => setInfoOpen(true)}>
+        <span className="perm-info-icon"><Info size={14} strokeWidth={2.5} /></span>
+        權限說明
+      </button>
+
+      {/* ── Info modal ── */}
+      {infoOpen && (
+        <div className="modal-scrim open" onClick={() => setInfoOpen(false)}>
+          <div className="modal" style={{ width: 420 }} onClick={e => e.stopPropagation()}>
+            <div className="modal-h">
+              <span className="modal-h-title">權限說明</span>
+              <span style={{ flex: 1 }} />
+              <button className="drawer-close" onClick={() => setInfoOpen(false)}><X size={16} /></button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
+                <div key={role} style={{ padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{role}</div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>{desc}</div>
+                </div>
+              ))}
+              <div style={{ fontSize: 13, color: 'var(--muted)', paddingTop: 4 }}>
+                僅 @cmoney.com.tw 帳號可透過 Google 登入
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
