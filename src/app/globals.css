@@ -459,7 +459,7 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   /* Admin wrapper & tabs */
   .admin-wrap { padding: 8px !important; }
   .admin-tab-spacer { display: none !important; }
-  .admin-tab { flex: 1 !important; text-align: center !important; padding: 11px 6px !important; font-size: 13px !important; }
+  .admin-tab { flex: 1 !important; text-align: center !important; padding: 11px 6px !important; font-size: 14px !important; }
   /* Calendar full-width */
   .cal-grid { min-width: 0 !important; width: 100% !important; padding: 12px 8px 8px !important; box-sizing: border-box; }
   /* Leave tab: calendar top, list below */
