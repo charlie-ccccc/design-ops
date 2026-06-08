@@ -18,6 +18,7 @@ interface DashboardProps {
   onDrill?: (f: DashFilter | null) => void;
   members: Member[];
   siteUsers: AppUser[];
+  deptColors?: Record<string, string>;
 }
 
 interface ColDef { id: string; name: string; full?: string; }
@@ -194,7 +195,7 @@ function DrillView({ allCards, drillFilter, onBack, onOpenCard, memberByUid, sit
 }
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
-export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill, members, siteUsers }: DashboardProps) {
+export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilter, onDrill, members, siteUsers, deptColors = {} }: DashboardProps) {
   const memberByUid = useMemo(() => Object.fromEntries(members.map(m => [m.id, m])), [members]);
 
   const byDept = groupBy(cards, 'dept');
@@ -204,7 +205,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
       name: DEPT_SHORT[dept] || dept,
       full: dept,
       value: sum(items.map(c => c.est)),
-      color: hue(DEPT_HUE[dept] || 1),
+      color: deptColors[dept] ?? hue(DEPT_HUE[dept] || 1),
     }))
     .filter(d => d.value > 0)
     .sort((a, b) => b.value - a.value);

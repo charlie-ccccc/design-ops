@@ -5,6 +5,25 @@ import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
 
+const DEPT_COLOR_PALETTE = [
+  // Purple
+  '#7c6ee0', '#a48ee8', '#5549bf',
+  // Blue
+  '#5090ce', '#3b70b4', '#6eb2e8',
+  // Teal / Cyan
+  '#3cb8ca', '#2d9cb0', '#5ed2c4',
+  // Green
+  '#5cb478', '#48966a', '#84cc6a',
+  // Yellow / Lime
+  '#b8ba3a', '#8e9a28',
+  // Orange
+  '#e07c50', '#c8682e',
+  // Red / Rose
+  '#d05060', '#b83040',
+  // Pink / Mauve
+  '#d868a0', '#c04882',
+];
+
 const ROLE_DESC: Record<Role, string> = {
   Admin: '看板全功能 + 調整權限、量能管理（不計入受託人與工時）',
   成員:  '看板全功能 + 計入受託人、工時表、量能計算',
@@ -17,12 +36,15 @@ interface PermissionsProps {
   onUpdateUser: (uid: string, patch: Partial<AppUser>) => void;
   depts: string[];
   onUpdateDepts: (depts: string[]) => void;
+  deptColors: Record<string, string>;
+  onUpdateDeptColors: (colors: Record<string, string>) => void;
 }
 
-export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts }: PermissionsProps) {
+export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors }: PermissionsProps) {
   const [tab, setTab] = useState<'users' | 'depts'>('users');
   const [newDept, setNewDept] = useState('');
   const [infoOpen, setInfoOpen] = useState(false);
+  const [pickerDept, setPickerDept] = useState<string | null>(null);
 
   const isAdmin = currentUser.roles.includes('Admin');
 
@@ -78,6 +100,14 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
     if (!isAdmin) return;
     onUpdateUser(uid, { cat });
   }
+
+  // Close picker on outside click
+  React.useEffect(() => {
+    if (!pickerDept) return;
+    const close = () => setPickerDept(null);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [pickerDept]);
 
   return (
     <div className="perm-wrap" style={{ padding: '18px 22px' }}>
@@ -204,11 +234,27 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
             </div>
             <div style={{ padding: '0 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {depts.map(d => (
-                <span key={d} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  padding: '4px 10px 4px 12px', background: 'var(--surface-2)',
-                  border: '1px solid var(--border)', borderRadius: 20, fontSize: 14,
-                }}>
+                <span key={d} className="dept-color-tag">
+                  {/* Color dot — click to open picker */}
+                  <button
+                    className="dept-color-dot"
+                    style={{ background: deptColors[d] ?? 'var(--muted-2)' }}
+                    onClick={() => setPickerDept(pickerDept === d ? null : d)}
+                    title="選擇顏色"
+                  />
+                  {/* Color picker popover */}
+                  {pickerDept === d && (
+                    <div className="dept-color-picker" onClick={e => e.stopPropagation()}>
+                      {DEPT_COLOR_PALETTE.map(c => (
+                        <button
+                          key={c}
+                          className="dept-color-swatch"
+                          style={{ background: c, outline: deptColors[d] === c ? `2px solid ${c}` : 'none', outlineOffset: 2 }}
+                          onClick={() => { onUpdateDeptColors({ ...deptColors, [d]: c }); setPickerDept(null); }}
+                        />
+                      ))}
+                    </div>
+                  )}
                   {d}
                   <button
                     onClick={() => removeDept(d)}

@@ -70,6 +70,7 @@ interface AdminProps {
   month: string;
   defaultWorkDays: number;
   onMonthChange: (m: string) => void;
+  deptColors?: Record<string, string>;
   tab: MainTab;
   onTabChange: (t: MainTab) => void;
 }
@@ -149,7 +150,7 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, ye
 
 export default function Admin({
   cards, members, memberRatios, setMemberRatios, memberDays, setMemberDays,
-  leave, setLeave, publicHolidays, month, onMonthChange, defaultWorkDays, tab, onTabChange: setTab,
+  leave, setLeave, publicHolidays, month, onMonthChange, deptColors = {}, defaultWorkDays, tab, onTabChange: setTab,
 }: AdminProps) {
   const memberById = Object.fromEntries(members.map(m => [m.id, m]));
   const year = Number(month.split('/')[0]);
@@ -340,7 +341,7 @@ export default function Admin({
                   <div style={{ fontSize: 13, color: 'var(--muted-2)' }}>無資料</div>
                 ) : deptLoads.map(([dept, load]) => {
                   const pct = (load / maxDeptLoad) * 100;
-                  const color = hue(DEPT_HUE[dept] || 1);
+                  const color = deptColors[dept] ?? hue(DEPT_HUE[dept] || 1);
                   return (
                     <div key={dept} className="dept-bar-row">
                       <div className="name" title={dept}>

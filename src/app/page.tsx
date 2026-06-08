@@ -45,7 +45,7 @@ export default function App() {
   const { cards, initialized, addCard, updateCard, deleteCard } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
   const { notifications, markRead, markAllRead } = useNotifications(user?.uid ?? null);
-  const { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady } = useFirestoreSettings();
+  const { depts, updateDepts, deptColors, updateDeptColors, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady } = useFirestoreSettings();
 
   const toMember = (u: typeof siteUsers[0]): Member => ({
     id: u.uid, name: u.name, alias: u.name,
@@ -675,6 +675,7 @@ export default function App() {
               onDrill={f => setDashFilter(f)}
               members={capacityMembers}
               siteUsers={siteUsers}
+              deptColors={deptColors}
             />
           )}
           {page === 'capacity' && showAdmin && (
@@ -693,6 +694,7 @@ export default function App() {
               defaultWorkDays={defaultWorkDays}
               tab={adminTab}
               onTabChange={setAdminTab}
+              deptColors={deptColors}
             />
           )}
           {page === 'history' && (
@@ -705,7 +707,7 @@ export default function App() {
             />
           )}
           {page === 'permissions' && showAdmin && (
-            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} />
+            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} deptColors={deptColors} onUpdateDeptColors={updateDeptColors} />
           )}
         </div>
       </main>

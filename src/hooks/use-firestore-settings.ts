@@ -8,6 +8,7 @@ import type { LeaveEntry, HistoryMonth } from '@/lib/types';
 
 export function useFirestoreSettings() {
   const [depts, setDepts] = useState<string[]>(DEPTS);
+  const [deptColors, setDeptColors] = useState<Record<string, string>>({});
   const [leave, setLeave] = useState<LeaveEntry[]>(DEFAULT_LEAVE);
   const [allMemberDays, setAllMemberDays] = useState<Record<string, Record<string, number>>>({});
   const [allMemberRatios, setAllMemberRatios] = useState<Record<string, Record<string, number>>>({});
@@ -30,6 +31,7 @@ export function useFirestoreSettings() {
           if (snap.exists()) {
             const data = snap.data();
             if (Array.isArray(data.depts)) setDepts(data.depts);
+            if (data.deptColors && typeof data.deptColors === 'object') setDeptColors(data.deptColors as Record<string, string>);
             if (Array.isArray(data.leave)) {
               setLeave(data.leave);
             } else {
@@ -58,6 +60,11 @@ export function useFirestoreSettings() {
   const updateDepts = useCallback(async (newDepts: string[]) => {
     setDepts(newDepts);
     await save({ depts: newDepts });
+  }, [save]);
+
+  const updateDeptColors = useCallback(async (colors: Record<string, string>) => {
+    setDeptColors(colors);
+    await save({ deptColors: colors });
   }, [save]);
 
   const updateLeave = useCallback(async (newLeave: LeaveEntry[]) => {
@@ -93,5 +100,5 @@ export function useFirestoreSettings() {
     await save({ cardOrder: order });
   }, [save]);
 
-  return { depts, updateDepts, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady };
+  return { depts, updateDepts, deptColors, updateDeptColors, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady };
 }
