@@ -189,7 +189,20 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
             <div style={{ padding: '8px 16px 4px', fontSize: 13, color: 'var(--muted)' }}>
               新增需求單時的發起單位選項
             </div>
-            <div style={{ padding: '8px 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 6, padding: '8px 16px 10px' }}>
+              <input
+                className="input"
+                placeholder="新增單位名稱"
+                style={{ flex: 1 }}
+                value={newDept}
+                onChange={e => setNewDept(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addDept()}
+              />
+              <button className="btn btn-primary" onClick={addDept} style={{ padding: '0 10px' }}>
+                <Plus size={14} />
+              </button>
+            </div>
+            <div style={{ padding: '0 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {depts.map(d => (
                 <span key={d} style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -205,19 +218,6 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
                   </button>
                 </span>
               ))}
-              <div style={{ display: 'flex', gap: 6 }}>
-                <input
-                  className="input"
-                  placeholder="新增單位名稱"
-                  style={{ width: 150 }}
-                  value={newDept}
-                  onChange={e => setNewDept(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && addDept()}
-                />
-                <button className="btn btn-primary" onClick={addDept} style={{ padding: '0 10px' }}>
-                  <Plus size={14} />
-                </button>
-              </div>
             </div>
           </>
         )}
