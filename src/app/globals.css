@@ -455,6 +455,9 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .cap-stat-row { flex-direction: row !important; gap: 8px !important; }
   .cap-stat-card { padding: 10px 12px !important; flex: 1; min-width: 0; }
   .cap-stat-v { font-size: 18px !important; }
+  /* Leave tab: calendar top, list below */
+  .cap-leave-layout { grid-template-columns: 1fr !important; }
+  .cap-leave-cal { border-right: none !important; border-bottom: 1px solid var(--divider) !important; padding: 16px !important; }
   /* Sticky member column */
   .cap-table-wrap { overflow-x: auto; }
   .cap-table-wrap .cap-table { border-collapse: separate; border-spacing: 0; }

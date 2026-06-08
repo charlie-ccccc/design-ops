@@ -436,9 +436,9 @@ export default function Admin({
         {/* ── 請假紀錄 ── */}
         {tab === 'leave' && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 0, alignItems: 'start' }}>
+            <div className="cap-leave-layout" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 0, alignItems: 'start' }}>
               {/* Left: Calendar */}
-              <div style={{ borderRight: '1px solid var(--divider)', padding: '16px 0' }}>
+              <div className="cap-leave-cal" style={{ borderRight: '1px solid var(--divider)', padding: '16px 0' }}>
                 <MiniCalendar
                   month={month} year={year}
                   leave={leave} publicHolidays={publicHolidays}
