@@ -543,7 +543,7 @@ export default function App() {
               )}
             </div>
             {page === 'capacity' && (
-              <div className="month-pill">
+              <div className="month-pill tb-desktop-only">
                 <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
                 <span className="month-pill-val">{month}</span>
                 <button onClick={() => setMonth(m => shiftMonth(m, 1))}><ChevronRight size={14} /></button>
@@ -689,6 +689,7 @@ export default function App() {
               setLeave={updateLeave}
               publicHolidays={publicHolidays}
               month={month}
+              onMonthChange={setMonth}
               defaultWorkDays={defaultWorkDays}
               tab={adminTab}
               onTabChange={setAdminTab}

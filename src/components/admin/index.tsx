@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Card, LeaveEntry, PublicHoliday, Cat, Member } from '@/lib/types';
 import { DEPT_SHORT, DEPT_HUE } from '@/lib/data';
-import { sum, hue } from '@/lib/utils';
+import { sum, hue, shiftMonth } from '@/lib/utils';
 
 type CatFilter = 'all' | Cat;
 type MainTab = 'capacity' | 'members' | 'leave';
@@ -69,6 +69,7 @@ interface AdminProps {
   publicHolidays: PublicHoliday[];
   month: string;
   defaultWorkDays: number;
+  onMonthChange: (m: string) => void;
   tab: MainTab;
   onTabChange: (t: MainTab) => void;
 }
@@ -148,7 +149,7 @@ function MiniCalendar({ month, leave, publicHolidays, selectedDate, onSelect, ye
 
 export default function Admin({
   cards, members, memberRatios, setMemberRatios, memberDays, setMemberDays,
-  leave, setLeave, publicHolidays, month, defaultWorkDays, tab, onTabChange: setTab,
+  leave, setLeave, publicHolidays, month, onMonthChange, defaultWorkDays, tab, onTabChange: setTab,
 }: AdminProps) {
   const memberById = Object.fromEntries(members.map(m => [m.id, m]));
   const year = Number(month.split('/')[0]);
@@ -279,6 +280,15 @@ export default function Admin({
         {tab === 'capacity' && (
           <div style={{ padding: '20px 24px 28px' }}>
 
+            {/* Mobile-only month switcher */}
+            <div className="cap-month-pill-mobile" style={{ marginBottom: 16 }}>
+              <div className="month-pill">
+                <button onClick={() => onMonthChange(shiftMonth(month, -1))}><ChevronLeft size={14} /></button>
+                <span className="month-pill-val">{month}</span>
+                <button onClick={() => onMonthChange(shiftMonth(month, 1))}><ChevronRight size={14} /></button>
+              </div>
+            </div>
+
             {/* Filter */}
             <div className="layout-pick" style={{ marginBottom: 20 }}>
               {([['all', 'Total'], ['UIUX', 'UIUX'], ['平面視覺', '平面視覺']] as [CatFilter, string][]).map(([v, lbl]) => (
@@ -287,7 +297,7 @@ export default function Admin({
             </div>
 
             {/* Left / Right split */}
-            <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 32, alignItems: 'start' }}>
+            <div className="cap-overview-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 32, alignItems: 'start' }}>
 
               {/* ── Left: 量能總覽 ── */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -306,17 +316,19 @@ export default function Admin({
                   </div>
                 </div>
 
-                {/* 3 stat cards stacked */}
-                {[
-                  { l: '可用工時', v: `${filteredMonthHours}h` },
-                  { l: '本月承接', v: `${filteredLoad}h` },
-                  { l: '請假工時', v: `${filteredLeave}h` },
-                ].map((s, i) => (
-                  <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '14px 18px' }}>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
-                    <div style={{ font: `600 26px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 6 }}>{s.v}</div>
-                  </div>
-                ))}
+                {/* 3 stat cards */}
+                <div className="cap-stat-row">
+                  {[
+                    { l: '可用工時', v: `${filteredMonthHours}h` },
+                    { l: '本月承接', v: `${filteredLoad}h` },
+                    { l: '請假工時', v: `${filteredLeave}h` },
+                  ].map((s, i) => (
+                    <div key={i} className="cap-stat-card" style={{ background: 'var(--surface-2)', borderRadius: 'var(--r)', padding: '14px 18px' }}>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.l}</div>
+                      <div className="cap-stat-v" style={{ font: `600 26px/1 var(--font-mono), monospace`, color: 'var(--ink)', marginTop: 6 }}>{s.v}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* ── Right: 承接分佈 ── */}

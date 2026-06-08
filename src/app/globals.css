@@ -403,6 +403,9 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .prose-content th { background: var(--surface-2); font-weight: 600; }
 .prose-content img { max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0.4em 0; }
 
+.cap-month-pill-mobile { display: none; }
+.cap-stat-row { display: flex; flex-direction: column; gap: 12px; }
+
 /* ── Mobile (MUST be last — overrides all global styles above) ── */
 @media (max-width: 768px) {
   .app { display: block; width: 100%; overflow: hidden; }
@@ -441,4 +444,10 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .dash.layout-grid .table-card { grid-column: span 2 !important; }
   .kpi-val { font-size: 22px !important; }
   .legend { grid-template-columns: 1fr !important; }
+  /* Admin / Capacity */
+  .cap-month-pill-mobile { display: flex !important; }
+  .cap-overview-layout { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .cap-stat-row { flex-direction: row !important; gap: 8px !important; }
+  .cap-stat-card { padding: 10px 12px !important; flex: 1; min-width: 0; }
+  .cap-stat-v { font-size: 18px !important; }
 }
