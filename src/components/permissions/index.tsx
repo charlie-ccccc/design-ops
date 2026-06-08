@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Info } from 'lucide-react';
+import { Plus, X, Info, Palette } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 
 const ALL_ROLES: Role[] = ['Admin', '成員', '一般'];
@@ -235,13 +235,15 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
             <div style={{ padding: '0 16px 18px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {depts.map(d => (
                 <span key={d} className="dept-color-tag">
-                  {/* Color dot — click to open picker */}
+                  {/* Color trigger — click to open picker */}
                   <button
                     className="dept-color-dot"
-                    style={{ background: deptColors[d] ?? 'var(--muted-2)' }}
-                    onClick={() => setPickerDept(pickerDept === d ? null : d)}
+                    style={{ background: deptColors[d] ?? 'transparent', color: deptColors[d] ? '#fff' : 'var(--muted)' }}
+                    onClick={e => { e.stopPropagation(); setPickerDept(pickerDept === d ? null : d); }}
                     title="選擇顏色"
-                  />
+                  >
+                    <Palette size={11} strokeWidth={2} />
+                  </button>
                   {/* Color picker popover */}
                   {pickerDept === d && (
                     <div className="dept-color-picker" onClick={e => e.stopPropagation()}>
