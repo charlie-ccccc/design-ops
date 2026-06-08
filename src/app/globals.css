@@ -427,6 +427,11 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .tb-tools { gap: 12px; }
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
+  /* History archive cards */
+  .history { padding: 16px !important; }
+  .archive-card { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .archive-card .stats { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .archive-card .month { font-size: 18px !important; }
   /* Dashboard */
   .dash { padding: 16px !important; gap: 10px !important; }
   .dash.layout-grid { grid-template-columns: 1fr 1fr !important; }
