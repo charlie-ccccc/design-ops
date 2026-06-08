@@ -428,10 +428,10 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
   /* Dashboard */
-  .dash { padding: 16px; gap: 10px; }
-  .dash.layout-grid { grid-template-columns: 1fr 1fr; }
-  .dash.layout-grid .pie-card { grid-column: span 2; }
-  .dash.layout-grid .table-card { grid-column: span 2; }
-  .kpi-val { font-size: 22px; }
-  .legend { grid-template-columns: 1fr; }
+  .dash { padding: 16px !important; gap: 10px !important; }
+  .dash.layout-grid { grid-template-columns: 1fr 1fr !important; }
+  .dash.layout-grid .pie-card { grid-column: span 2 !important; }
+  .dash.layout-grid .table-card { grid-column: span 2 !important; }
+  .kpi-val { font-size: 22px !important; }
+  .legend { grid-template-columns: 1fr !important; }
 }
