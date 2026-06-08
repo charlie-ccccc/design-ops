@@ -406,6 +406,7 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .cap-month-pill-mobile { display: none; }
 .cap-month-val { flex: 1; text-align: center; font: 500 14px/1 inherit; letter-spacing: 0.02em; color: var(--ink); border-left: 1px solid var(--divider); border-right: 1px solid var(--divider); padding: 0 10px; height: 100%; display: grid; place-items: center; }
 .cap-formula-hint { }
+.admin-tab-spacer { flex: 1; }
 .cap-stat-row { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── Mobile (MUST be last — overrides all global styles above) ── */
@@ -455,9 +456,18 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .cap-stat-row { flex-direction: row !important; gap: 8px !important; }
   .cap-stat-card { padding: 10px 12px !important; flex: 1; min-width: 0; }
   .cap-stat-v { font-size: 18px !important; }
+  /* Admin wrapper & tabs */
+  .admin-wrap { padding: 8px !important; }
+  .admin-tab-spacer { display: none !important; }
+  .admin-tab { flex: 1 !important; text-align: center !important; padding: 11px 6px !important; font-size: 13px !important; }
+  /* Calendar full-width */
+  .cal-grid { min-width: 0 !important; width: 100% !important; padding: 12px 8px 8px !important; box-sizing: border-box; }
   /* Leave tab: calendar top, list below */
   .cap-leave-layout { grid-template-columns: 1fr !important; }
-  .cap-leave-cal { border-right: none !important; border-bottom: 1px solid var(--divider) !important; padding: 16px !important; }
+  .cap-leave-cal { border-right: none !important; border-bottom: 1px solid var(--divider) !important; padding: 0 !important; }
+  .leave-row { padding: 8px 12px !important; gap: 6px !important; }
+  .leave-row .who { min-width: 0; overflow: hidden; }
+  .leave-row .who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* Sticky member column */
   .cap-table-wrap { overflow-x: auto; }
   .cap-table-wrap .cap-table { border-collapse: separate; border-spacing: 0; }

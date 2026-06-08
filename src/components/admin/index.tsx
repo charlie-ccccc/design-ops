@@ -240,7 +240,7 @@ export default function Admin({
   ];
 
   return (
-    <div style={{ padding: '18px 22px' }}>
+    <div className="admin-wrap" style={{ padding: '18px 22px' }}>
       <div className="panel">
 
         {/* Mobile-only month switcher — above tabs */}
@@ -251,10 +251,11 @@ export default function Admin({
         </div>
 
         {/* ── Tab bar ── */}
-        <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--divider)' }}>
+        <div className="admin-tab-bar" style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--divider)' }}>
           {TABS.map(t => (
             <button
               key={t.id}
+              className="admin-tab"
               onClick={() => setTab(t.id)}
               style={{
                 appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
@@ -268,7 +269,7 @@ export default function Admin({
             </button>
           ))}
 
-          <span style={{ flex: 1 }} />
+          <span className="admin-tab-spacer" style={{ flex: 1 }} />
 
           {tab === 'members' && (
             <span className="cap-formula-hint" style={{ fontSize: 13, color: 'var(--muted)', marginRight: 16 }}>
