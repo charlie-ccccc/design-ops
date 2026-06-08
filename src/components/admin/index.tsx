@@ -243,6 +243,13 @@ export default function Admin({
     <div style={{ padding: '18px 22px' }}>
       <div className="panel">
 
+        {/* Mobile-only month switcher — above tabs */}
+        <div className="cap-month-pill-mobile">
+          <button onClick={() => onMonthChange(shiftMonth(month, -1))}><ChevronLeft size={14} /></button>
+          <span className="cap-month-val">{month}</span>
+          <button onClick={() => onMonthChange(shiftMonth(month, 1))}><ChevronRight size={14} /></button>
+        </div>
+
         {/* ── Tab bar ── */}
         <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--divider)' }}>
           {TABS.map(t => (
@@ -279,15 +286,6 @@ export default function Admin({
         {/* ── 設計量能 ── */}
         {tab === 'capacity' && (
           <div style={{ padding: '20px 24px 28px' }}>
-
-            {/* Mobile-only month switcher */}
-            <div className="cap-month-pill-mobile" style={{ marginBottom: 16 }}>
-              <div className="month-pill">
-                <button onClick={() => onMonthChange(shiftMonth(month, -1))}><ChevronLeft size={14} /></button>
-                <span className="month-pill-val">{month}</span>
-                <button onClick={() => onMonthChange(shiftMonth(month, 1))}><ChevronRight size={14} /></button>
-              </div>
-            </div>
 
             {/* Filter */}
             <div className="layout-pick" style={{ marginBottom: 20 }}>
