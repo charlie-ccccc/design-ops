@@ -79,13 +79,14 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
   }
 
   return (
-    <div style={{ padding: '18px 22px' }}>
+    <div className="perm-wrap" style={{ padding: '18px 22px' }}>
       <div className="panel">
 
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--divider)' }}>
+        <div className="perm-tab-bar" style={{ display: 'flex', borderBottom: '1px solid var(--divider)' }}>
           {(['users', 'depts'] as const).map((t, i) => (
             <button
               key={t}
+              className="perm-tab"
               onClick={() => setTab(t)}
               style={{
                 appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
@@ -103,9 +104,9 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
 
         {tab === 'users' && (
           <>
-            <div style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
+            <div className="perm-roles" style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--divider)' }}>
               {(Object.entries(ROLE_DESC) as [Role, string][]).map(([role, desc]) => (
-                <div key={role} style={{ flex: 1, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
+                <div key={role} style={{ flex: '0 0 auto', width: 'calc(33.33% - 8px)', minWidth: 0, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{role}</div>
                   <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{desc}</div>
                 </div>
@@ -115,70 +116,72 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
               僅 @cmoney.com.tw 帳號可透過 Google 登入
               {!isAdmin && <span style={{ marginLeft: 8, color: 'var(--st-block)' }}>（需 Admin 權限才能修改角色）</span>}
             </div>
-            <table className="cap-table">
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left' }}>姓名</th>
-                  <th style={{ textAlign: 'left' }}>Email</th>
-                  <th style={{ textAlign: 'left' }}>權限角色</th>
-                  <th style={{ textAlign: 'left' }}>設計類別</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map(u => (
-                  <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, transparent)' : undefined }}>
-                    <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>
-                      {u.name}
-                      {u.uid === currentUser.uid && <span style={{ fontSize: 12, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
-                    </td>
-                    <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
-                    <td style={{ textAlign: 'left' }}>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        {ALL_ROLES.map(role => {
-                          const active = u.roles.includes(role);
-                          return (
-                            <button
-                              key={role}
-                              onClick={() => toggleRole(u.uid, role)}
-                              disabled={!isAdmin}
-                              style={{
-                                appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                                borderRadius: 6, padding: '3px 10px', fontSize: 13,
-                                cursor: isAdmin ? 'pointer' : 'default', fontFamily: 'inherit',
-                                background: active ? 'var(--accent-soft)' : 'none',
-                                color: active ? 'var(--accent)' : 'var(--muted)',
-                                fontWeight: active ? 600 : 400,
-                                transition: 'all 0.15s',
-                                opacity: !isAdmin ? 0.7 : 1,
-                              }}
-                            >
-                              {role}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'left' }}>
-                      {u.roles.includes('成員') ? (
-                        <select
-                          className="input"
-                          style={{ fontSize: 13 }}
-                          value={u.cat ?? ''}
-                          disabled={!isAdmin}
-                          onChange={e => setUserCat(u.uid, e.target.value as DesignCat)}
-                        >
-                          <option value="">請選擇</option>
-                          <option value="UIUX">UIUX</option>
-                          <option value="平面視覺">平面視覺</option>
-                        </select>
-                      ) : (
-                        <span style={{ color: 'var(--muted)', fontSize: 13 }}>—</span>
-                      )}
-                    </td>
+            <div className="cap-table-wrap" style={{ overflowX: 'auto' }}>
+              <table className="cap-table">
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left' }}>姓名</th>
+                    <th style={{ textAlign: 'left' }}>Email</th>
+                    <th style={{ textAlign: 'left' }}>權限角色</th>
+                    <th style={{ textAlign: 'left' }}>設計類別</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sorted.map(u => (
+                    <tr key={u.uid} style={{ background: u.uid === currentUser.uid ? 'color-mix(in oklab, var(--accent-soft) 60%, transparent)' : undefined }}>
+                      <td style={{ textAlign: 'left', fontFamily: 'inherit' }}>
+                        {u.name}
+                        {u.uid === currentUser.uid && <span style={{ fontSize: 12, color: 'var(--accent)', marginLeft: 5 }}>（你）</span>}
+                      </td>
+                      <td style={{ textAlign: 'left', fontFamily: 'inherit', color: 'var(--muted)' }}>{u.email}</td>
+                      <td style={{ textAlign: 'left' }}>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {ALL_ROLES.map(role => {
+                            const active = u.roles.includes(role);
+                            return (
+                              <button
+                                key={role}
+                                onClick={() => toggleRole(u.uid, role)}
+                                disabled={!isAdmin}
+                                style={{
+                                  appearance: 'none', border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                                  borderRadius: 6, padding: '3px 10px', fontSize: 13,
+                                  cursor: isAdmin ? 'pointer' : 'default', fontFamily: 'inherit',
+                                  background: active ? 'var(--accent-soft)' : 'none',
+                                  color: active ? 'var(--accent)' : 'var(--muted)',
+                                  fontWeight: active ? 600 : 400,
+                                  transition: 'all 0.15s',
+                                  opacity: !isAdmin ? 0.7 : 1,
+                                }}
+                              >
+                                {role}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'left' }}>
+                        {u.roles.includes('成員') ? (
+                          <select
+                            className="input"
+                            style={{ fontSize: 13 }}
+                            value={u.cat ?? ''}
+                            disabled={!isAdmin}
+                            onChange={e => setUserCat(u.uid, e.target.value as DesignCat)}
+                          >
+                            <option value="">請選擇</option>
+                            <option value="UIUX">UIUX</option>
+                            <option value="平面視覺">平面視覺</option>
+                          </select>
+                        ) : (
+                          <span style={{ color: 'var(--muted)', fontSize: 13 }}>—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {users.length === 0 && (
               <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--muted)', fontSize: 14 }}>
                 尚無用戶資料

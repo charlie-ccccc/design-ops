@@ -456,8 +456,12 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .cap-stat-row { flex-direction: row !important; gap: 8px !important; }
   .cap-stat-card { padding: 10px 12px !important; flex: 1; min-width: 0; }
   .cap-stat-v { font-size: 18px !important; }
-  /* Admin wrapper & tabs */
+  /* Admin / Permissions wrapper & tabs */
   .admin-wrap { padding: 8px !important; }
+  .perm-wrap { padding: 8px !important; }
+  .perm-tab { flex: 1 !important; text-align: center !important; padding: 11px 6px !important; }
+  .perm-roles { flex-wrap: nowrap !important; overflow-x: auto !important; padding: 12px 8px !important; }
+  .perm-roles > * { flex: 0 0 auto !important; width: calc(33.33% - 6px) !important; min-width: 90px !important; }
   .admin-tab-spacer { display: none !important; }
   .admin-tab { flex: 1 !important; text-align: center !important; padding: 11px 6px !important; font-size: 14px !important; }
   /* Calendar full-width */
@@ -476,4 +480,5 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .cap-table-wrap .cap-table thead th:first-child { background: var(--surface-2); }
   .cap-table-wrap .cap-table tbody td:first-child,
   .cap-table-wrap .cap-table tfoot td:first-child { background: var(--surface); }
+  .cap-table-wrap .cap-table tbody tr[style] td:first-child { background: inherit; }
 }
