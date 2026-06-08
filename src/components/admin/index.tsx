@@ -271,7 +271,7 @@ export default function Admin({
           <span style={{ flex: 1 }} />
 
           {tab === 'members' && (
-            <span style={{ fontSize: 13, color: 'var(--muted)', marginRight: 16 }}>
+            <span className="cap-formula-hint" style={{ fontSize: 13, color: 'var(--muted)', marginRight: 16 }}>
               工作天 × 8 × 工時比例 − 請假
             </span>
           )}
@@ -359,7 +359,7 @@ export default function Admin({
 
         {/* ── 成員工時表 ── */}
         {tab === 'members' && (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="cap-table-wrap" style={{ overflowX: 'auto' }}>
             <table className="cap-table">
               <thead>
                 <tr>
