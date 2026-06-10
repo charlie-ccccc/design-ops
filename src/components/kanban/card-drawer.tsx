@@ -613,7 +613,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   <div>
                     {comments.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
-                        {comments.map(cm => {
+                        {[...comments].reverse().map(cm => {
                           const isEditing = editingCommentId === cm.id;
                           const canEditThis = canEdit && cm.author === currentUserName;
                           return (
@@ -726,7 +726,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                         {canEdit ? '尚無工時記錄，點擊實際消耗卡片新增' : '尚無工時記錄'}
                       </div>
                     )}
-                    {timeLogs.map(l => {
+                    {[...timeLogs].reverse().map(l => {
                       return editingLogId === l.id ? (
                         <div key={l.id} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
