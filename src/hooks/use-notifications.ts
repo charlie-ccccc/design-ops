@@ -6,7 +6,7 @@ import { db, auth } from '@/lib/firebase';
 import type { AppNotification } from '@/lib/types';
 
 export function useNotifications(uid: string | null) {
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[] | undefined>(undefined);
 
   useEffect(() => {
     if (!uid) { setNotifications([]); return; }

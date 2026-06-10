@@ -622,7 +622,7 @@ export default function App() {
               <button className="btn tb-desktop-only"><Download size={14} /> 匯出</button>
             )}
             <NotificationPanel
-              notifications={notifications}
+              notifications={notifications ?? []}
               onMarkRead={markRead}
               onMarkAllRead={markAllRead}
               onOpenCard={id => setOpenCardId(id)}
