@@ -250,33 +250,31 @@ export default function App() {
     return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
   }, []);
 
-  // Due date reminders for 成員 role (once per card per day, stored in localStorage)
+  // Due date reminders for 成員 role (once per card per day)
+  // Dedup via Firestore: check if a due notification for this card already exists today
   const dueReminderRef = useRef(false);
   useEffect(() => {
-    if (!user || !initialized || dueReminderRef.current) return;
+    if (!user || !initialized || dueReminderRef.current || notifications === undefined) return;
     if (!user.roles.includes('成員') && !user.roles.includes('Admin')) return;
     dueReminderRef.current = true;
-    const today = new Date().toISOString().slice(0, 10);
-    const key = `due-sent-${today}-${user.uid}`;
-    const sent = new Set<string>(JSON.parse(localStorage.getItem(key) ?? '[]'));
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const in3Days = new Date(startOfToday.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const in3Days = new Date(startOfToday + 3 * 24 * 60 * 60 * 1000).getTime();
+    // Cards that already have a due notification sent today (from Firestore)
+    const alreadySentToday = new Set(
+      notifications
+        .filter(n => n.type === 'due' && n.createdAt >= startOfToday)
+        .map(n => n.cardId)
+    );
     cards.forEach(c => {
-      if (c.owner !== user.uid || !c.due || sent.has(c.id)) return;
+      if (c.owner !== user.uid || !c.due || alreadySentToday.has(c.id)) return;
       const [mm, dd] = c.due.split('/').map(Number);
       const [yr] = c.month.split('/').map(Number);
-      const due = new Date(yr, mm - 1, dd);
-      if (due < startOfToday || due >= in3Days) return;
-      sent.add(c.id);
+      const dueMs = new Date(yr, mm - 1, dd).getTime();
+      if (dueMs < startOfToday || dueMs >= in3Days) return;
       createNotification({ uid: user.uid, type: 'due', cardId: c.id, cardTitle: c.title, from: 'system', message: `「${c.title}」即將截止（${c.due}）`, read: false, createdAt: Date.now() });
     });
-    localStorage.setItem(key, JSON.stringify([...sent]));
-    // Clean up previous days' keys to avoid localStorage buildup
-    Object.keys(localStorage)
-      .filter(k => k.startsWith(`due-sent-`) && k.endsWith(`-${user.uid}`) && !k.includes(today))
-      .forEach(k => localStorage.removeItem(k));
-  }, [user, initialized, cards]);
+  }, [user, initialized, cards, notifications]);
 
   // Kanban: active cards always visible; done/pending only if due month ≥ current month
   const kanbanCards = useMemo(() =>
