@@ -260,13 +260,14 @@ export default function App() {
     const key = `due-sent-${today}-${user.uid}`;
     const sent = new Set<string>(JSON.parse(sessionStorage.getItem(key) ?? '[]'));
     const now = new Date();
-    const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const in3Days = new Date(startOfToday.getTime() + 3 * 24 * 60 * 60 * 1000);
     cards.forEach(c => {
       if (c.owner !== user.uid || !c.due || sent.has(c.id)) return;
       const [mm, dd] = c.due.split('/').map(Number);
       const [yr] = c.month.split('/').map(Number);
       const due = new Date(yr, mm - 1, dd);
-      if (due < now || due > in3Days) return;
+      if (due < startOfToday || due >= in3Days) return;
       sent.add(c.id);
       createNotification({ uid: user.uid, type: 'due', cardId: c.id, cardTitle: c.title, from: 'system', message: `「${c.title}」即將截止（${c.due}）`, read: false, createdAt: Date.now() });
     });
