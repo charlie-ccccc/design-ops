@@ -250,7 +250,7 @@ export default function App() {
     return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
   }, []);
 
-  // Due date reminders for 成員 role (once per card per day, stored in sessionStorage)
+  // Due date reminders for 成員 role (once per card per day, stored in localStorage)
   const dueReminderRef = useRef(false);
   useEffect(() => {
     if (!user || !initialized || dueReminderRef.current) return;
@@ -258,7 +258,7 @@ export default function App() {
     dueReminderRef.current = true;
     const today = new Date().toISOString().slice(0, 10);
     const key = `due-sent-${today}-${user.uid}`;
-    const sent = new Set<string>(JSON.parse(sessionStorage.getItem(key) ?? '[]'));
+    const sent = new Set<string>(JSON.parse(localStorage.getItem(key) ?? '[]'));
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const in3Days = new Date(startOfToday.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -271,7 +271,11 @@ export default function App() {
       sent.add(c.id);
       createNotification({ uid: user.uid, type: 'due', cardId: c.id, cardTitle: c.title, from: 'system', message: `「${c.title}」即將截止（${c.due}）`, read: false, createdAt: Date.now() });
     });
-    sessionStorage.setItem(key, JSON.stringify([...sent]));
+    localStorage.setItem(key, JSON.stringify([...sent]));
+    // Clean up previous days' keys to avoid localStorage buildup
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(`due-sent-`) && k.endsWith(`-${user.uid}`) && !k.includes(today))
+      .forEach(k => localStorage.removeItem(k));
   }, [user, initialized, cards]);
 
   // Kanban: active cards always visible; done/pending only if due month ≥ current month
