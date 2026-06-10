@@ -44,7 +44,7 @@ export default function App() {
   const { user, loading, signOutUser } = useAuth();
   const { cards, initialized, addCard, updateCard, deleteCard } = useFirestoreCards();
   const siteUsers = useFirestoreUsers();
-  const { notifications, markRead, markAllRead } = useNotifications(user?.uid ?? null);
+  const { notifications, markRead, markAllRead, deleteNotif } = useNotifications(user?.uid ?? null);
   const { depts, updateDepts, deptColors, updateDeptColors, leave, updateLeave, allMemberDays, allMemberRatios, updateMemberDays, updateMemberRatios, historyMonths, updateHistory, lastArchivedMonth, updateLastArchivedMonth, cardOrder, updateCardOrder, settingsReady } = useFirestoreSettings();
 
   const toMember = (u: typeof siteUsers[0]): Member => ({
@@ -624,6 +624,7 @@ export default function App() {
               onMarkRead={markRead}
               onMarkAllRead={markAllRead}
               onOpenCard={id => setOpenCardId(id)}
+              onDelete={deleteNotif}
             />
           </div>
         </header>

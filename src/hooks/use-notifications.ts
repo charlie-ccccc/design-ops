@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { collection, query, where, onSnapshot, doc, updateDoc, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, limit } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { AppNotification } from '@/lib/types';
@@ -44,5 +44,9 @@ export function useNotifications(uid: string | null) {
     ).catch(console.error);
   }, []);
 
-  return { notifications, markRead, markAllRead };
+  const deleteNotif = useCallback(async (notifId: string) => {
+    await deleteDoc(doc(db, 'notifications', notifId)).catch(console.error);
+  }, []);
+
+  return { notifications, markRead, markAllRead, deleteNotif };
 }

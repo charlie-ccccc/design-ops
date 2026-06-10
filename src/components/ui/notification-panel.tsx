@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { Bell, AtSign, UserCheck, MessageSquare, Clock, CheckCheck } from 'lucide-react';
+import { Bell, AtSign, UserCheck, MessageSquare, Clock, CheckCheck, X } from 'lucide-react';
 import type { AppNotification } from '@/lib/types';
 
 function timeAgo(ts: number): string {
@@ -27,14 +27,73 @@ const TYPE_COLOR: Record<AppNotification['type'], string> = {
   due:      '#ef4444',
 };
 
+function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
+  n: AppNotification;
+  onMarkRead: (id: string) => void;
+  onOpenCard: (cardId: string) => void;
+  onDelete: (id: string) => void;
+  setOpen: (v: boolean) => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onClick={() => { onMarkRead(n.id); onOpenCard(n.cardId); setOpen(false); }}
+      style={{
+        display: 'flex', gap: 10, padding: '10px 14px',
+        borderBottom: '1px solid var(--border)',
+        cursor: 'pointer',
+        background: hovered ? 'var(--surface-2)' : n.read ? 'transparent' : 'var(--accent-soft)',
+        transition: 'background 0.1s',
+        position: 'relative',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div style={{
+        flexShrink: 0, width: 28, height: 28, borderRadius: '50%',
+        background: 'var(--surface-2)', border: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: TYPE_COLOR[n.type],
+      }}>
+        {TYPE_ICON[n.type]}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.4, marginBottom: 2 }}>
+          {n.message}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+          {timeAgo(n.createdAt)}
+        </div>
+      </div>
+      {!n.read && !hovered && (
+        <div style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', alignSelf: 'center' }} />
+      )}
+      {hovered && (
+        <button
+          onClick={e => { e.stopPropagation(); onDelete(n.id); }}
+          style={{
+            flexShrink: 0, alignSelf: 'center',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--muted)', display: 'flex', borderRadius: 4, padding: 2,
+          }}
+          title="刪除通知"
+        >
+          <X size={13} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 interface Props {
   notifications: AppNotification[];
   onMarkRead: (id: string) => void;
   onMarkAllRead: (notifs: AppNotification[]) => void;
   onOpenCard: (cardId: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function NotificationPanel({ notifications, onMarkRead, onMarkAllRead, onOpenCard }: Props) {
+export default function NotificationPanel({ notifications, onMarkRead, onMarkAllRead, onOpenCard, onDelete }: Props) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const unread = notifications.filter(n => !n.read).length;
@@ -100,39 +159,14 @@ export default function NotificationPanel({ notifications, onMarkRead, onMarkAll
             </div>
           ) : (
             notifications.map(n => (
-              <div
+              <NotifRow
                 key={n.id}
-                onClick={() => { onMarkRead(n.id); onOpenCard(n.cardId); setOpen(false); }}
-                style={{
-                  display: 'flex', gap: 10, padding: '10px 14px',
-                  borderBottom: '1px solid var(--border)',
-                  cursor: 'pointer',
-                  background: n.read ? 'transparent' : 'var(--accent-soft)',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
-                onMouseLeave={e => (e.currentTarget.style.background = n.read ? 'transparent' : 'var(--accent-soft)')}
-              >
-                <div style={{
-                  flexShrink: 0, width: 28, height: 28, borderRadius: '50%',
-                  background: 'var(--surface-2)', border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: TYPE_COLOR[n.type],
-                }}>
-                  {TYPE_ICON[n.type]}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.4, marginBottom: 2 }}>
-                    {n.message}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-                    {timeAgo(n.createdAt)}
-                  </div>
-                </div>
-                {!n.read && (
-                  <div style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', alignSelf: 'center' }} />
-                )}
-              </div>
+                n={n}
+                onMarkRead={onMarkRead}
+                onOpenCard={onOpenCard}
+                onDelete={onDelete}
+                setOpen={setOpen}
+              />
             ))
           )}
         </div>
