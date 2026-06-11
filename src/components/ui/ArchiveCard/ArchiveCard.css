@@ -30,7 +30,7 @@
 .ui-archive-card__year {
   color: var(--md-sys-color-on-surface-muted);
   font-size: 14px;
-  margin-right: 6px;
+  margin-left: 6px;
 }
 
 .ui-archive-card__stats {

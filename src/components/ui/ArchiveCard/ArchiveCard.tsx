@@ -35,8 +35,8 @@ export function ArchiveCard({
       {...props}
     >
       <div className="ui-archive-card__month">
-        <span className="ui-archive-card__year">{year}</span>
         {month}
+        <span className="ui-archive-card__year">{year}</span>
       </div>
 
       <div className="ui-archive-card__stats">
