@@ -454,7 +454,7 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
   .notif-btn { width: 28px !important; height: 28px !important; padding: 0 !important; border: none !important; background: transparent !important; }
   .notif-btn svg { width: 20px; height: 20px; }
   /* History archive cards */
-  .history { padding: 16px !important; }
+  .history { padding: 12px 16px !important; gap: 10px !important; }
   .archive-card { grid-template-columns: 1fr auto !important; gap: 8px 12px !important; align-items: center !important; }
   .archive-card > :nth-child(1) { grid-column: 1; grid-row: 1; }
   .archive-card > .stats { grid-column: 1 / -1; grid-row: 2; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
