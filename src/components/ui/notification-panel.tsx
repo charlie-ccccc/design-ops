@@ -27,8 +27,6 @@ const TYPE_COLOR: Record<AppNotification['type'], string> = {
   due:      '#ef4444',
 };
 
-const isTouch = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
-
 function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
   n: AppNotification;
   onMarkRead: (id: string) => void;
@@ -37,9 +35,9 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
   setOpen: (v: boolean) => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const showDelete = hovered || isTouch;
   return (
     <div
+      className="notif-row"
       onClick={() => { onMarkRead(n.id); onOpenCard(n.cardId); setOpen(false); }}
       style={{
         display: 'flex', gap: 10, padding: '10px 14px',
@@ -47,7 +45,6 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
         cursor: 'pointer',
         background: hovered ? 'var(--surface-2)' : n.read ? 'transparent' : 'var(--accent-soft)',
         transition: 'background 0.1s',
-        position: 'relative',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -68,22 +65,17 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
           {timeAgo(n.createdAt)}
         </div>
       </div>
-      {!n.read && !showDelete && (
-        <div style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', alignSelf: 'center' }} />
+      {!n.read && (
+        <div className="notif-unread-dot" style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', alignSelf: 'center' }} />
       )}
-      {showDelete && (
-        <button
-          onClick={e => { e.stopPropagation(); onDelete(n.id); }}
-          style={{
-            flexShrink: 0, alignSelf: 'center',
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--muted)', display: 'flex', borderRadius: 4, padding: 2,
-          }}
-          title="刪除通知"
-        >
-          <X size={13} />
-        </button>
-      )}
+      <button
+        className="notif-delete-btn"
+        onClick={e => { e.stopPropagation(); onDelete(n.id); }}
+        style={{ flexShrink: 0, alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', borderRadius: 4, padding: 2 }}
+        title="刪除通知"
+      >
+        <X size={13} />
+      </button>
     </div>
   );
 }
