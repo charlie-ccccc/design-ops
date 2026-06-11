@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
 
 export type Role = 'Admin' | '成員' | '一般';
@@ -36,7 +36,13 @@ async function getOrCreateUser(firebaseUser: User): Promise<AppUser> {
   const snap = await getDoc(ref);
 
   if (snap.exists()) {
-    return snap.data() as AppUser;
+    const stored = snap.data() as AppUser;
+    const latestPhoto = firebaseUser.photoURL ?? undefined;
+    if (latestPhoto !== stored.photo) {
+      await updateDoc(ref, { photo: latestPhoto ?? null });
+      stored.photo = latestPhoto;
+    }
+    return stored;
   }
 
   // First time login — create with default role
