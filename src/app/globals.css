@@ -123,6 +123,7 @@ button { font-family: inherit; cursor: pointer; }
 .tb-search-btn { flex-shrink: 0; }
 
 .btn { appearance: none; border: 1px solid var(--border); background: var(--surface); color: var(--ink); padding: 6px 12px; height: 32px; border-radius: var(--r); font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.12s, transform 0.05s; }
+.notif-btn { width: 32px !important; height: 32px !important; padding: 0 !important; border: none !important; background: transparent !important; justify-content: center; }
 .btn:hover { background: var(--surface-2); }
 .btn:active { transform: translateY(0.5px); }
 .btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
