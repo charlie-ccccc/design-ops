@@ -97,4 +97,8 @@
   .ui-archive-card__view-text {
     display: none;
   }
+
+  .ui-archive-card__action .ui-button {
+    padding-right: 0;
+  }
 }
