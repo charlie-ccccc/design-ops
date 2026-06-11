@@ -164,7 +164,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
       </div>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Input as="select" style={{ minWidth: 110 }} value={filterOwner} onChange={e => setFilterOwner((e.target as HTMLSelectElement).value)}>
+        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterOwner} onChange={e => setFilterOwner((e.target as HTMLSelectElement).value)}>
           <option value="">全部受託人</option>
           {ownerIds.map(id => (
             <option key={id} value={id}>
@@ -172,11 +172,11 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
             </option>
           ))}
         </Input>
-        <Input as="select" style={{ minWidth: 110 }} value={filterDept} onChange={e => setFilterDept((e.target as HTMLSelectElement).value)}>
+        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterDept} onChange={e => setFilterDept((e.target as HTMLSelectElement).value)}>
           <option value="">全部發起單位</option>
           {depts.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
         </Input>
-        <Input as="select" style={{ minWidth: 100 }} value={filterCat} onChange={e => setFilterCat((e.target as HTMLSelectElement).value as Cat | '')}>
+        <Input as="select" style={{ minWidth: 100, width: 'auto' }} value={filterCat} onChange={e => setFilterCat((e.target as HTMLSelectElement).value as Cat | '')}>
           <option value="">全部類別</option>
           <option value="UIUX">UIUX</option>
           <option value="平面視覺">平面視覺</option>
