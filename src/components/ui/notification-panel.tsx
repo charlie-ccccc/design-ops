@@ -27,6 +27,8 @@ const TYPE_COLOR: Record<AppNotification['type'], string> = {
   due:      '#ef4444',
 };
 
+const isTouch = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
+
 function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
   n: AppNotification;
   onMarkRead: (id: string) => void;
@@ -35,6 +37,7 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
   setOpen: (v: boolean) => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const showDelete = hovered || isTouch;
   return (
     <div
       onClick={() => { onMarkRead(n.id); onOpenCard(n.cardId); setOpen(false); }}
@@ -65,10 +68,10 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
           {timeAgo(n.createdAt)}
         </div>
       </div>
-      {!n.read && !hovered && (
+      {!n.read && !showDelete && (
         <div style={{ flexShrink: 0, width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', alignSelf: 'center' }} />
       )}
-      {hovered && (
+      {showDelete && (
         <button
           onClick={e => { e.stopPropagation(); onDelete(n.id); }}
           style={{
@@ -131,15 +134,19 @@ export default function NotificationPanel({ notifications, onMarkRead, onMarkAll
       {open && (
         <div style={{
           position: 'absolute', right: 0, top: 'calc(100% + 6px)', zIndex: 200,
-          width: 320, maxHeight: 420, overflowY: 'auto',
+          width: 320,
           background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', maxHeight: 420,
         }}>
-          {/* Header */}
+          {/* Header — sticky */}
           <div style={{
+            flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '10px 14px 8px',
             borderBottom: notifications.length > 0 ? '1px solid var(--border)' : 'none',
+            background: 'var(--surface)',
           }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>通知</span>
             {unread > 0 && (
@@ -152,23 +159,25 @@ export default function NotificationPanel({ notifications, onMarkRead, onMarkAll
             )}
           </div>
 
-          {/* List */}
-          {notifications.length === 0 ? (
-            <div style={{ padding: '28px 14px', textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
-              沒有通知
-            </div>
-          ) : (
-            notifications.map(n => (
-              <NotifRow
-                key={n.id}
-                n={n}
-                onMarkRead={onMarkRead}
-                onOpenCard={onOpenCard}
-                onDelete={onDelete}
-                setOpen={setOpen}
-              />
-            ))
-          )}
+          {/* Scrollable list */}
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {notifications.length === 0 ? (
+              <div style={{ padding: '28px 14px', textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
+                沒有通知
+              </div>
+            ) : (
+              notifications.map(n => (
+                <NotifRow
+                  key={n.id}
+                  n={n}
+                  onMarkRead={onMarkRead}
+                  onOpenCard={onOpenCard}
+                  onDelete={onDelete}
+                  setOpen={setOpen}
+                />
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
