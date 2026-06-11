@@ -422,7 +422,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   )}
                 </div>
                 <Input as="select" value={c.status} disabled={readOnly || !canEdit}
-                  style={{ flexShrink: 0 }}
+                  style={{ flexShrink: 0, width: 'auto' }}
                   onChange={e => onUpdate(c.id, { status: (e.target as HTMLSelectElement).value as Card['status'] })}>
                   {STATUSES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </Input>
