@@ -143,7 +143,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
             padding: '2px 7px', borderRadius: 4,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--st-done)', flexShrink: 0 }} />
-            LIVE
+            本月
           </span>
         )}
         <Tag>{archive.cardList.length} 張</Tag>
