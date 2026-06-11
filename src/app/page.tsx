@@ -251,24 +251,31 @@ export default function App() {
   }, []);
 
   // Due date reminders for 成員 role (once per card per day)
-  // Uses deterministic Firestore doc ID (due-{uid}-{cardId}-{date}) so setDoc is idempotent —
-  // duplicate calls from the same or multiple sessions are silently ignored.
+  // Layer 1: localStorage key `due-{uid}-{localDate}` prevents repeat calls on this device.
+  // Layer 2: Firestore deterministic doc ID prevents duplicates across devices/incognito.
   const dueReminderRef = useRef(false);
   useEffect(() => {
     if (!user || !initialized || dueReminderRef.current) return;
     if (!user.roles.includes('成員') && !user.roles.includes('Admin')) return;
     dueReminderRef.current = true;
     const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const lsKey = `due-sent-${todayStr}-${user.uid}`;
+    const sentToday: Record<string, boolean> = JSON.parse(localStorage.getItem(lsKey) ?? '{}');
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const in3Days = new Date(startOfToday + 3 * 24 * 60 * 60 * 1000).getTime();
+    const in3Days = startOfToday + 3 * 24 * 60 * 60 * 1000;
+    let changed = false;
     cards.forEach(c => {
-      if (c.owner !== user.uid || !c.due) return;
+      if (c.owner !== user.uid || !c.due || sentToday[c.id]) return;
       const [mm, dd] = c.due.split('/').map(Number);
       const [yr] = c.month.split('/').map(Number);
       const dueMs = new Date(yr, mm - 1, dd).getTime();
       if (dueMs < startOfToday || dueMs >= in3Days) return;
+      sentToday[c.id] = true;
+      changed = true;
       upsertDueNotification({ uid: user.uid, type: 'due', cardId: c.id, cardTitle: c.title, from: 'system', message: `「${c.title}」即將截止（${c.due}）`, read: false, createdAt: Date.now() });
     });
+    if (changed) localStorage.setItem(lsKey, JSON.stringify(sentToday));
   }, [user, initialized, cards]);
 
   // Kanban: active cards always visible; done/pending only if due month ≥ current month

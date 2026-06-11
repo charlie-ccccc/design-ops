@@ -1,4 +1,4 @@
-import { collection, addDoc, deleteDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { AppNotification } from '@/lib/types';
 
@@ -10,15 +10,15 @@ export async function createNotification(notif: Omit<AppNotification, 'id'>): Pr
   }
 }
 
-// Idempotent due-reminder: uses deterministic doc ID so duplicate calls are no-ops.
+// Idempotent due-reminder: fixed doc ID = due-{uid}-{cardId}-{localDate}.
+// setDoc to the same ID is always an overwrite (no duplicate documents).
+// Call-site must guard with localStorage to avoid resetting read/createdAt on refresh.
 export async function upsertDueNotification(notif: Omit<AppNotification, 'id'>): Promise<void> {
-  const dateStr = new Date(notif.createdAt).toISOString().slice(0, 10);
+  const d = new Date(notif.createdAt);
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const id = `due-${notif.uid}-${notif.cardId}-${dateStr}`;
-  const ref = doc(db, 'notifications', id);
   try {
-    const snap = await getDoc(ref);
-    if (snap.exists()) return;
-    await setDoc(ref, notif);
+    await setDoc(doc(db, 'notifications', id), notif);
   } catch (err) {
     console.error('[upsertDueNotification] failed:', err);
   }
