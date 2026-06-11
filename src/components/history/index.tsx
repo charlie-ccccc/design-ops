@@ -248,6 +248,14 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
     );
   }
 
+  const allMonths = [liveArchive, ...archives];
+  const byYear = allMonths.reduce<Record<string, typeof allMonths>>((acc, arch) => {
+    const y = arch.month.split('/')[0];
+    (acc[y] ??= []).push(arch);
+    return acc;
+  }, {});
+  const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
+
   return (
     <div className="body">
       <div className="history">
@@ -256,32 +264,24 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
           <Tag>{archives.length + 1} 個月</Tag>
         </div>
 
-        <ArchiveCard
-          year={liveArchive.month.split('/')[0]}
-          month={`${liveArchive.month.split('/')[1]}月`}
-          stats={[
-            { label: '需求單', value: liveArchive.cards, sub: '張' },
-            { label: '原始預估', value: liveArchive.totalEst, sub: 'h' },
-            { label: '實際消耗', value: liveArchive.totalActual, sub: 'h' },
-          ]}
-          isLive
-          onView={() => setSelectedMonth(LIVE_MONTH)}
-          onClick={() => setSelectedMonth(LIVE_MONTH)}
-        />
-
-        {archives.map(arch => (
-          <ArchiveCard
-            key={arch.month}
-            year={arch.month.split('/')[0]}
-            month={`${arch.month.split('/')[1]}月`}
-            stats={[
-              { label: '需求單', value: arch.cards, sub: '張' },
-              { label: '原始預估', value: arch.totalEst, sub: 'h' },
-              { label: '實際消耗', value: arch.totalActual, sub: 'h' },
-            ]}
-            onView={() => setSelectedMonth(arch.month)}
-            onClick={() => setSelectedMonth(arch.month)}
-          />
+        {years.map(year => (
+          <div key={year} className="history-year-group">
+            <div className="history-year-header">{year}</div>
+            {byYear[year].map(arch => (
+              <ArchiveCard
+                key={arch.month}
+                month={`${arch.month.split('/')[1]}月`}
+                isLive={arch.month === LIVE_MONTH}
+                stats={[
+                  { label: '需求單', value: arch.cards, sub: '張' },
+                  { label: '原始預估', value: arch.totalEst, sub: 'h' },
+                  { label: '實際消耗', value: arch.totalActual, sub: 'h' },
+                ]}
+                onView={() => setSelectedMonth(arch.month)}
+                onClick={() => setSelectedMonth(arch.month)}
+              />
+            ))}
+          </div>
         ))}
       </div>
     </div>

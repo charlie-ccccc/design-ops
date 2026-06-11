@@ -10,7 +10,6 @@ type ArchiveStat = {
 };
 
 type ArchiveCardProps = HTMLAttributes<HTMLDivElement> & {
-  year: string;
   month: string;
   stats: ArchiveStat[];
   onView?: () => void;
@@ -19,7 +18,6 @@ type ArchiveCardProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export function ArchiveCard({
-  year,
   month,
   stats,
   onView,
@@ -36,7 +34,7 @@ export function ArchiveCard({
     >
       <div className="ui-archive-card__month">
         {month}
-        <span className="ui-archive-card__year">{year}</span>
+        {isLive && <span className="ui-archive-card__live-badge">本月</span>}
       </div>
 
       <div className="ui-archive-card__stats">

@@ -355,6 +355,8 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 /* ── History detail ──────────────────────────────────────────── */
 .archive-card.clickable { transition: border-color 0.12s, box-shadow 0.12s; }
 .archive-card.clickable:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+.history-year-header { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.history-year-group { display: flex; flex-direction: column; gap: 10px; }
 .history-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
 .history-detail-meta { display: flex; gap: 28px; padding: 14px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
 .history-detail-meta .stat-item { display: flex; flex-direction: column; gap: 4px; }

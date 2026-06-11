@@ -20,43 +20,33 @@ export const Default: Story = {
   name: 'Archive Card',
   render: () => (
     <div style={{ width: 860 }}>
-      <ArchiveCard
-        year="2026"
-        month="05月"
-        stats={SAMPLE_STATS}
-        onView={() => {}}
-      />
+      <ArchiveCard month="05月" stats={SAMPLE_STATS} onView={() => {}} />
     </div>
   ),
 };
 
-export const Clickable: Story = {
-  name: 'Clickable (hover effect)',
+export const WithYearGroup: Story = {
+  name: 'Year Group (as used in History page)',
   render: () => (
-    <div style={{ width: 860, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {[
-        { year: '2026', month: '05月', stats: SAMPLE_STATS },
-        { year: '2026', month: '04月', stats: [{ label: '需求單', value: 21, sub: '張' }, { label: '原始預估', value: '312h' }, { label: '實際消耗', value: '298h' }, { label: '量能使用', value: '92%' }] },
-        { year: '2026', month: '03月', stats: [{ label: '需求單', value: 15, sub: '張' }, { label: '原始預估', value: '220h' }, { label: '實際消耗', value: '195h' }, { label: '量能使用', value: '68%' }] },
-      ].map((item) => (
-        <ArchiveCard
-          key={item.month}
-          year={item.year}
-          month={item.month}
-          stats={item.stats}
-          onView={() => {}}
-          onClick={() => {}}
-        />
-      ))}
+    <div style={{ width: 860, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div className="history-year-group">
+        <div className="history-year-header" style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999' }}>2026</div>
+        <ArchiveCard month="06月" isLive stats={SAMPLE_STATS} onView={() => {}} onClick={() => {}} />
+        <ArchiveCard month="05月" stats={[{ label: '需求單', value: 21, sub: '張' }, { label: '原始預估', value: 312, sub: 'h' }, { label: '實際消耗', value: 298, sub: 'h' }]} onView={() => {}} onClick={() => {}} />
+      </div>
+      <div className="history-year-group">
+        <div className="history-year-header" style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#999' }}>2025</div>
+        <ArchiveCard month="12月" stats={[{ label: '需求單', value: 15, sub: '張' }, { label: '原始預估', value: 220, sub: 'h' }, { label: '實際消耗', value: 195, sub: 'h' }]} onView={() => {}} onClick={() => {}} />
+      </div>
     </div>
   ),
 };
 
-export const NoAction: Story = {
-  name: 'No View Action',
+export const LiveBadge: Story = {
+  name: 'Live Badge',
   render: () => (
     <div style={{ width: 860 }}>
-      <ArchiveCard year="2026" month="06月" stats={SAMPLE_STATS} isLive />
+      <ArchiveCard month="06月" stats={SAMPLE_STATS} isLive onView={() => {}} />
     </div>
   ),
 };

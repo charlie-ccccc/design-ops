@@ -27,10 +27,15 @@
   color: var(--md-sys-color-on-surface);
 }
 
-.ui-archive-card__year {
-  color: var(--md-sys-color-on-surface-muted);
-  font-size: 14px;
-  margin-left: 6px;
+.ui-archive-card__live-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  border-radius: 99px;
+  padding: 1px 7px;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
 .ui-archive-card__stats {
