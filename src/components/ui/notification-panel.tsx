@@ -71,7 +71,7 @@ function NotifRow({ n, onMarkRead, onOpenCard, onDelete, setOpen }: {
       <button
         className="notif-delete-btn"
         onClick={e => { e.stopPropagation(); onDelete(n.id); }}
-        style={{ flexShrink: 0, alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', borderRadius: 4, padding: 2 }}
+        style={{ flexShrink: 0, alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', borderRadius: 4, padding: 2 }}
         title="刪除通知"
       >
         <X size={13} />
