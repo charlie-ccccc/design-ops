@@ -13,6 +13,7 @@ import { Table } from '@/components/ui/Table/Table';
 import type { TableColumn } from '@/components/ui/Table/Table';
 import { LeaveCalendar } from '@/components/ui/LeaveCalendar/LeaveCalendar';
 import type { LeaveCalendarDot } from '@/components/ui/LeaveCalendar/LeaveCalendar';
+import { MemberCell } from '@/components/ui/MemberCell/MemberCell';
 
 type CatFilter = 'all' | Cat;
 type MainTab = 'capacity' | 'members' | 'leave';
@@ -204,17 +205,7 @@ export default function Admin({
   const memberColumns: TableColumn<MemberRow>[] = [
     {
       key: 'member', header: '成員', align: 'left',
-      render: ({ m }) => (
-        <div className="member">
-          {m.photo
-            ? <img src={m.photo} alt={m.name} className="av av-sm" style={{ objectFit: 'cover' }} />
-            : <div className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</div>}
-          <div>
-            <div style={{ fontSize: 14 }}>{m.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)' }}>{m.cat}</div>
-          </div>
-        </div>
-      ),
+      render: ({ m }) => <MemberCell photo={m.photo} name={m.name} initial={m.initial} color={hue(m.hue)} sub={m.cat} />,
       footer: <span style={{ fontWeight: 600 }}>合計</span>,
     },
     {
@@ -447,10 +438,9 @@ export default function Admin({
                   return (
                     <div key={entry.id} className="leave-row">
                       <div className="who">
-                        {mb && (mb.photo
-                          ? <img src={mb.photo} alt={mb.name} className="av av-sm" style={{ objectFit: 'cover' }} />
-                          : <div className="av av-sm" style={{ background: hue(mb.hue) }}>{mb.initial}</div>)}
-                        <span>{mb ? mb.name : entry.member}</span>
+                        {mb
+                          ? <MemberCell photo={mb.photo} name={mb.name} initial={mb.initial} color={hue(mb.hue)} />
+                          : <span>{entry.member}</span>}
                       </div>
                       <span className="date">{dateRangeLabel(entry.date, entry.endDate)}</span>
                       <span className="hrs">{entry.hours}h</span>

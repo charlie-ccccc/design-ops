@@ -2,6 +2,7 @@
 import React from 'react';
 import type { Member } from '@/lib/types';
 import { hue } from '@/lib/utils';
+import { MemberCell } from '@/components/ui/MemberCell/MemberCell';
 
 interface ColDef {
   id: string;
@@ -66,12 +67,7 @@ export default function Crosstab({
               <tr key={row.id}>
                 <td style={onRowClick ? { cursor: 'pointer' } : undefined}
                   onClick={() => onRowClick?.(row)}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {row.photo
-                      ? <img src={row.photo} alt={row.name} className="av av-sm" style={{ objectFit: 'cover' }} />
-                      : <div className="av av-sm" style={{ background: hue(row.hue) }}>{row.initial}</div>}
-                    <span style={{ fontSize: 12.5 }}>{row.name}</span>
-                  </div>
+                  <MemberCell photo={row.photo} name={row.name} initial={row.initial} color={hue(row.hue)} />
                 </td>
                 {cols.map((col) => {
                   const v = getCell(row, col);

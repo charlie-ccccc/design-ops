@@ -1,0 +1,44 @@
+.ui-member-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-member-cell__avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.ui-member-cell__avatar--sm {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+.ui-member-cell__avatar--md {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+
+.ui-member-cell__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ui-member-cell__name {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+  white-space: nowrap;
+}
+
+.ui-member-cell__sub {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-muted);
+}
