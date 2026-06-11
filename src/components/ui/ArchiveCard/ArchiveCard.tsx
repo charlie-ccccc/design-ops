@@ -43,8 +43,10 @@ export function ArchiveCard({
         {stats.map((s, i) => (
           <div key={i} className="ui-archive-card__stat">
             <div className="ui-archive-card__stat-label">{s.label}</div>
-            <div className="ui-archive-card__stat-value">{s.value}</div>
-            {s.sub && <div className="ui-archive-card__stat-sub">{s.sub}</div>}
+            <div className="ui-archive-card__stat-value">
+              {s.value}
+              {s.sub && <span className="ui-archive-card__stat-sub">{s.sub}</span>}
+            </div>
           </div>
         ))}
       </div>
