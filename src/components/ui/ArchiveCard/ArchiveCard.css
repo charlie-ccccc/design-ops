@@ -72,17 +72,29 @@
 @media (max-width: 640px) {
   .ui-archive-card {
     grid-template-columns: 1fr auto;
-    gap: 8px 12px;
+    grid-template-areas:
+      "month action"
+      "stats stats";
+    gap: 10px 12px;
     align-items: center;
   }
 
+  .ui-archive-card__month {
+    grid-area: month;
+    font-size: 18px;
+  }
+
   .ui-archive-card__stats {
-    grid-column: 1 / -1;
-    grid-template-columns: 1fr 1fr;
+    grid-area: stats;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 
-  .ui-archive-card__month {
-    font-size: 18px;
+  .ui-archive-card__action {
+    grid-area: action;
+  }
+
+  .ui-archive-card__view-text {
+    display: none;
   }
 }

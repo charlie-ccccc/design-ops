@@ -54,7 +54,7 @@ export function ArchiveCard({
       {onView && (
         <div className="ui-archive-card__action">
           <Button variant="ghost" onClick={(e) => { e.stopPropagation(); onView(); }} trailingIcon={<ChevronRight size={14} />}>
-            查看
+            <span className="ui-archive-card__view-text">查看</span>
           </Button>
         </div>
       )}
