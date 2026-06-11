@@ -1,0 +1,225 @@
+/* System tokens — shared semantic roles. Reference ref tokens only.
+   Dark mode overrides in [data-theme="dark"] block.
+   Density overrides in [data-density="compact"] block.
+   Evidence: src/app/globals.css (S01) */
+
+:root {
+
+  /* ── Color — backgrounds & surfaces ──────────────────────────── */
+  --md-sys-color-background:          var(--md-ref-color-warm-97);
+  --md-sys-color-background-elevated: var(--md-ref-color-warm-93);
+  --md-sys-color-surface:             var(--md-ref-color-warm-100);
+  --md-sys-color-surface-variant:     var(--md-ref-color-warm-95);
+
+  /* ── Color — foregrounds (on-surface pairs) ───────────────────── */
+  --md-sys-color-on-surface:            var(--md-ref-color-warm-10);
+  --md-sys-color-on-surface-secondary:  var(--md-ref-color-warm-18);
+  --md-sys-color-on-surface-muted:      var(--md-ref-color-warm-42);
+  --md-sys-color-on-surface-faint:      var(--md-ref-color-warm-58);
+  /* Required foreground pairs for background-family tokens */
+  --md-sys-color-on-background:          var(--md-ref-color-warm-10);  /* text on warm bg */
+  --md-sys-color-on-background-elevated: var(--md-ref-color-warm-10);  /* text on elevated bg */
+  --md-sys-color-on-surface-variant:     var(--md-ref-color-warm-18);  /* text on surface-variant fills */
+
+  /* ── Color — primary / accent ─────────────────────────────────── */
+  --md-sys-color-primary:              var(--md-ref-color-violet-52);
+  --md-sys-color-on-primary:           var(--md-ref-color-warm-100);
+  --md-sys-color-primary-container:    var(--md-ref-color-violet-95);
+  --md-sys-color-on-primary-container: var(--md-ref-color-violet-52);
+
+  /* ── Color — outlines & dividers ─────────────────────────────── */
+  /* Uses modern rgb(channel / alpha) with ref tokens for both components. */
+  --md-sys-color-outline:        rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-08));
+  --md-sys-color-outline-strong: rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-16));
+  --md-sys-color-outline-faint:  var(--md-ref-color-warm-75);
+  --md-sys-color-divider:        rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06));
+
+  /* ── Color — status ──────────────────────────────────────────── */
+  --md-sys-color-status-neutral: var(--md-ref-hue-status-neutral);
+  --md-sys-color-status-info:    var(--md-ref-hue-status-blue);
+  --md-sys-color-status-warning: var(--md-ref-hue-status-amber);
+  --md-sys-color-status-success: var(--md-ref-hue-status-green);
+  --md-sys-color-status-error:   var(--md-ref-hue-status-red);
+
+  /* ── Color — categorical (dept / member hues) ────────────────── */
+  --md-sys-color-cat-1: var(--md-ref-hue-cat-1);
+  --md-sys-color-cat-2: var(--md-ref-hue-cat-2);
+  --md-sys-color-cat-3: var(--md-ref-hue-cat-3);
+  --md-sys-color-cat-4: var(--md-ref-hue-cat-4);
+  --md-sys-color-cat-5: var(--md-ref-hue-cat-5);
+  --md-sys-color-cat-6: var(--md-ref-hue-cat-6);
+  --md-sys-color-cat-7: var(--md-ref-hue-cat-7);
+  --md-sys-color-cat-8: var(--md-ref-hue-cat-8);
+
+  /* ── Color — overlays ────────────────────────────────────────── */
+  /* "panel" = slide-over panel (drawer); "overlay" = blocking modal overlay */
+  --md-sys-color-scrim-panel:   rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-32));
+  --md-sys-color-scrim-overlay: rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-36));
+
+  /* ── Color — hover ───────────────────────────────────────────── */
+  /* Shares --md-ref-opacity-06 with divider (same raw value, different semantic role). */
+  --md-sys-color-hover-tint: rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06));
+
+  /* ── Color — drag state ──────────────────────────────────────── */
+  --md-sys-opacity-drag-dim: var(--md-ref-opacity-40);
+
+  /* ── Typography ──────────────────────────────────────────────── */
+  --md-sys-typescale-family:  var(--md-ref-typeface-noto-tc);
+  --md-sys-typescale-feature: var(--md-ref-typeface-feature-ss01-cv11);
+
+  /* display-numeric (KPI value, archive month, large stat) */
+  --md-sys-typescale-display-size:     var(--md-ref-size-28);
+  --md-sys-typescale-display-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-display-leading:  var(--md-ref-leading-11);
+  --md-sys-typescale-display-tracking: var(--md-ref-tracking-neg-020);
+
+  /* title-lg (drawer hours value, archive month header) */
+  --md-sys-typescale-title-lg-size:     var(--md-ref-size-22);
+  --md-sys-typescale-title-lg-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-title-lg-leading:  var(--md-ref-leading-11);
+  --md-sys-typescale-title-lg-tracking: var(--md-ref-tracking-neg-020);
+
+  /* title (drawer card title, stat heading) */
+  --md-sys-typescale-title-size:     var(--md-ref-size-18);
+  --md-sys-typescale-title-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-title-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-title-tracking: var(--md-ref-tracking-neg-010);
+
+  /* title-sm (topbar page title, panel header) */
+  --md-sys-typescale-title-sm-size:     var(--md-ref-size-16);
+  --md-sys-typescale-title-sm-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-title-sm-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-title-sm-tracking: var(--md-ref-tracking-neg-010);
+
+  /* body (base, prose) */
+  --md-sys-typescale-body-size:     var(--md-ref-size-14);
+  --md-sys-typescale-body-weight:   var(--md-ref-weight-400);
+  --md-sys-typescale-body-leading:  var(--md-ref-leading-145);
+  --md-sys-typescale-body-tracking: var(--md-ref-tracking-005);
+
+  /* body-medium (card title, nav item, button label) */
+  --md-sys-typescale-body-medium-size:     var(--md-ref-size-14);
+  --md-sys-typescale-body-medium-weight:   var(--md-ref-weight-500);
+  --md-sys-typescale-body-medium-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-body-medium-tracking: var(--md-ref-tracking-neg-003);
+
+  /* body-semibold (panel headers, sidebar brand) */
+  --md-sys-typescale-body-semibold-size:     var(--md-ref-size-14);
+  --md-sys-typescale-body-semibold-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-body-semibold-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-body-semibold-tracking: var(--md-ref-tracking-neg-005);
+
+  /* label (data column headers, KPI label — uppercase only) */
+  --md-sys-typescale-label-size:     var(--md-ref-size-12);
+  --md-sys-typescale-label-weight:   var(--md-ref-weight-600);
+  --md-sys-typescale-label-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-label-tracking: var(--md-ref-tracking-080);
+
+  /* meta (card ID, hours, badge text — not uppercase) */
+  --md-sys-typescale-meta-size:     var(--md-ref-size-12);
+  --md-sys-typescale-meta-weight:   var(--md-ref-weight-500);
+  --md-sys-typescale-meta-leading:  var(--md-ref-leading-135);
+  --md-sys-typescale-meta-tracking: var(--md-ref-tracking-040);
+
+  /* ── Shape ───────────────────────────────────────────────────── */
+  --md-sys-shape-corner-sm:   var(--md-ref-radius-6);
+  --md-sys-shape-corner-md:   var(--md-ref-radius-9);
+  --md-sys-shape-corner-lg:   var(--md-ref-radius-12);
+  --md-sys-shape-corner-xl:   var(--md-ref-radius-16);
+  --md-sys-shape-corner-full: var(--md-ref-radius-full);
+
+  /* ── Elevation ───────────────────────────────────────────────── */
+  --md-sys-elevation-sm: var(--md-ref-shadow-sm);
+  --md-sys-elevation-md: var(--md-ref-shadow-md);
+  --md-sys-elevation-lg: var(--md-ref-shadow-lg);
+
+  /* ── Spacing ─────────────────────────────────────────────────── */
+  --md-sys-spacing-gap-xs:      var(--md-ref-size-4);   /* icon-dot, min gap */
+  --md-sys-spacing-gap-sm:      var(--md-ref-size-6);   /* icon-label inline gap */
+  --md-sys-spacing-gap-md:      var(--md-ref-size-8);   /* card stack gap */
+  --md-sys-spacing-gap-lg:      var(--md-ref-size-10);  /* sidebar item gap */
+  --md-sys-spacing-section-gap: var(--md-ref-size-14);  /* dashboard section gap */
+  --md-sys-spacing-page-gutter: var(--md-ref-size-22);  /* horizontal page gutter */
+  --md-sys-spacing-page-top:    var(--md-ref-size-18);  /* vertical page gutter */
+  --md-sys-spacing-inset-sm:    var(--md-ref-size-10);  /* compact inner padding */
+  --md-sys-spacing-inset-md:    var(--md-ref-size-12);  /* section inner padding */
+  --md-sys-spacing-inset-lg:    var(--md-ref-size-16);  /* component inner padding */
+  --md-sys-spacing-inset-xl:    var(--md-ref-size-20);  /* drawer / modal horizontal */
+
+  /* ── Density ─────────────────────────────────────────────────── */
+  /* "inner" = internal content padding within high-density rows/views */
+  --md-sys-density-pad:   var(--md-ref-size-16);  /* component internal padding */
+  --md-sys-density-row:   var(--md-ref-size-36);  /* control / row height */
+  --md-sys-density-inner: var(--md-ref-size-14);  /* inner content padding (cards etc.) */
+
+  /* ── App shell sizing ────────────────────────────────────────── */
+  /* No component names in token names — use structural/spatial descriptors. */
+  --md-sys-size-side-panel-width: var(--md-ref-size-232);
+  --md-sys-size-topbar-height:   var(--md-ref-size-56);
+  --md-sys-size-kanban-col:      var(--md-ref-size-296);
+  --md-sys-size-drawer-width:    var(--md-ref-size-460);
+  --md-sys-size-overlay-max:     var(--md-ref-size-520);
+
+  /* ── Color — on-categorical (label text on hue-bg avatars/badges) ── */
+  --md-sys-color-on-categorical: var(--md-ref-color-warm-100);  /* always white on oklch hue bg */
+
+  /* ── Typography — annotation scale (below body scale) ───────── */
+  /* annotation-sm: avatar initial monogram — 10px / 600 */
+  --md-sys-typescale-annotation-sm-size:   var(--md-ref-size-10);
+  --md-sys-typescale-annotation-sm-weight: var(--md-ref-weight-600);
+  /* annotation-md: sidebar user role — 11px / 400 */
+  --md-sys-typescale-annotation-md-size:   var(--md-ref-size-11);
+  --md-sys-typescale-annotation-md-weight: var(--md-ref-weight-400);
+
+  /* ── Sizing — avatar diameters ───────────────────────────────── */
+  /* "indicator" = circular identity marks (avatars, dept dots) */
+  --md-sys-size-indicator-sm: var(--md-ref-size-22);  /* 22px circle — card/inline context */
+  --md-sys-size-indicator-md: var(--md-ref-size-28);  /* 28px circle — sidebar/larger context */
+
+  /* ── Motion ──────────────────────────────────────────────────── */
+  --md-sys-motion-duration-sm:      var(--md-ref-duration-120);  /* button bg, card border */
+  --md-sys-motion-duration-md:      var(--md-ref-duration-180);  /* scrim opacity */
+  --md-sys-motion-duration-lg:      var(--md-ref-duration-280);  /* drawer slide */
+  --md-sys-motion-duration-press:   var(--md-ref-duration-050);  /* press transform */
+  --md-sys-motion-easing-standard:  var(--md-ref-easing-standard);
+  --md-sys-motion-press-transform: var(--md-ref-transform-press);
+
+}
+
+/* ── Dark mode overrides ──────────────────────────────────────── */
+[data-theme="dark"] {
+
+  --md-sys-color-background:          var(--md-ref-color-dark-6);
+  --md-sys-color-background-elevated: var(--md-ref-color-dark-9);
+  --md-sys-color-surface:             var(--md-ref-color-dark-11);
+  --md-sys-color-surface-variant:     var(--md-ref-color-dark-14);
+
+  --md-sys-color-on-surface:           var(--md-ref-color-dark-93);
+  --md-sys-color-on-surface-secondary: var(--md-ref-color-dark-79);
+  --md-sys-color-on-surface-muted:     var(--md-ref-color-dark-54);
+  --md-sys-color-on-surface-faint:     var(--md-ref-color-dark-37);
+
+  --md-sys-color-primary:              var(--md-ref-color-violet-74);
+  --md-sys-color-on-primary:           var(--md-ref-color-dark-6);
+  --md-sys-color-primary-container:    var(--md-ref-color-violet-28);
+  --md-sys-color-on-primary-container: var(--md-ref-color-violet-74);
+
+  /* Dark mode outlines use white-base at low opacity. */
+  --md-sys-color-outline:        rgb(255 255 255 / var(--md-ref-opacity-dark-07));
+  --md-sys-color-outline-strong: rgb(255 255 255 / var(--md-ref-opacity-dark-14));
+  --md-sys-color-outline-faint:  var(--md-ref-color-dark-23);
+  --md-sys-color-divider:        rgb(255 255 255 / var(--md-ref-opacity-dark-05));
+
+  /* Dark mode elevations use pure-black shadows (ref shadow strings). */
+  --md-sys-elevation-sm: var(--md-ref-shadow-dark-sm);
+  --md-sys-elevation-md: var(--md-ref-shadow-dark-md);
+  --md-sys-elevation-lg: var(--md-ref-shadow-dark-lg);
+
+}
+
+/* ── Compact density override ─────────────────────────────────── */
+[data-density="compact"] {
+  --md-sys-density-pad:   var(--md-ref-size-10);
+  --md-sys-density-row:   var(--md-ref-size-28);
+  --md-sys-density-inner: var(--md-ref-size-10);
+}

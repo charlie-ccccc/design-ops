@@ -1,0 +1,35 @@
+.ui-input {
+  appearance: none;
+  border: 1px solid var(--md-comp-input-container-border);
+  background: var(--md-comp-input-container-color);
+  color: var(--md-comp-input-label-color);
+  padding-inline: var(--md-comp-input-padding-inline);
+  height: var(--md-comp-input-container-height);
+  border-radius: var(--md-comp-input-container-radius);
+  font-size: var(--md-comp-input-label-size);
+  font-family: inherit;
+  outline: none;
+  flex-shrink: 0;
+  width: 100%;
+  transition: border-color 0.12s ease;
+}
+
+.ui-input::placeholder {
+  color: var(--md-comp-input-placeholder-color);
+}
+
+.ui-input:focus {
+  border-color: var(--md-comp-input-focus-border);
+}
+
+.ui-input--error {
+  border-color: var(--md-sys-color-error, #d32f2f);
+}
+
+select.ui-input {
+  padding-right: 26px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%236B6864' d='M0 0h10L5 6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}

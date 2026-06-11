@@ -1,0 +1,134 @@
+.ui-kanban-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--md-comp-kanban-card-container-padding);
+  background: var(--md-comp-kanban-card-container-color);
+  border: 1px solid var(--md-comp-kanban-card-container-border);
+  border-radius: var(--md-comp-kanban-card-container-radius);
+  cursor: grab;
+  transition:
+    border-color var(--md-sys-motion-duration-sm) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-sm) var(--md-sys-motion-easing-standard);
+}
+
+.ui-kanban-card:hover {
+  border-color: var(--md-comp-kanban-card-hover-border);
+  box-shadow: var(--md-comp-kanban-card-hover-elevation);
+}
+
+.ui-kanban-card--dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* Header row: id · cat badge · priority flag */
+.ui-kanban-card__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-kanban-card__id {
+  font-family: var(--md-sys-typescale-family);
+  font-size: var(--md-comp-kanban-card-meta-size, var(--md-sys-typescale-meta-size));
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--md-comp-kanban-card-id-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-kanban-card__cat {
+  font-family: var(--md-sys-typescale-family);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: var(--md-sys-shape-corner-sm);
+  color: var(--md-sys-color-on-surface-secondary);
+}
+
+.ui-kanban-card__cat[data-cat="UIUX"] {
+  background: color-mix(in oklab, var(--md-sys-color-cat-1) 15%, transparent);
+  color: color-mix(in oklab, var(--md-sys-color-cat-1) 80%, var(--md-sys-color-on-surface));
+}
+
+.ui-kanban-card__cat[data-cat="平面視覺"] {
+  background: color-mix(in oklab, var(--md-sys-color-cat-5) 15%, transparent);
+  color: color-mix(in oklab, var(--md-sys-color-cat-5) 80%, var(--md-sys-color-on-surface));
+}
+
+.ui-kanban-card__prio {
+  margin-left: auto;
+  color: var(--md-sys-color-status-error);
+  display: flex;
+  align-items: center;
+}
+
+/* Title */
+.ui-kanban-card__title {
+  font-family: var(--md-sys-typescale-family);
+  font-size: var(--md-comp-kanban-card-title-size);
+  font-weight: var(--md-comp-kanban-card-title-weight);
+  line-height: 1.35;
+  letter-spacing: -0.003em;
+  color: var(--md-comp-kanban-card-title-color);
+}
+
+/* Dept row */
+.ui-kanban-card__dept {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--md-sys-typescale-family);
+  font-size: 12px;
+  color: var(--md-comp-kanban-card-dept-color);
+}
+
+.ui-kanban-card__dept-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Meta row */
+.ui-kanban-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--md-comp-kanban-card-meta-divider);
+}
+
+.ui-kanban-card__due,
+.ui-kanban-card__hours {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--md-sys-typescale-family);
+  font-size: 12px;
+}
+
+.ui-kanban-card__due {
+  color: var(--md-comp-kanban-card-due-color);
+}
+
+.ui-kanban-card__due--overdue {
+  color: var(--md-comp-kanban-card-due-overdue-color);
+}
+
+.ui-kanban-card__hours {
+  color: var(--md-comp-kanban-card-hours-color);
+}
+
+.ui-kanban-card__hours--over {
+  color: var(--md-comp-kanban-card-hours-over-color);
+}
+
+.ui-kanban-card__hours-ratio {
+  color: var(--md-comp-kanban-card-hours-ratio-color);
+}
+
+.ui-kanban-card__avatar {
+  margin-left: auto;
+}

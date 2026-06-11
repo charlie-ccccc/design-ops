@@ -1,0 +1,64 @@
+.ui-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 4px;
+}
+
+.ui-timeline__row {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.ui-timeline__dot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 5px;
+  position: relative;
+  height: 100%;
+}
+
+.ui-timeline__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--md-sys-color-on-surface);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ui-timeline__dot::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 3.5px;
+  width: 1px;
+  height: calc(100% + 8px);
+  background: var(--md-sys-color-divider);
+}
+
+.ui-timeline__row:last-child .ui-timeline__dot::after {
+  display: none;
+}
+
+.ui-timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+}
+
+.ui-timeline__msg {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface-secondary);
+  line-height: 1.4;
+}
+
+.ui-timeline__time {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-faint);
+  font-variant-numeric: tabular-nums;
+}

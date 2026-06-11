@@ -1,0 +1,84 @@
+.ui-archive-card {
+  display: grid;
+  grid-template-columns: 200px 1fr 110px;
+  gap: 22px;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-lg);
+}
+
+.ui-archive-card--clickable {
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ui-archive-card--clickable:hover {
+  border-color: var(--md-sys-color-outline-strong);
+  box-shadow: var(--md-sys-elevation-sm);
+}
+
+.ui-archive-card__month {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--md-sys-color-on-surface);
+}
+
+.ui-archive-card__year {
+  color: var(--md-sys-color-on-surface-muted);
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.ui-archive-card__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(100px, 1fr));
+  gap: 18px;
+}
+
+.ui-archive-card__stat-label {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.ui-archive-card__stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+  color: var(--md-sys-color-on-surface);
+}
+
+.ui-archive-card__stat-sub {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-muted);
+}
+
+.ui-archive-card__action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .ui-archive-card {
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+  }
+
+  .ui-archive-card__stats {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .ui-archive-card__month {
+    font-size: 18px;
+  }
+}

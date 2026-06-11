@@ -1,0 +1,48 @@
+.ui-month-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-md);
+  overflow: hidden;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.ui-month-pill__btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  width: 26px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface-secondary);
+  transition: background 0.1s ease;
+}
+
+.ui-month-pill__btn:hover:not(:disabled) {
+  background: var(--md-sys-color-surface-variant);
+}
+
+.ui-month-pill__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ui-month-pill__val {
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--md-sys-color-on-surface);
+  border-left: 1px solid var(--md-sys-color-divider);
+  border-right: 1px solid var(--md-sys-color-divider);
+  display: grid;
+  place-items: center;
+  min-width: 100px;
+  height: 100%;
+  font-variant-numeric: tabular-nums;
+}

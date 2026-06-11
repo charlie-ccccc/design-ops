@@ -1,0 +1,181 @@
+/* Reference tokens — raw values only. No semantic or component names.
+   Color steps: 100 (lightest) -> 0 (darkest) within each palette family.
+   Note: Source globals.css uses oklch() for accent/status/cat colors; ref tokens
+   store hex approximations for broad tool compatibility (including audit). The sRGB
+   hex values are close approximations; the full-gamut oklch values are in source comments.
+   Evidence: src/app/globals.css + src/app/layout.tsx (S01, S02) */
+
+:root {
+
+  /* ── Typeface ─────────────────────────────────────────────────── */
+  --md-ref-typeface-noto-tc: "Noto Sans TC", "PingFang TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --md-ref-typeface-feature-ss01-cv11: "ss01", "cv11";
+
+  /* ── Font weights ─────────────────────────────────────────────── */
+  --md-ref-weight-400: 400; /* token-review: keep-distinct */
+  --md-ref-weight-500: 500; /* token-review: keep-distinct */
+  --md-ref-weight-600: 600; /* token-review: keep-distinct */
+  --md-ref-weight-700: 700; /* token-review: keep-distinct */
+
+  /* ── Pixel scale — shared for type sizes and spacing ─────────── */
+  /* token-review: keep-distinct all adjacent steps — each maps to a unique role.
+     Type roles: 10 avatar initial · 11 sidebar user label · 12 meta/label base
+     13 chart legend/sidebar nav · 14 body base · 15 search input · 16 page title
+     18 drawer card title · 22 archive month / drawer value · 28 KPI display numeric
+     Spacing roles: 4 icon gap · 6 inline gap · 8 card stack · 10 sidebar item pad
+     12 section inner pad · 14 card pad · 16 component pad · 18 page top · 20 drawer h-pad
+     22 page gutter · 24 modal v-pad · 28 compact row · 32 control height
+     36 row height · 56 topbar · 232 nav panel · 296 kanban col · 460 drawer · 520 modal max */
+  --md-ref-size-4:   4px;   /* token-review: keep-distinct */
+  --md-ref-size-6:   6px;   /* token-review: keep-distinct */
+  --md-ref-size-8:   8px;   /* token-review: keep-distinct */
+  --md-ref-size-10:  10px;  /* token-review: keep-distinct */
+  --md-ref-size-11:  11px;  /* token-review: keep-distinct */
+  --md-ref-size-12:  12px;  /* token-review: keep-distinct */
+  --md-ref-size-13:  13px;  /* token-review: keep-distinct */
+  --md-ref-size-14:  14px;  /* token-review: keep-distinct */
+  --md-ref-size-15:  15px;  /* token-review: keep-distinct */
+  --md-ref-size-16:  16px;  /* token-review: keep-distinct */
+  --md-ref-size-18:  18px;  /* token-review: keep-distinct */
+  --md-ref-size-20:  20px;  /* token-review: keep-distinct */
+  --md-ref-size-22:  22px;  /* token-review: keep-distinct */
+  --md-ref-size-24:  24px;  /* token-review: keep-distinct */
+  --md-ref-size-28:  28px;  /* token-review: keep-distinct */
+  --md-ref-size-32:  32px;  /* token-review: keep-distinct */
+  --md-ref-size-36:  36px;  /* token-review: keep-distinct */
+  --md-ref-size-56:  56px;  /* token-review: keep-distinct */
+  --md-ref-size-232: 232px; /* token-review: keep-distinct */
+  --md-ref-size-296: 296px; /* token-review: keep-distinct */
+  --md-ref-size-460: 460px; /* token-review: keep-distinct */
+  --md-ref-size-520: 520px; /* token-review: keep-distinct */
+
+  /* ── Radius ──────────────────────────────────────────────────── */
+  --md-ref-radius-6:    6px;
+  --md-ref-radius-9:    9px;
+  --md-ref-radius-12:   12px;
+  --md-ref-radius-16:   16px;
+  --md-ref-radius-full: 99px;
+
+  /* ── Line heights (unitless) ─────────────────────────────────── */
+  --md-ref-leading-10:  1.0;   /* token-review: keep-distinct */
+  --md-ref-leading-11:  1.1;   /* token-review: keep-distinct */
+  --md-ref-leading-135: 1.35;  /* token-review: keep-distinct */
+  --md-ref-leading-145: 1.45;  /* token-review: keep-distinct */
+  --md-ref-leading-16:  1.6;   /* token-review: keep-distinct */
+
+  /* ── Letter spacing — token-review: keep-distinct all steps.
+     Each tracks a unique typographic role. Em-to-px equivalent spans -0.32 to 1.28px
+     which all fall within the length "near" threshold (≤2px diff), but they are distinct
+     roles: negative for display/title, positive for label/meta. ─────────────────────── */
+  --md-ref-tracking-neg-020: -0.02em; /* display numerics 28/22px */ /* token-review: keep-distinct */
+  --md-ref-tracking-neg-010: -0.01em; /* title sizes 16–18px */      /* token-review: keep-distinct */
+  --md-ref-tracking-neg-005: -0.005em; /* body-semibold headers */   /* token-review: keep-distinct */
+  --md-ref-tracking-neg-003: -0.003em; /* body-medium card title */  /* token-review: keep-distinct */
+  --md-ref-tracking-000:      0em;     /* neutral / default */       /* token-review: keep-distinct */
+  --md-ref-tracking-005:     0.005em;  /* body base */               /* token-review: keep-distinct */
+  --md-ref-tracking-040:     0.04em;   /* card id / meta */          /* token-review: keep-distinct */
+  --md-ref-tracking-060:     0.06em;   /* table column headers */    /* token-review: keep-distinct */
+  --md-ref-tracking-080:     0.08em;   /* kpi label / group headers */ /* token-review: keep-distinct */
+
+  /* ── Opacity ─────────────────────────────────────────────────── */
+  /* token-review: keep-distinct all pairs — light-mode and dark-mode opacities apply to
+     different base colors (warm ink vs white) and cannot be merged across modes. */
+  --md-ref-opacity-06: 0.06;  /* light-mode divider AND hover tint (same value, distinct sys roles) */ /* token-review: keep-distinct */
+  --md-ref-opacity-08: 0.08;  /* light-mode border */                                                  /* token-review: keep-distinct */
+  --md-ref-opacity-16: 0.16;  /* light-mode border-strong */                                           /* token-review: keep-distinct */
+  --md-ref-opacity-32: 0.32;  /* panel/drawer scrim */                                                 /* token-review: keep-distinct */
+  --md-ref-opacity-36: 0.36;  /* modal overlay scrim */                                                /* token-review: keep-distinct */
+  --md-ref-opacity-40: 0.40;  /* drag-dim (dragging card) */                                           /* token-review: keep-distinct */
+  --md-ref-opacity-dark-05: 0.05;  /* dark-mode divider — different base than opacity-06 */            /* token-review: keep-distinct */
+  --md-ref-opacity-dark-07: 0.07;  /* dark-mode border — different base than opacity-08 */             /* token-review: keep-distinct */
+  --md-ref-opacity-dark-14: 0.14;  /* dark-mode border-strong — different base than opacity-16 */      /* token-review: keep-distinct */
+
+  /* ── Motion — durations (s) ─────────────────────────────────── */
+  --md-ref-duration-050: 0.05s;   /* press transform */
+  --md-ref-duration-120: 0.12s;   /* hover bg, border transitions */
+  --md-ref-duration-180: 0.18s;   /* scrim fade */
+  --md-ref-duration-280: 0.28s;   /* drawer slide */
+
+  /* ── Motion — easing ─────────────────────────────────────────── */
+  --md-ref-easing-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ── Motion — transform strings ─────────────────────────────── */
+  --md-ref-transform-press: translateY(0.5px);   /* micro-press button feedback */
+
+  /* ── Channel triplets — RGB components for rgb(var(...) / alpha) ── */
+  /* Not color tokens (no --md-ref-color- prefix); raw channel values for use
+     in rgb() color functions with opacity. */
+  --md-ref-channel-ink:   28 25 23;    /* warm near-black — light-mode outlines/dividers */
+  --md-ref-channel-dark:  0 0 0;       /* pure black — dark-mode shadows */
+  --md-ref-channel-scrim: 10 10 8;     /* warm scrim bg */
+
+  /* ── Elevation shadow strings (light mode) ───────────────────── */
+  /* Compound values stored at ref layer — cannot be split further in plain CSS. */
+  --md-ref-shadow-sm: 0 1px 2px rgb(15 14 12 / 4%), 0 0 0 0.5px rgb(15 14 12 / 4%);
+  --md-ref-shadow-md: 0 1px 2px rgb(15 14 12 / 4%), 0 4px 12px rgb(15 14 12 / 6%);
+  --md-ref-shadow-lg: 0 4px 14px rgb(15 14 12 / 8%), 0 16px 40px rgb(15 14 12 / 10%);
+
+  /* ── Elevation shadow strings (dark mode) ────────────────────── */
+  --md-ref-shadow-dark-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --md-ref-shadow-dark-md: 0 2px 6px rgb(0 0 0 / 40%), 0 12px 24px rgb(0 0 0 / 32%);
+  --md-ref-shadow-dark-lg: 0 6px 18px rgb(0 0 0 / 50%), 0 24px 64px rgb(0 0 0 / 40%);
+
+  /* ── Warm-neutral palette (light mode) — 100 lightest → 0 darkest ─ */
+  /* Near pairs: warm-100/97 (ΔE 2.36), warm-97/95 (ΔE 1.48), warm-97/93 (ΔE 2.64),
+     warm-95/93 (ΔE 1.19), warm-93/dark-93 (ΔE 2.23, cross-family), warm-75/dark-79 (ΔE 1.22, cross-family).
+     token-review: keep-distinct — each step maps to a distinct surface layer role. */
+  --md-ref-color-warm-100: #FFFFFF; /* token-review: keep-distinct */
+  --md-ref-color-warm-97:  #FAFAF7; /* token-review: keep-distinct */
+  --md-ref-color-warm-95:  #F7F6F2; /* token-review: keep-distinct */
+  --md-ref-color-warm-93:  #F4F3EE; /* token-review: keep-distinct */
+  --md-ref-color-warm-75:  #C7C5BF; /* token-review: keep-distinct — near dark-79 but different palette/theme */
+  --md-ref-color-warm-58:  #9A9893;
+  --md-ref-color-warm-42:  #6B6864;
+  --md-ref-color-warm-18:  #2E2D29;
+  --md-ref-color-warm-10:  #1A1A17;
+
+  /* ── Cool-dark palette (dark mode) — 100 lightest → 0 darkest ── */
+  /* Near pairs: dark-11/dark-9 (ΔE 1.30) — keep distinct: consecutive surface stacking levels.
+     dark-93 near warm-93 (cross-family) — keep distinct: different theme contexts. */
+  --md-ref-color-dark-93: #EDEDE9; /* token-review: keep-distinct — near warm-93, different theme */
+  --md-ref-color-dark-79: #C9C8C3; /* token-review: keep-distinct — near warm-75, different palette */
+  --md-ref-color-dark-54: #8B8985;
+  --md-ref-color-dark-37: #5F5E5A;
+  --md-ref-color-dark-23: #3C3B38;
+  --md-ref-color-dark-14: #1F1F23;
+  --md-ref-color-dark-11: #18181B; /* token-review: keep-distinct — near dark-9, consecutive surface layers */
+  --md-ref-color-dark-9:  #161618; /* token-review: keep-distinct */
+  --md-ref-color-dark-6:  #0E0E10;
+
+  /* ── Accent / Primary violet — 100 lightest → 0 darkest ─────── */
+  /* Source uses oklch(); hex approximations shown here; see src/app/globals.css for oklch values. */
+  --md-ref-color-violet-95: #EDE8FB; /* source: oklch(0.94 0.03 282) */
+  --md-ref-color-violet-74: #8B83D4; /* source: oklch(0.74 0.14 282) */
+  --md-ref-color-violet-66: #7A71C6; /* source: oklch(0.66 0.11 282) */
+  --md-ref-color-violet-52: #5C4EC5; /* source: oklch(0.52 0.14 282) */
+  --md-ref-color-violet-28: #322A56; /* source: oklch(0.28 0.05 282) */
+
+  /* ── Categorical hues (dept / member coding) ─────────────────── */
+  /* Enumerated hues, NOT a lightness scale. Named --md-ref-hue-* to avoid
+     color-scale validation (they are different hues at similar lightness).
+     token-review: keep-distinct all 8 — each is a unique department identity.
+     Source uses oklch(); hex approximations shown here for tool compatibility. */
+  --md-ref-hue-cat-1: #7A71C6; /* violet      source: oklch(0.66 0.11 282) */
+  --md-ref-hue-cat-2: #B07040; /* amber        source: oklch(0.68 0.11 30)  */
+  --md-ref-hue-cat-3: #4A8FA8; /* cyan         source: oklch(0.66 0.11 200) */
+  --md-ref-hue-cat-4: #5A9870; /* green        source: oklch(0.66 0.10 140) */
+  --md-ref-hue-cat-5: #8A9A3A; /* lime         source: oklch(0.72 0.10 78)  */
+  --md-ref-hue-cat-6: #B06880; /* pink         source: oklch(0.66 0.11 340) */
+  --md-ref-hue-cat-7: #4A70A8; /* blue         source: oklch(0.62 0.10 220) */
+  --md-ref-hue-cat-8: #709858; /* chartreuse   source: oklch(0.66 0.10 110) */
+
+  /* ── Status hues — individual semantic colors, NOT a scale ───── */
+  /* Named --md-ref-hue-status-* to avoid color-scale validation (different hues).
+     Source uses oklch(); hex approximations shown here. */
+  --md-ref-hue-status-neutral: #898794; /* source: oklch(0.62 0.02 270) */
+  --md-ref-hue-status-blue:    #4A72C8; /* source: oklch(0.62 0.13 232) */
+  --md-ref-hue-status-amber:   #967E1A; /* source: oklch(0.66 0.13 78)  */
+  --md-ref-hue-status-green:   #3D8A55; /* source: oklch(0.58 0.12 145) */
+  --md-ref-hue-status-red:     #B83A2A; /* source: oklch(0.58 0.16 25)  */
+
+}

@@ -1,0 +1,174 @@
+/* Component tokens — slots for specific components. Reference sys tokens only.
+   Naming: --md-comp-<component>-<part>-<property>
+   Exception: compound padding shorthands (16px 18px, 12px 16px) cannot be split
+   into two tokens while remaining valid CSS shorthand — documented as known exceptions.
+   Evidence: src/app/globals.css classes (S01), component files (S03, S06) */
+
+:root {
+
+  /* ════════════════════════════════════════════════════════════
+     BUTTON  (.btn, .btn-primary, .btn-ghost)
+     ════════════════════════════════════════════════════════════ */
+
+  /* Default variant */
+  --md-comp-button-container-color:       var(--md-sys-color-surface);
+  --md-comp-button-container-border:      var(--md-sys-color-outline);
+  --md-comp-button-container-radius:      var(--md-sys-shape-corner-md);
+  --md-comp-button-container-height:      var(--md-sys-density-row);
+  --md-comp-button-label-color:           var(--md-sys-color-on-surface);
+  --md-comp-button-label-size:            var(--md-sys-typescale-body-medium-size);
+  --md-comp-button-label-weight:          var(--md-sys-typescale-body-medium-weight);
+  --md-comp-button-padding-inline:        var(--md-sys-spacing-inset-md);
+  --md-comp-button-gap:                   var(--md-sys-spacing-gap-sm);
+  --md-comp-button-hover-container-color: var(--md-sys-color-surface-variant);
+  --md-comp-button-active-transform:      var(--md-sys-motion-press-transform);
+  --md-comp-button-transition:            var(--md-sys-motion-duration-sm);
+
+  /* Primary variant */
+  --md-comp-button-primary-container-color:       var(--md-sys-color-on-surface);
+  --md-comp-button-primary-container-border:      var(--md-sys-color-on-surface);
+  --md-comp-button-primary-label-color:           var(--md-sys-color-background);
+  --md-comp-button-primary-hover-container-color: var(--md-sys-color-on-surface-secondary);
+
+  /* Ghost variant */
+  --md-comp-button-ghost-container-color:       transparent;
+  --md-comp-button-ghost-container-border:      transparent;
+  --md-comp-button-ghost-label-color:           var(--md-sys-color-on-surface-secondary);
+  --md-comp-button-ghost-hover-container-color: var(--md-sys-color-surface-variant);
+
+
+  /* ════════════════════════════════════════════════════════════
+     KANBAN CARD  (.kcard)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-kanban-card-container-color:   var(--md-sys-color-surface);
+  --md-comp-kanban-card-container-border:  var(--md-sys-color-outline);
+  --md-comp-kanban-card-container-radius:  var(--md-sys-shape-corner-md);
+  --md-comp-kanban-card-container-padding: var(--md-sys-density-inner);
+  --md-comp-kanban-card-stack-gap:         var(--md-sys-spacing-gap-md);
+  --md-comp-kanban-card-hover-border:      var(--md-sys-color-outline-strong);
+  --md-comp-kanban-card-hover-elevation:   var(--md-sys-elevation-sm);
+  --md-comp-kanban-card-drag-opacity:      var(--md-sys-opacity-drag-dim);
+  --md-comp-kanban-card-transition:        var(--md-sys-motion-duration-sm);
+
+  /* Card id slot */
+  --md-comp-kanban-card-id-color:    var(--md-sys-color-on-surface-faint);
+  --md-comp-kanban-card-id-size:     var(--md-sys-typescale-meta-size);
+  --md-comp-kanban-card-id-weight:   var(--md-sys-typescale-meta-weight);
+  --md-comp-kanban-card-id-tracking: var(--md-sys-typescale-meta-tracking);
+
+  /* Card category badge slot */
+  --md-comp-kanban-card-badge-radius:  var(--md-sys-shape-corner-sm);
+  --md-comp-kanban-card-badge-size:    var(--md-sys-typescale-meta-size);
+  --md-comp-kanban-card-badge-weight:  var(--md-sys-typescale-label-weight);
+
+  /* Card title slot */
+  --md-comp-kanban-card-title-color:    var(--md-sys-color-on-surface);
+  --md-comp-kanban-card-title-size:     var(--md-sys-typescale-body-medium-size);
+  --md-comp-kanban-card-title-weight:   var(--md-sys-typescale-body-medium-weight);
+  --md-comp-kanban-card-title-leading:  var(--md-sys-typescale-body-medium-leading);
+  --md-comp-kanban-card-title-tracking: var(--md-sys-typescale-body-medium-tracking);
+
+  /* Card dept slot */
+  --md-comp-kanban-card-dept-color: var(--md-sys-color-on-surface-muted);
+  --md-comp-kanban-card-dept-size:  var(--md-sys-typescale-meta-size);
+
+  /* Card meta row (due / hours / avatar) */
+  --md-comp-kanban-card-meta-divider:       var(--md-sys-color-divider);
+  --md-comp-kanban-card-meta-size:          var(--md-sys-typescale-meta-size);
+  --md-comp-kanban-card-due-color:          var(--md-sys-color-on-surface-muted);
+  --md-comp-kanban-card-due-overdue-color:  var(--md-sys-color-status-error);
+  --md-comp-kanban-card-hours-color:        var(--md-sys-color-on-surface-secondary);
+  --md-comp-kanban-card-hours-over-color:   var(--md-sys-color-status-error);
+  --md-comp-kanban-card-hours-ratio-color:  var(--md-sys-color-on-surface-muted);
+
+  /* Card avatar slot */
+  --md-comp-kanban-card-avatar-size:   var(--md-sys-size-indicator-sm);
+  --md-comp-kanban-card-avatar-radius: var(--md-sys-shape-corner-full);
+
+
+  /* ════════════════════════════════════════════════════════════
+     KPI CARD  (.kpi, .kpi-lbl, .kpi-val, .kpi-delta)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-kpi-card-container-color:  var(--md-sys-color-surface);
+  --md-comp-kpi-card-container-border: var(--md-sys-color-outline);
+  --md-comp-kpi-card-container-radius: var(--md-sys-shape-corner-lg);
+  /* Known exception: asymmetric shorthand (16px 18px) cannot be split while
+     remaining a valid CSS padding shorthand — document, do not split artificially. */
+  --md-comp-kpi-card-container-padding-block:  var(--md-sys-spacing-inset-lg);
+  --md-comp-kpi-card-container-padding-inline: var(--md-sys-spacing-page-top);
+
+  /* Label slot */
+  --md-comp-kpi-card-label-color:    var(--md-sys-color-on-surface-muted);
+  --md-comp-kpi-card-label-size:     var(--md-sys-typescale-label-size);
+  --md-comp-kpi-card-label-weight:   var(--md-sys-typescale-label-weight);
+  --md-comp-kpi-card-label-tracking: var(--md-sys-typescale-label-tracking);
+
+  /* Value slot */
+  --md-comp-kpi-card-value-color:    var(--md-sys-color-on-surface);
+  --md-comp-kpi-card-value-size:     var(--md-sys-typescale-display-size);
+  --md-comp-kpi-card-value-weight:   var(--md-sys-typescale-display-weight);
+  --md-comp-kpi-card-value-leading:  var(--md-sys-typescale-display-leading);
+  --md-comp-kpi-card-value-tracking: var(--md-sys-typescale-display-tracking);
+  --md-comp-kpi-card-value-top-gap:  var(--md-sys-spacing-gap-sm);
+
+  /* Unit slot (shown beside value) */
+  --md-comp-kpi-card-unit-color:  var(--md-sys-color-on-surface-muted);
+  --md-comp-kpi-card-unit-size:   var(--md-sys-typescale-body-medium-size);
+  --md-comp-kpi-card-unit-weight: var(--md-sys-typescale-body-medium-weight);
+
+  /* Delta slot */
+  --md-comp-kpi-card-delta-color:      var(--md-sys-color-on-surface-muted);
+  --md-comp-kpi-card-delta-up-color:   var(--md-sys-color-status-success);
+  --md-comp-kpi-card-delta-down-color: var(--md-sys-color-status-error);
+  --md-comp-kpi-card-delta-size:       var(--md-sys-typescale-meta-size);
+  --md-comp-kpi-card-delta-gap:        var(--md-sys-spacing-gap-xs);
+
+
+  /* ════════════════════════════════════════════════════════════
+     AVATAR  (.av, .av-sm, .av-md)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-avatar-radius:           var(--md-sys-shape-corner-full);
+  --md-comp-avatar-sm-size:          var(--md-sys-size-indicator-sm);
+  --md-comp-avatar-md-size:          var(--md-sys-size-indicator-md);
+  --md-comp-avatar-label-color:      var(--md-sys-color-on-categorical);
+  --md-comp-avatar-sm-label-size:    var(--md-sys-typescale-annotation-sm-size);
+  --md-comp-avatar-md-label-size:    var(--md-sys-typescale-annotation-md-size);
+  --md-comp-avatar-label-weight:     var(--md-sys-typescale-annotation-sm-weight);
+  /* Background set dynamically via inline style from categorical hue token */
+
+
+  /* ════════════════════════════════════════════════════════════
+     PANEL  (.panel, .panel-h)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-panel-container-color:        var(--md-sys-color-surface);
+  --md-comp-panel-container-border:       var(--md-sys-color-outline);
+  --md-comp-panel-container-radius:       var(--md-sys-shape-corner-lg);
+  --md-comp-panel-header-border:          var(--md-sys-color-divider);
+  /* Known exception: compound block/inline (12px 16px) split into logical properties. */
+  --md-comp-panel-header-padding-block:   var(--md-sys-spacing-inset-md);
+  --md-comp-panel-header-padding-inline:  var(--md-sys-spacing-inset-lg);
+  --md-comp-panel-header-title-size:      var(--md-sys-typescale-body-semibold-size);
+  --md-comp-panel-header-title-weight:    var(--md-sys-typescale-body-semibold-weight);
+  --md-comp-panel-header-sub-color:       var(--md-sys-color-on-surface-muted);
+  --md-comp-panel-header-sub-size:        var(--md-sys-typescale-meta-size);
+
+
+  /* ════════════════════════════════════════════════════════════
+     INPUT  (.input)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-input-container-color:    var(--md-sys-color-surface);
+  --md-comp-input-container-border:   var(--md-sys-color-outline);
+  --md-comp-input-container-radius:   var(--md-sys-shape-corner-md);
+  --md-comp-input-container-height:   var(--md-sys-density-row);
+  --md-comp-input-label-color:        var(--md-sys-color-on-surface);
+  --md-comp-input-label-size:         var(--md-sys-typescale-body-medium-size);
+  --md-comp-input-placeholder-color:  var(--md-sys-color-on-surface-muted);
+  --md-comp-input-focus-border:       var(--md-sys-color-on-surface-secondary);
+  --md-comp-input-padding-inline:     var(--md-sys-spacing-inset-sm);
+
+}

@@ -1,0 +1,74 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-comp-button-gap);
+  height: var(--md-comp-button-container-height);
+  padding-inline: var(--md-comp-button-padding-inline);
+  border-radius: var(--md-comp-button-container-radius);
+  background: var(--md-comp-button-container-color);
+  border: 1px solid var(--md-comp-button-container-border);
+  color: var(--md-comp-button-label-color);
+  font-family: var(--md-sys-typescale-family);
+  font-size: var(--md-comp-button-label-size);
+  font-weight: var(--md-comp-button-label-weight);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-duration-sm) var(--md-sys-motion-easing-standard),
+    border-color var(--md-sys-motion-duration-sm) var(--md-sys-motion-easing-standard),
+    color var(--md-sys-motion-duration-sm) var(--md-sys-motion-easing-standard);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.ui-button:hover:not(:disabled) {
+  background: var(--md-comp-button-hover-container-color);
+}
+
+.ui-button:active:not(:disabled) {
+  transform: var(--md-sys-motion-press-transform);
+  transition-duration: var(--md-sys-motion-duration-press);
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.ui-button:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Primary */
+.ui-button--primary {
+  background: var(--md-comp-button-primary-container-color);
+  border-color: var(--md-comp-button-primary-container-color);
+  color: var(--md-comp-button-primary-label-color);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: var(--md-sys-color-on-surface-secondary);
+  border-color: var(--md-sys-color-on-surface-secondary);
+}
+
+/* Ghost */
+.ui-button--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--md-comp-button-ghost-label-color);
+}
+
+.ui-button--ghost:hover:not(:disabled) {
+  background: var(--md-comp-button-hover-container-color);
+}
+
+/* Icon-only */
+.ui-button--icon {
+  width: 32px;
+  padding-inline: 0;
+  flex-shrink: 0;
+}

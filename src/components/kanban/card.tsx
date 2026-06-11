@@ -1,11 +1,9 @@
 'use client';
-import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Clock, Calendar, Flag } from 'lucide-react';
 import type { Card, Member } from '@/lib/types';
 import { DEPT_SHORT, DEPT_HUE } from '@/lib/data';
-import { hue } from '@/lib/utils';
+import { KanbanCard } from '@/components/ui/KanbanCard/KanbanCard';
 
 interface KCardProps {
   card: Card;
@@ -19,10 +17,7 @@ function isOverdue(due: string, status: string, cardMonth: string): boolean {
   const [mm, dd] = due.split('/').map(Number);
   if (!mm || !dd) return false;
   const year = Number(cardMonth.split('/')[0]);
-  const dueDate = new Date(year, mm - 1, dd);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return dueDate < today;
+  return new Date(year, mm - 1, dd) < new Date(new Date().setHours(0, 0, 0, 0));
 }
 
 export default function KCard({ card, onOpen, memberById = {} }: KCardProps) {
@@ -30,57 +25,30 @@ export default function KCard({ card, onOpen, memberById = {} }: KCardProps) {
     id: card.id,
   });
 
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   const owner = card.owner ? memberById[card.owner] : undefined;
-  const over = card.actual > card.est;
-  const overdue = isOverdue(card.due, card.status, card.month);
-  const deptColor = hue(DEPT_HUE[card.dept] || 1);
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
-      className={`kcard${isDragging ? ' dragging' : ''}`}
-      onClick={onOpen}
     >
-      <div className="kcard-row">
-        <span className="kcard-id">{card.id}</span>
-        <span className="kcard-cat" data-cat={card.cat}>
-          {card.cat}
-        </span>
-        {card.prio === 'high' && (
-          <span className="kcard-prio" style={{ color: 'var(--st-block)' }}>
-            <Flag size={12} />
-          </span>
-        )}
-      </div>
-      <div className="kcard-title">{card.title}</div>
-      <div className="kcard-dept">
-        <span className="chip-dot" style={{ background: deptColor }} />
-        {DEPT_SHORT[card.dept] || card.dept}
-      </div>
-      <div className="kcard-meta">
-        <span className={`kcard-due${overdue ? ' overdue' : ''}`}>
-          <Calendar size={12} />
-          {card.due}
-        </span>
-        <span className={`kcard-hours${over ? ' over' : ''}`}>
-          <Clock size={12} />
-          {card.actual}
-          <span className="ratio">/{card.est}h</span>
-        </span>
-        {owner && (
-          owner.photo
-            ? <img src={owner.photo} alt={owner.name} title={owner.name} className="kcard-avatar av av-sm" style={{ objectFit: 'cover' }} />
-            : <span className="kcard-avatar av av-sm" style={{ background: hue(owner.hue) }} title={owner.name}>{owner.initial}</span>
-        )}
-      </div>
+      <KanbanCard
+        id={card.id}
+        title={card.title}
+        cat={card.cat as 'UIUX' | '平面視覺'}
+        dept={DEPT_SHORT[card.dept] || card.dept}
+        deptHue={DEPT_HUE[card.dept] || 1}
+        priority={card.prio}
+        due={card.due}
+        est={card.est}
+        actual={card.actual}
+        owner={owner ? { initial: owner.initial, hue: owner.hue, name: owner.name, photo: owner.photo } : undefined}
+        isDragging={isDragging}
+        isOverdue={isOverdue(card.due, card.status, card.month)}
+        onClick={onOpen}
+      />
     </div>
   );
 }

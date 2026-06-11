@@ -1,0 +1,26 @@
+.ui-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ui-form-row label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--md-sys-color-on-surface-muted);
+}
+
+.ui-form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.ui-form-grid[data-cols='2'] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ui-form-grid[data-cols='1'] {
+  grid-template-columns: 1fr;
+}

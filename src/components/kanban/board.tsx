@@ -19,12 +19,31 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 
-function DroppableColumnBody({ id, isOver, children }: { id: string; isOver: boolean; children: React.ReactNode }) {
-  const { setNodeRef } = useDroppable({ id });
+import { KanbanColumn } from '@/components/ui/KanbanColumn/KanbanColumn';
+
+function DroppableKanbanColumn({ status, colCards, isOver, memberById, onOpen }: {
+  status: { id: string; name: string; dot: string };
+  colCards: Card[];
+  isOver: boolean;
+  memberById: Record<string, Member>;
+  onOpen: (id: string) => void;
+}) {
+  const { setNodeRef } = useDroppable({ id: status.id });
   return (
-    <div ref={setNodeRef} className={`kcol-body${isOver ? ' is-over' : ''}`}>
-      {children}
-    </div>
+    <KanbanColumn
+      ref={setNodeRef}
+      name={status.name}
+      count={colCards.length}
+      dotColor={status.dot}
+      isOver={isOver}
+      isEmpty={colCards.length === 0}
+    >
+      <SortableContext items={colCards.map(c => c.id)} strategy={verticalListSortingStrategy}>
+        {colCards.map(card => (
+          <KCard key={card.id} card={card} onOpen={() => onOpen(card.id)} memberById={memberById} />
+        ))}
+      </SortableContext>
+    </KanbanColumn>
   );
 }
 
@@ -198,32 +217,15 @@ export default function KanbanBoard({
         {STATUSES.map(status => {
           const colIds = items[status.id] ?? [];
           const colCards = colIds.map(id => cardMap[id]).filter((c): c is Card => !!c && passes(c));
-          const isOver = overColumn === status.id;
-
           return (
-            <div key={status.id} className="kcol">
-              <div className="kcol-h">
-                <div className="kcol-dot" style={{ background: status.dot }} />
-                <span className="kcol-name">{status.name}</span>
-                <span className="kcol-count">{colCards.length}</span>
-              </div>
-              <SortableContext items={colCards.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                <DroppableColumnBody id={status.id} isOver={isOver}>
-                  {colCards.length === 0 ? (
-                    <div className="kcol-empty">尚無任務</div>
-                  ) : (
-                    colCards.map(card => (
-                      <KCard
-                        key={card.id}
-                        card={card}
-                        onOpen={() => onOpen(card.id)}
-                        memberById={memberById}
-                      />
-                    ))
-                  )}
-                </DroppableColumnBody>
-              </SortableContext>
-            </div>
+            <DroppableKanbanColumn
+              key={status.id}
+              status={status}
+              colCards={colCards}
+              isOver={overColumn === status.id}
+              memberById={memberById}
+              onOpen={onOpen}
+            />
           );
         })}
       </div>

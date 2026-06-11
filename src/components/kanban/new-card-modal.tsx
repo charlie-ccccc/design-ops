@@ -1,9 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import type { Cat, Priority, CardStatus, Member } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/Button/Button';
+import { Input } from '@/components/ui/Input/Input';
+import { FormRow, FormGrid } from '@/components/ui/FormRow/FormRow';
+import { Modal } from '@/components/ui/Modal/Modal';
 
 function plainToHtml(text: string): string {
   if (!text) return '';
@@ -100,121 +103,98 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
   const canSubmit = form.title.trim() && form.dept && form.cat && form.prio && form.due;
 
   return (
-    <div className={`modal-scrim${open ? ' open' : ''}`} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal modal-lg">
-        <div className="modal-h">
-          <span className="modal-h-title">新增需求單</span>
-          <span style={{ flex: 1 }} />
-          <button className="drawer-close" onClick={onClose} aria-label="關閉" type="button">
-            <X size={16} />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            {/* 標題 */}
-            <div className="form-row">
-              <label>標題 *</label>
-              <input
-                className="input"
-                style={{ width: '100%' }}
-                placeholder="需求單標題..."
-                value={form.title}
-                onChange={e => set('title', e.target.value)}
-                autoFocus
-              />
-            </div>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="新增需求單"
+      size="lg"
+      footer={
+        <>
+          <Button variant="ghost" type="button" onClick={onClose}>取消</Button>
+          <Button variant="primary" type="submit" form="new-card-form" disabled={!canSubmit}>建立需求單</Button>
+        </>
+      }
+    >
+      <form id="new-card-form" onSubmit={handleSubmit}>
+        <FormRow label="標題 *">
+          <Input
+            style={{ width: '100%' }}
+            placeholder="需求單標題..."
+            value={form.title}
+            onChange={e => set('title', (e.target as HTMLInputElement).value)}
+            autoFocus
+          />
+        </FormRow>
 
-            <div className="form-grid">
-              {/* Row 1: 需求發起單位 | 委託人 */}
-              <div className="form-row">
-                <label>需求發起單位 *</label>
-                <select className="input" style={{ width: '100%' }} value={form.dept} onChange={e => set('dept', e.target.value)}>
-                  <option value="">請選擇</option>
-                  {depts.map((d: string) => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
+        <FormGrid cols={2}>
+          <FormRow label="需求發起單位 *">
+            <Input as="select" style={{ width: '100%' }} value={form.dept}
+              onChange={e => set('dept', (e.target as HTMLSelectElement).value)}>
+              <option value="">請選擇</option>
+              {depts.map((d: string) => <option key={d} value={d}>{d}</option>)}
+            </Input>
+          </FormRow>
 
-              <div className="form-row">
-                <label>委託人</label>
-                {currentUser.roles.includes('一般') ? (
-                  <input className="input" style={{ width: '100%', color: 'var(--ink-2)' }} value={form.requesterName} disabled />
-                ) : (
-                  <select
-                    className="input"
-                    style={{ width: '100%' }}
-                    value={form.requester}
-                    onChange={e => {
-                      const uid = e.target.value;
-                      const u = siteUsers.find(x => x.uid === uid);
-                      set('requester', uid);
-                      set('requesterName', u?.name ?? '');
-                    }}
-                  >
-                    <option value="">未指定</option>
-                    {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
-                  </select>
-                )}
-              </div>
+          <FormRow label="委託人">
+            {currentUser.roles.includes('一般') ? (
+              <Input style={{ width: '100%', color: 'var(--md-sys-color-on-surface-muted)' }} value={form.requesterName} disabled />
+            ) : (
+              <Input as="select" style={{ width: '100%' }} value={form.requester}
+                onChange={e => {
+                  const uid = (e.target as HTMLSelectElement).value;
+                  const u = siteUsers.find(x => x.uid === uid);
+                  set('requester', uid);
+                  set('requesterName', u?.name ?? '');
+                }}>
+                <option value="">未指定</option>
+                {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
+              </Input>
+            )}
+          </FormRow>
 
-              {/* Row 2: 截止日 | 優先級 */}
-              <div className="form-row">
-                <label>截止日 *</label>
-                <input
-                  className="input"
-                  style={{ width: '100%' }}
-                  type="date"
-                  value={toDateInputVal(form.due)}
-                  onChange={e => set('due', fromDateInput(e.target.value))}
-                />
-              </div>
+          <FormRow label="截止日 *">
+            <Input type="date" style={{ width: '100%' }}
+              value={toDateInputVal(form.due)}
+              onChange={e => set('due', fromDateInput((e.target as HTMLInputElement).value))} />
+          </FormRow>
 
-              <div className="form-row">
-                <label>優先級 *</label>
-                <select className="input" style={{ width: '100%' }} value={form.prio} onChange={e => set('prio', e.target.value as Priority)}>
-                  <option value="">請選擇</option>
-                  <option value="high">高</option>
-                  <option value="normal">中</option>
-                  <option value="low">低</option>
-                </select>
-              </div>
+          <FormRow label="優先級 *">
+            <Input as="select" style={{ width: '100%' }} value={form.prio}
+              onChange={e => set('prio', (e.target as HTMLSelectElement).value as Priority)}>
+              <option value="">請選擇</option>
+              <option value="high">高</option>
+              <option value="normal">中</option>
+              <option value="low">低</option>
+            </Input>
+          </FormRow>
 
-              {/* Row 3: 類別 | 受託人 */}
-              <div className="form-row">
-                <label>類別 *</label>
-                <select className="input" style={{ width: '100%' }} value={form.cat} onChange={e => set('cat', e.target.value as Cat)}>
-                  <option value="">請選擇</option>
-                  <option value="UIUX">UIUX</option>
-                  <option value="平面視覺">平面視覺</option>
-                </select>
-              </div>
+          <FormRow label="類別 *">
+            <Input as="select" style={{ width: '100%' }} value={form.cat}
+              onChange={e => set('cat', (e.target as HTMLSelectElement).value as Cat)}>
+              <option value="">請選擇</option>
+              <option value="UIUX">UIUX</option>
+              <option value="平面視覺">平面視覺</option>
+            </Input>
+          </FormRow>
 
-              <div className="form-row">
-                <label>受託人</label>
-                <select className="input" style={{ width: '100%' }} value={form.owner} onChange={e => set('owner', e.target.value)}>
-                  <option value="">未指定</option>
-                  {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                </select>
-              </div>
-            </div>
+          <FormRow label="受託人">
+            <Input as="select" style={{ width: '100%' }} value={form.owner}
+              onChange={e => set('owner', (e.target as HTMLSelectElement).value)}>
+              <option value="">未指定</option>
+              {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </Input>
+          </FormRow>
+        </FormGrid>
 
-            {/* 描述 */}
-            <div className="form-row">
-              <label>描述</label>
-              <RichTextEditor
-                key={openCount}
-                value={plainToHtml(form.desc)}
-                onChange={v => set('desc', v)}
-                minHeight={220}
-              />
-            </div>
-          </div>
-
-          <div className="modal-f">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>取消</button>
-            <button type="submit" className="btn btn-primary" disabled={!canSubmit}>建立需求單</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <FormRow label="描述">
+          <RichTextEditor
+            key={openCount}
+            value={plainToHtml(form.desc)}
+            onChange={v => set('desc', v)}
+            minHeight={220}
+          />
+        </FormRow>
+      </form>
+    </Modal>
   );
 }
