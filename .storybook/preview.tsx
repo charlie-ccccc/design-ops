@@ -58,6 +58,31 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    viewport: {
+      options: {
+        desktop: {
+          name: '電腦 1440px',
+          styles: { width: '1440px', height: '900px' },
+        },
+        laptop: {
+          name: '筆電 1280px',
+          styles: { width: '1280px', height: '800px' },
+        },
+        tablet: {
+          name: '平板 768px',
+          styles: { width: '768px', height: '1024px' },
+        },
+        mobile: {
+          name: '手機 390px',
+          styles: { width: '390px', height: '844px' },
+        },
+        mobileSm: {
+          name: '手機小 375px',
+          styles: { width: '375px', height: '667px' },
+        },
+      },
+      defaultViewport: 'desktop',
+    },
   },
 };
 
