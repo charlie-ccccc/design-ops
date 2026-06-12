@@ -122,6 +122,7 @@ export default function App() {
   const [density, setDensity] = useState<'compact' | 'comfy'>('comfy');
   const showAdmin = user?.roles.includes('Admin') ?? false;
   const isMember = user?.roles.includes('成員') ?? false;
+  const showDashboard = showAdmin || isMember;
   const [accent, setAccent] = useState<keyof typeof ACCENT_PRESETS>('violet');
 
   useEffect(() => {
@@ -470,7 +471,7 @@ export default function App() {
 
   const workspacePages = [
     { id: 'kanban' as Page,    name: '任務看板', icon: <LayoutGrid size={15} />, count: kanbanCards.length },
-    { id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> },
+    ...(showDashboard ? [{ id: 'dashboard' as Page, name: 'Dashboard', icon: <BarChart2 size={15} /> }] : []),
     { id: 'history' as Page,   name: '歷史紀錄', icon: <Archive size={15} /> },
   ];
   const adminPages = [
@@ -585,7 +586,7 @@ export default function App() {
               cardOrder={cardOrder}
             />
           )}
-          {page === 'dashboard' && (
+          {page === 'dashboard' && showDashboard && (
             <Dashboard
               cards={kanbanCards}
               totalCapacity={totalCapacity}
