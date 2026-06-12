@@ -36,7 +36,7 @@ export const MEMBERS: Member[] = [
 export const MEMBER_BY_ID: Record<string, Member> = Object.fromEntries(MEMBERS.map(m => [m.id, m]));
 
 // All platform users (designers + other depts who can log in and open tickets)
-export interface SiteUser { id: string; name: string; initial: string; hue: number; dept: string; }
+export interface SiteUser { id: string; name: string; initial: string; hue: number; dept: string; photo?: string; }
 export const SITE_USERS: SiteUser[] = [
   // Design team
   { id: 'mia',      name: '吳奕蓁', initial: '蓁', hue: 1, dept: '設計部-UIUX' },

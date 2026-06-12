@@ -10,6 +10,7 @@ import { hue, sum } from '@/lib/utils';
 import { createNotification } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
+import { MemberCell } from '@/components/ui/MemberCell/MemberCell';
 
 interface CardDrawerProps {
   card: Card | null;
@@ -44,9 +45,9 @@ function fromDateInput(val: string): string {
   return val.slice(5).replace('-', '/');
 }
 
-type AnyUser = { id: string; name: string; initial: string; hue: number; sub?: string };
-function toAnyUser(m: typeof MEMBERS[0]): AnyUser { return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, sub: m.cat }; }
-function siteToAnyUser(u: SiteUser): AnyUser { return { id: u.id, name: u.name, initial: u.initial, hue: u.hue, sub: u.dept }; }
+type AnyUser = { id: string; name: string; initial: string; hue: number; photo?: string; sub?: string };
+function toAnyUser(m: typeof MEMBERS[0]): AnyUser { return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, photo: m.photo, sub: m.cat }; }
+function siteToAnyUser(u: SiteUser): AnyUser { return { id: u.id, name: u.name, initial: u.initial, hue: u.hue, photo: u.photo, sub: u.dept }; }
 
 function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —' }: {
   value: string; onChange: (name: string, id: string) => void; users: AnyUser[]; placeholder?: string;
@@ -84,7 +85,7 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', border: 'none', padding: '8px 12px', cursor: 'pointer', fontSize: 14, textAlign: 'left', background: value === u.name ? 'color-mix(in oklab, var(--md-sys-color-primary) 12%, transparent)' : 'none' }}
               onMouseEnter={e => { if (value !== u.name) e.currentTarget.style.background = 'var(--md-sys-color-surface-variant)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = value === u.name ? 'color-mix(in oklab, var(--md-sys-color-primary) 12%, transparent)' : 'none'; }}>
-              <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
+              {u.photo ? <img src={u.photo} alt={u.name} className="av av-sm" style={{ objectFit: 'cover' }} /> : <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>}
               <span style={{ fontWeight: 500 }}>{u.name}</span>
             </button>
           ))}
@@ -100,7 +101,7 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
         style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--md-sys-color-surface-variant)', border: '1px solid var(--md-sys-color-outline)', borderRadius: 8, padding: '5px 10px', cursor: 'pointer', fontSize: 14 }}>
         {selected ? (
           <>
-            <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>
+            {selected.photo ? <img src={selected.photo} alt={selected.name} className="av av-sm" style={{ objectFit: 'cover' }} /> : <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>}
             <span style={{ fontWeight: 500 }}>{selected.name}</span>
           </>
         ) : <span style={{ color: 'var(--md-sys-color-on-surface-muted)' }}>{placeholder}</span>}
@@ -141,10 +142,10 @@ type BottomTab = 'activity' | 'comments' | 'timelogs';
 
 export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, currentUserUid, siteUsers: propSiteUsers, members: propMembers }: CardDrawerProps) {
   const DESIGNER_USERS = propMembers
-    ? propMembers.map(m => ({ id: m.id, name: m.name, initial: m.initial, hue: m.hue, sub: m.cat } as AnyUser))
+    ? propMembers.map(m => ({ id: m.id, name: m.name, initial: m.initial, hue: m.hue, photo: m.photo, sub: m.cat } as AnyUser))
     : STATIC_DESIGNER_USERS;
   const ALL_USERS = propSiteUsers
-    ? propSiteUsers.map(u => ({ id: u.uid, name: u.name, initial: u.initial ?? u.name[0], hue: u.hue ?? 1, sub: u.dept } as AnyUser))
+    ? propSiteUsers.map(u => ({ id: u.uid, name: u.name, initial: u.initial ?? u.name[0], hue: u.hue ?? 1, photo: u.photo, sub: u.dept } as AnyUser))
     : STATIC_ALL_USERS;
   const [isOpen, setIsOpen] = useState(false);
   const [displayCard, setDisplayCard] = useState<Card | null>(null);
@@ -469,12 +470,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   {readOnly ? (
                     (() => {
                       const u = ALL_USERS.find(u => u.name === c.requester);
-                      return u ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div className="av av-sm" style={{ background: hue(u.hue) }}>{u.initial}</div>
-                          <span>{u.name}</span>
-                        </div>
-                      ) : (c.requester || '—');
+                      return u ? <MemberCell photo={u.photo} name={u.name} initial={u.initial} color={hue(u.hue)} /> : (c.requester || '—');
                     })()
                   ) : (
                     <MemberPicker value={c.requester || ''} users={ALL_USERS} onChange={(name) => onUpdate(c.id, { requester: name })} placeholder="開單人" />
@@ -524,12 +520,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
               <div className="drawer-section">
                 <h4>受託人</h4>
                 {readOnly ? (
-                  ownerUser ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="av av-sm" style={{ background: hue(ownerUser.hue) }}>{ownerUser.initial}</div>
-                      <span style={{ fontSize: 14 }}>{ownerUser.name}</span>
-                    </div>
-                  ) : <span style={{ fontSize: 14, color: 'var(--md-sys-color-on-surface-muted)' }}>—</span>
+                  ownerUser ? <MemberCell photo={ownerUser.photo} name={ownerUser.name} initial={ownerUser.initial} color={hue(ownerUser.hue)} /> : <span style={{ fontSize: 14, color: 'var(--md-sys-color-on-surface-muted)' }}>—</span>
                 ) : (
                   <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
                     onChange={(name, id) => {
