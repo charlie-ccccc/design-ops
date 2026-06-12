@@ -198,8 +198,9 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
 
   const memberEst = members.map(m => {
     const mc = cards.filter(c => c.owner === m.id);
-    return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, value: sum(mc.map(c => c.est)), actual: sum(mc.map(c => c.actual)), color: hue(m.hue) };
-  }).filter(m => m.value > 0).sort((a, b) => b.value - a.value);
+    return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, value: sum(mc.map(c => c.est)), actual: sum(mc.map(c => c.actual)) };
+  }).filter(m => m.value > 0).sort((a, b) => b.value - a.value)
+    .map((m, i) => ({ ...m, color: hue(i + 1) }));
 
   const totalEst    = sum(cards.map(c => c.est));
   const totalActual = sum(cards.map(c => c.actual));
@@ -264,7 +265,7 @@ export default function Dashboard({ cards, totalCapacity, onOpenCard, drillFilte
           </div>
           <div className="chart-body">
             <div className="chart-wrap">
-              <CircleChart data={memberEst.map(m => ({ name: m.name, value: m.value, color: hue(m.hue) }))} size={180} kind="donut" centerValue={`${totalEst}h`} onSliceClick={i => drill({ owner: memberEst[i].id })} />
+              <CircleChart data={memberEst.map(m => ({ name: m.name, value: m.value, color: m.color }))} size={180} kind="donut" centerValue={`${totalEst}h`} onSliceClick={i => drill({ owner: memberEst[i].id })} />
             </div>
             <div className="legend">
               {memberEst.map((m, i) => (
