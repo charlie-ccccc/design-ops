@@ -1,8 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { LayoutGrid, BarChart2, TrendingUp, Archive, Shield } from 'lucide-react';
+import { LayoutGrid, BarChart2, TrendingUp, Archive, Shield, Bell } from 'lucide-react';
 import { AppTopbar, type AppTopbarProps, type AppTopbarPage } from '@/components/ui/AppTopbar/AppTopbar';
+
+const MOCK_NOTIFICATION_SLOT = (
+  <button className="btn notif-btn" style={{ position: 'relative' }}>
+    <Bell size={16} />
+    <span style={{
+      position: 'absolute', top: 2, right: 2,
+      width: 6, height: 6, borderRadius: '50%',
+      background: '#ef4444', border: '1.5px solid var(--surface)',
+    }} />
+  </button>
+);
 
 type Props = {
   page: AppTopbarPage;
@@ -24,6 +35,10 @@ const NAV_ADMIN = [
 
 export function AppShellDecorator({ page, topbarProps = {}, children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const mergedTopbarProps = {
+    notificationSlot: MOCK_NOTIFICATION_SLOT,
+    ...topbarProps,
+  };
 
   return (
     <div className="app">
@@ -75,7 +90,7 @@ export function AppShellDecorator({ page, topbarProps = {}, children }: Props) {
         <AppTopbar
           page={page}
           onMenuToggle={() => setSidebarOpen(o => !o)}
-          {...topbarProps}
+          {...mergedTopbarProps}
         />
         <div className="body">
           {children}
