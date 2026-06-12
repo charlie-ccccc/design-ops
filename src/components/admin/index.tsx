@@ -387,6 +387,7 @@ export default function Admin({
         {/* ── 成員工時表 ── */}
         {tab === 'members' && (
           <Table
+            className="cap-table"
             columns={memberColumns}
             rows={memberRows}
             getKey={r => r.m.id}
