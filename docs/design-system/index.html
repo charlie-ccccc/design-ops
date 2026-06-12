@@ -1,0 +1,2097 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>設計系統文件</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --doc-bg: #ffffff;
+      --doc-surface: #ffffff;
+      --doc-surface-subtle: #f5f6f3;
+      --doc-text: #141414;
+      --doc-muted: #60645f;
+      --doc-border: #d7dbd3;
+      --doc-border-strong: #aeb5aa;
+      --doc-accent: #2f5d3a;
+      --doc-code-bg: #f0f2ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--doc-bg);
+      color: var(--doc-text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Noto Sans JP", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--doc-accent); }
+    .layout {
+      display: grid;
+      grid-template-columns: 288px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 22px;
+      border-right: 1px solid var(--doc-border);
+      background: var(--doc-surface);
+    }
+    main {
+      width: min(1160px, 100%);
+      padding: 34px 32px 72px;
+    }
+    .brand {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      margin: 0 0 4px;
+    }
+    .subtitle {
+      color: var(--doc-muted);
+      font-size: 13px;
+      margin: 0 0 24px;
+    }
+    nav a {
+      display: block;
+      padding: 7px 0;
+      color: var(--doc-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 650;
+    }
+    nav a:hover { color: var(--doc-text); }
+    .language-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 20px;
+    }
+    .language-nav button {
+      appearance: none;
+      border: 1px solid var(--doc-border);
+      border-radius: 6px;
+      background: var(--doc-surface);
+      padding: 6px 12px;
+      color: var(--doc-muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .language-nav button:hover,
+    .language-nav button:focus-visible {
+      color: var(--doc-text);
+      border-color: var(--doc-border-strong);
+    }
+    .language-nav button[aria-selected="true"] {
+      background: var(--doc-surface-subtle);
+      border-color: var(--doc-border-strong);
+      color: var(--doc-text);
+    }
+    .hero {
+      padding: 0 0 24px;
+      border-bottom: 1px solid var(--doc-border);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      max-width: 760px;
+      font-size: 34px;
+      line-height: 1.12;
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+    .hero p {
+      max-width: 820px;
+      margin: 0;
+      color: var(--doc-muted);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .pill {
+      border: 1px solid var(--doc-border);
+      background: var(--doc-surface);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--doc-muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0;
+      border-bottom: 1px solid var(--doc-border);
+      margin-bottom: 8px;
+    }
+    .stat {
+      padding: 14px 18px 16px;
+      border-right: 1px solid var(--doc-border);
+    }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { border-right: 0; }
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat span {
+      color: var(--doc-muted);
+      font-size: 13px;
+    }
+    .panel {
+      padding: 24px 0;
+      background: transparent;
+      border-top: 1px solid var(--doc-border);
+      margin: 0;
+      overflow: hidden;
+    }
+    .panel h1, .panel h2, .panel h3, .panel h4 {
+      letter-spacing: 0;
+      line-height: 1.15;
+      margin-top: 0;
+    }
+    .panel h1 { font-size: 30px; }
+    .panel h2 { font-size: 23px; margin-top: 26px; }
+    .panel h3 { font-size: 18px; margin-top: 22px; }
+    .panel p, .panel li { color: var(--doc-text); }
+    .muted { color: var(--doc-muted); }
+    .source {
+      display: inline-block;
+      color: var(--doc-muted);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    code {
+      background: var(--doc-code-bg);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow: auto;
+      padding: 16px;
+      border-radius: 8px;
+      background: #1d211b;
+      color: #f5f7f2;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--doc-border);
+      border-radius: 6px;
+      margin: 16px 0;
+    }
+    .doc-image {
+      display: block;
+      max-width: min(220px, 100%);
+      max-height: 160px;
+      margin: 4px 0;
+      border: 1px solid var(--doc-border);
+      border-radius: 6px;
+      background: var(--doc-surface);
+      object-fit: contain;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--doc-border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background: var(--doc-surface-subtle);
+      color: var(--doc-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .swatch {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--doc-border);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @media (max-width: 860px) {
+      .layout { display: block; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--doc-border);
+      }
+      main { padding: 24px 16px 56px; }
+      .grid { grid-template-columns: 1fr; }
+      .stat,
+      .stat + .stat,
+      .stat:last-child {
+        border-right: 0;
+        border-top: 1px solid var(--doc-border);
+        padding: 14px 0;
+      }
+      .hero { padding-bottom: 20px; }
+      .panel { padding: 22px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <p class="brand" data-i18n="brand">設計系統</p>
+      <p class="subtitle" data-i18n="subtitle">自動產生文件</p>
+      <div class="language-nav" role="tablist" aria-label="語言">
+        <button type="button" role="tab" data-language-button="zh-Hant" aria-selected="true">繁中</button>
+        <button type="button" role="tab" data-language-button="en" aria-selected="false">EN</button>
+        <button type="button" role="tab" data-language-button="ja" aria-selected="false">日本語</button>
+      </div>
+      <nav>
+        <a href="#overview" data-i18n="navOverview">總覽</a><a href="#tokens" data-i18n="navTokens">Tokens</a><a href="review.html" data-i18n="navReviewQueue">審查佇列</a><a href="#doc-design-system-kickstart-md" data-i18n="docKickstart">Kickstart</a><a href="#doc-session-state-md" data-i18n="docSessionState">Session 狀態</a><a href="#doc-design-evidence-map-md" data-i18n="docEvidenceMap">設計證據對照</a><a href="#doc-design-principles-md" data-i18n="docDesignPrinciples">設計原則</a><a href="#doc-design-elements-md" data-i18n="docDesignElements">設計元素</a><a href="#doc-token-architecture-md" data-i18n="docTokenArchitecture">Token 架構</a><a href="#doc-component-inventory-md" data-i18n="docComponentInventory">元件盤點</a><a href="#doc-component-spec-template-md" data-i18n="docComponentSpecTemplate">元件規格範本</a><a href="#doc-interaction-states-md" data-i18n="docInteractionStates">互動狀態</a><a href="#doc-page-composition-rules-md" data-i18n="docPageComposition">頁面組成</a><a href="#doc-anti-ai-style-rules-md" data-i18n="docAntiAiStyleRules">Anti-AI 風格規則</a><a href="#doc-components-button-md" data-i18n-template="component" data-i18n-name="Button">元件：Button</a><a href="#doc-components-kanban-card-md" data-i18n-template="component" data-i18n-name="Kanban Card">元件：Kanban Card</a><a href="#doc-components-kpi-card-md" data-i18n-template="component" data-i18n-name="Kpi Card">元件：Kpi Card</a>
+      </nav>
+    </aside>
+    <main>
+      <section class="hero" id="overview">
+        <h1 data-i18n="heroTitle">設計系統文件</h1>
+        <p data-i18n="heroLead" data-i18n-html="true">此靜態參考文件由 <code>design-system/</code> Markdown 與 <code>tokens/</code> CSS 自訂屬性自動產生。</p>
+        <div class="meta">
+          <span class="pill"><span data-i18n="pillGenerated">產生時間</span> 2026-06-10T08:37:41.260Z</span>
+          <span class="pill">14 <span data-i18n="pillDocuments">份文件</span></span>
+          <span class="pill">344 <span data-i18n="pillTokens">個 tokens</span></span>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="文件摘要">
+        <div class="stat"><strong>14</strong><span data-i18n="statDocuments">設計系統文件</span></div>
+        <div class="stat"><strong>344</strong><span data-i18n="statTokens">Token 總數</span></div>
+        <div class="stat"><strong>107</strong><span data-i18n="statTokenRef">Reference tokens</span></div>
+        <div class="stat"><strong>136</strong><span data-i18n="statTokenSys">System tokens</span></div>
+        <div class="stat"><strong>101</strong><span data-i18n="statTokenComp">Component tokens</span></div>
+        <div class="stat"><strong>0</strong><span data-i18n="statMissing">缺少預期文件</span></div>
+      </section>
+
+      <section id="tokens">
+        <section class="panel" id="ref">
+    <h2 data-i18n="tokenRef">Reference Tokens</h2>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th data-i18n="tokenColumnName">Token</th>
+        <th data-i18n="tokenColumnValue">值</th>
+        <th data-i18n="tokenColumnResolved">解析值</th>
+      </tr></thead>
+      <tbody><tr>
+        <td><code>--md-ref-typeface-noto-tc</code></td>
+        <td><code>&quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, -apple-system, BlinkMacSystemFont, sans-serif</code></td>
+        <td><code>&quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, -apple-system, BlinkMacSystemFont, sans-serif</code></td>
+      </tr><tr>
+        <td><code>--md-ref-typeface-feature-ss01-cv11</code></td>
+        <td><code>&quot;ss01&quot;, &quot;cv11&quot;</code></td>
+        <td><code>&quot;ss01&quot;, &quot;cv11&quot;</code></td>
+      </tr><tr>
+        <td><code>--md-ref-weight-400</code></td>
+        <td><code>400</code></td>
+        <td><code>400</code></td>
+      </tr><tr>
+        <td><code>--md-ref-weight-500</code></td>
+        <td><code>500</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-ref-weight-600</code></td>
+        <td><code>600</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-ref-weight-700</code></td>
+        <td><code>700</code></td>
+        <td><code>700</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-4</code></td>
+        <td><code>4px</code></td>
+        <td><code>4px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-6</code></td>
+        <td><code>6px</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-8</code></td>
+        <td><code>8px</code></td>
+        <td><code>8px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-10</code></td>
+        <td><code>10px</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-11</code></td>
+        <td><code>11px</code></td>
+        <td><code>11px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-12</code></td>
+        <td><code>12px</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-13</code></td>
+        <td><code>13px</code></td>
+        <td><code>13px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-14</code></td>
+        <td><code>14px</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-15</code></td>
+        <td><code>15px</code></td>
+        <td><code>15px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-16</code></td>
+        <td><code>16px</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-18</code></td>
+        <td><code>18px</code></td>
+        <td><code>18px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-20</code></td>
+        <td><code>20px</code></td>
+        <td><code>20px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-22</code></td>
+        <td><code>22px</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-24</code></td>
+        <td><code>24px</code></td>
+        <td><code>24px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-28</code></td>
+        <td><code>28px</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-32</code></td>
+        <td><code>32px</code></td>
+        <td><code>32px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-36</code></td>
+        <td><code>36px</code></td>
+        <td><code>36px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-56</code></td>
+        <td><code>56px</code></td>
+        <td><code>56px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-232</code></td>
+        <td><code>232px</code></td>
+        <td><code>232px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-296</code></td>
+        <td><code>296px</code></td>
+        <td><code>296px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-460</code></td>
+        <td><code>460px</code></td>
+        <td><code>460px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-size-520</code></td>
+        <td><code>520px</code></td>
+        <td><code>520px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-radius-6</code></td>
+        <td><code>6px</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-radius-9</code></td>
+        <td><code>9px</code></td>
+        <td><code>9px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-radius-12</code></td>
+        <td><code>12px</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-radius-16</code></td>
+        <td><code>16px</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-radius-full</code></td>
+        <td><code>99px</code></td>
+        <td><code>99px</code></td>
+      </tr><tr>
+        <td><code>--md-ref-leading-10</code></td>
+        <td><code>1.0</code></td>
+        <td><code>1.0</code></td>
+      </tr><tr>
+        <td><code>--md-ref-leading-11</code></td>
+        <td><code>1.1</code></td>
+        <td><code>1.1</code></td>
+      </tr><tr>
+        <td><code>--md-ref-leading-135</code></td>
+        <td><code>1.35</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-ref-leading-145</code></td>
+        <td><code>1.45</code></td>
+        <td><code>1.45</code></td>
+      </tr><tr>
+        <td><code>--md-ref-leading-16</code></td>
+        <td><code>1.6</code></td>
+        <td><code>1.6</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-neg-020</code></td>
+        <td><code>-0.02em</code></td>
+        <td><code>-0.02em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-neg-010</code></td>
+        <td><code>-0.01em</code></td>
+        <td><code>-0.01em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-neg-005</code></td>
+        <td><code>-0.005em</code></td>
+        <td><code>-0.005em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-neg-003</code></td>
+        <td><code>-0.003em</code></td>
+        <td><code>-0.003em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-000</code></td>
+        <td><code>0em</code></td>
+        <td><code>0em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-005</code></td>
+        <td><code>0.005em</code></td>
+        <td><code>0.005em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-040</code></td>
+        <td><code>0.04em</code></td>
+        <td><code>0.04em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-060</code></td>
+        <td><code>0.06em</code></td>
+        <td><code>0.06em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-tracking-080</code></td>
+        <td><code>0.08em</code></td>
+        <td><code>0.08em</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-06</code></td>
+        <td><code>0.06</code></td>
+        <td><code>0.06</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-08</code></td>
+        <td><code>0.08</code></td>
+        <td><code>0.08</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-16</code></td>
+        <td><code>0.16</code></td>
+        <td><code>0.16</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-32</code></td>
+        <td><code>0.32</code></td>
+        <td><code>0.32</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-36</code></td>
+        <td><code>0.36</code></td>
+        <td><code>0.36</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-40</code></td>
+        <td><code>0.40</code></td>
+        <td><code>0.40</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-dark-05</code></td>
+        <td><code>0.05</code></td>
+        <td><code>0.05</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-dark-07</code></td>
+        <td><code>0.07</code></td>
+        <td><code>0.07</code></td>
+      </tr><tr>
+        <td><code>--md-ref-opacity-dark-14</code></td>
+        <td><code>0.14</code></td>
+        <td><code>0.14</code></td>
+      </tr><tr>
+        <td><code>--md-ref-duration-050</code></td>
+        <td><code>0.05s</code></td>
+        <td><code>0.05s</code></td>
+      </tr><tr>
+        <td><code>--md-ref-duration-120</code></td>
+        <td><code>0.12s</code></td>
+        <td><code>0.12s</code></td>
+      </tr><tr>
+        <td><code>--md-ref-duration-180</code></td>
+        <td><code>0.18s</code></td>
+        <td><code>0.18s</code></td>
+      </tr><tr>
+        <td><code>--md-ref-duration-280</code></td>
+        <td><code>0.28s</code></td>
+        <td><code>0.28s</code></td>
+      </tr><tr>
+        <td><code>--md-ref-easing-standard</code></td>
+        <td><code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code></td>
+        <td><code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-transform-press</code></td>
+        <td><code>translateY(0.5px)</code></td>
+        <td><code>translateY(0.5px)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-channel-ink</code></td>
+        <td><code>28 25 23</code></td>
+        <td><code>28 25 23</code></td>
+      </tr><tr>
+        <td><code>--md-ref-channel-dark</code></td>
+        <td><code>0 0 0</code></td>
+        <td><code>0 0 0</code></td>
+      </tr><tr>
+        <td><code>--md-ref-channel-scrim</code></td>
+        <td><code>10 10 8</code></td>
+        <td><code>10 10 8</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-sm</code></td>
+        <td><code>0 1px 2px rgb(15 14 12 / 4%), 0 0 0 0.5px rgb(15 14 12 / 4%)</code></td>
+        <td><code>0 1px 2px rgb(15 14 12 / 4%), 0 0 0 0.5px rgb(15 14 12 / 4%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-md</code></td>
+        <td><code>0 1px 2px rgb(15 14 12 / 4%), 0 4px 12px rgb(15 14 12 / 6%)</code></td>
+        <td><code>0 1px 2px rgb(15 14 12 / 4%), 0 4px 12px rgb(15 14 12 / 6%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-lg</code></td>
+        <td><code>0 4px 14px rgb(15 14 12 / 8%), 0 16px 40px rgb(15 14 12 / 10%)</code></td>
+        <td><code>0 4px 14px rgb(15 14 12 / 8%), 0 16px 40px rgb(15 14 12 / 10%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-dark-sm</code></td>
+        <td><code>0 1px 2px rgb(0 0 0 / 40%)</code></td>
+        <td><code>0 1px 2px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-dark-md</code></td>
+        <td><code>0 2px 6px rgb(0 0 0 / 40%), 0 12px 24px rgb(0 0 0 / 32%)</code></td>
+        <td><code>0 2px 6px rgb(0 0 0 / 40%), 0 12px 24px rgb(0 0 0 / 32%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-shadow-dark-lg</code></td>
+        <td><code>0 6px 18px rgb(0 0 0 / 50%), 0 24px 64px rgb(0 0 0 / 40%)</code></td>
+        <td><code>0 6px 18px rgb(0 0 0 / 50%), 0 24px 64px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-100</code></td>
+        <td><code>#FFFFFF</code></td>
+        <td><span class="swatch" style="background:#FFFFFF"></span><code>#FFFFFF</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-97</code></td>
+        <td><code>#FAFAF7</code></td>
+        <td><span class="swatch" style="background:#FAFAF7"></span><code>#FAFAF7</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-95</code></td>
+        <td><code>#F7F6F2</code></td>
+        <td><span class="swatch" style="background:#F7F6F2"></span><code>#F7F6F2</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-93</code></td>
+        <td><code>#F4F3EE</code></td>
+        <td><span class="swatch" style="background:#F4F3EE"></span><code>#F4F3EE</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-75</code></td>
+        <td><code>#C7C5BF</code></td>
+        <td><span class="swatch" style="background:#C7C5BF"></span><code>#C7C5BF</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-58</code></td>
+        <td><code>#9A9893</code></td>
+        <td><span class="swatch" style="background:#9A9893"></span><code>#9A9893</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-42</code></td>
+        <td><code>#6B6864</code></td>
+        <td><span class="swatch" style="background:#6B6864"></span><code>#6B6864</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-18</code></td>
+        <td><code>#2E2D29</code></td>
+        <td><span class="swatch" style="background:#2E2D29"></span><code>#2E2D29</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-warm-10</code></td>
+        <td><code>#1A1A17</code></td>
+        <td><span class="swatch" style="background:#1A1A17"></span><code>#1A1A17</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-93</code></td>
+        <td><code>#EDEDE9</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-79</code></td>
+        <td><code>#C9C8C3</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-54</code></td>
+        <td><code>#8B8985</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-37</code></td>
+        <td><code>#5F5E5A</code></td>
+        <td><span class="swatch" style="background:#5F5E5A"></span><code>#5F5E5A</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-23</code></td>
+        <td><code>#3C3B38</code></td>
+        <td><span class="swatch" style="background:#3C3B38"></span><code>#3C3B38</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-14</code></td>
+        <td><code>#1F1F23</code></td>
+        <td><span class="swatch" style="background:#1F1F23"></span><code>#1F1F23</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-11</code></td>
+        <td><code>#18181B</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-9</code></td>
+        <td><code>#161618</code></td>
+        <td><span class="swatch" style="background:#161618"></span><code>#161618</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-dark-6</code></td>
+        <td><code>#0E0E10</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-violet-95</code></td>
+        <td><code>#EDE8FB</code></td>
+        <td><span class="swatch" style="background:#EDE8FB"></span><code>#EDE8FB</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-violet-74</code></td>
+        <td><code>#8B83D4</code></td>
+        <td><span class="swatch" style="background:#8B83D4"></span><code>#8B83D4</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-violet-66</code></td>
+        <td><code>#7A71C6</code></td>
+        <td><span class="swatch" style="background:#7A71C6"></span><code>#7A71C6</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-violet-52</code></td>
+        <td><code>#5C4EC5</code></td>
+        <td><span class="swatch" style="background:#5C4EC5"></span><code>#5C4EC5</code></td>
+      </tr><tr>
+        <td><code>--md-ref-color-violet-28</code></td>
+        <td><code>#322A56</code></td>
+        <td><span class="swatch" style="background:#322A56"></span><code>#322A56</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-1</code></td>
+        <td><code>#7A71C6</code></td>
+        <td><span class="swatch" style="background:#7A71C6"></span><code>#7A71C6</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-2</code></td>
+        <td><code>#B07040</code></td>
+        <td><span class="swatch" style="background:#B07040"></span><code>#B07040</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-3</code></td>
+        <td><code>#4A8FA8</code></td>
+        <td><span class="swatch" style="background:#4A8FA8"></span><code>#4A8FA8</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-4</code></td>
+        <td><code>#5A9870</code></td>
+        <td><span class="swatch" style="background:#5A9870"></span><code>#5A9870</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-5</code></td>
+        <td><code>#8A9A3A</code></td>
+        <td><span class="swatch" style="background:#8A9A3A"></span><code>#8A9A3A</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-6</code></td>
+        <td><code>#B06880</code></td>
+        <td><span class="swatch" style="background:#B06880"></span><code>#B06880</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-7</code></td>
+        <td><code>#4A70A8</code></td>
+        <td><span class="swatch" style="background:#4A70A8"></span><code>#4A70A8</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-cat-8</code></td>
+        <td><code>#709858</code></td>
+        <td><span class="swatch" style="background:#709858"></span><code>#709858</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-status-neutral</code></td>
+        <td><code>#898794</code></td>
+        <td><span class="swatch" style="background:#898794"></span><code>#898794</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-status-blue</code></td>
+        <td><code>#4A72C8</code></td>
+        <td><span class="swatch" style="background:#4A72C8"></span><code>#4A72C8</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-status-amber</code></td>
+        <td><code>#967E1A</code></td>
+        <td><span class="swatch" style="background:#967E1A"></span><code>#967E1A</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-status-green</code></td>
+        <td><code>#3D8A55</code></td>
+        <td><span class="swatch" style="background:#3D8A55"></span><code>#3D8A55</code></td>
+      </tr><tr>
+        <td><code>--md-ref-hue-status-red</code></td>
+        <td><code>#B83A2A</code></td>
+        <td><span class="swatch" style="background:#B83A2A"></span><code>#B83A2A</code></td>
+      </tr></tbody>
+    </table></div>
+  </section>
+<section class="panel" id="sys">
+    <h2 data-i18n="tokenSys">System Tokens</h2>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th data-i18n="tokenColumnName">Token</th>
+        <th data-i18n="tokenColumnValue">值</th>
+        <th data-i18n="tokenColumnResolved">解析值</th>
+      </tr></thead>
+      <tbody><tr>
+        <td><code>--md-sys-color-background</code></td>
+        <td><code>var(--md-ref-color-warm-97)</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-background-elevated</code></td>
+        <td><code>var(--md-ref-color-warm-93)</code></td>
+        <td><span class="swatch" style="background:#161618"></span><code>#161618</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-surface</code></td>
+        <td><code>var(--md-ref-color-warm-100)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-surface-variant</code></td>
+        <td><code>var(--md-ref-color-warm-95)</code></td>
+        <td><span class="swatch" style="background:#1F1F23"></span><code>#1F1F23</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface</code></td>
+        <td><code>var(--md-ref-color-warm-10)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-secondary</code></td>
+        <td><code>var(--md-ref-color-warm-18)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-muted</code></td>
+        <td><code>var(--md-ref-color-warm-42)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-faint</code></td>
+        <td><code>var(--md-ref-color-warm-58)</code></td>
+        <td><span class="swatch" style="background:#5F5E5A"></span><code>#5F5E5A</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-background</code></td>
+        <td><code>var(--md-ref-color-warm-10)</code></td>
+        <td><span class="swatch" style="background:#1A1A17"></span><code>#1A1A17</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-background-elevated</code></td>
+        <td><code>var(--md-ref-color-warm-10)</code></td>
+        <td><span class="swatch" style="background:#1A1A17"></span><code>#1A1A17</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-variant</code></td>
+        <td><code>var(--md-ref-color-warm-18)</code></td>
+        <td><span class="swatch" style="background:#2E2D29"></span><code>#2E2D29</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-primary</code></td>
+        <td><code>var(--md-ref-color-violet-52)</code></td>
+        <td><span class="swatch" style="background:#8B83D4"></span><code>#8B83D4</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-primary</code></td>
+        <td><code>var(--md-ref-color-warm-100)</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-primary-container</code></td>
+        <td><code>var(--md-ref-color-violet-95)</code></td>
+        <td><span class="swatch" style="background:#322A56"></span><code>#322A56</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-primary-container</code></td>
+        <td><code>var(--md-ref-color-violet-52)</code></td>
+        <td><span class="swatch" style="background:#8B83D4"></span><code>#8B83D4</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline</code></td>
+        <td><code>rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-08))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline-strong</code></td>
+        <td><code>rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-16))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-14))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-14))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline-faint</code></td>
+        <td><code>var(--md-ref-color-warm-75)</code></td>
+        <td><span class="swatch" style="background:#3C3B38"></span><code>#3C3B38</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-divider</code></td>
+        <td><code>rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-05))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-05))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-status-neutral</code></td>
+        <td><code>var(--md-ref-hue-status-neutral)</code></td>
+        <td><span class="swatch" style="background:#898794"></span><code>#898794</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-status-info</code></td>
+        <td><code>var(--md-ref-hue-status-blue)</code></td>
+        <td><span class="swatch" style="background:#4A72C8"></span><code>#4A72C8</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-status-warning</code></td>
+        <td><code>var(--md-ref-hue-status-amber)</code></td>
+        <td><span class="swatch" style="background:#967E1A"></span><code>#967E1A</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-status-success</code></td>
+        <td><code>var(--md-ref-hue-status-green)</code></td>
+        <td><span class="swatch" style="background:#3D8A55"></span><code>#3D8A55</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-status-error</code></td>
+        <td><code>var(--md-ref-hue-status-red)</code></td>
+        <td><span class="swatch" style="background:#B83A2A"></span><code>#B83A2A</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-1</code></td>
+        <td><code>var(--md-ref-hue-cat-1)</code></td>
+        <td><span class="swatch" style="background:#7A71C6"></span><code>#7A71C6</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-2</code></td>
+        <td><code>var(--md-ref-hue-cat-2)</code></td>
+        <td><span class="swatch" style="background:#B07040"></span><code>#B07040</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-3</code></td>
+        <td><code>var(--md-ref-hue-cat-3)</code></td>
+        <td><span class="swatch" style="background:#4A8FA8"></span><code>#4A8FA8</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-4</code></td>
+        <td><code>var(--md-ref-hue-cat-4)</code></td>
+        <td><span class="swatch" style="background:#5A9870"></span><code>#5A9870</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-5</code></td>
+        <td><code>var(--md-ref-hue-cat-5)</code></td>
+        <td><span class="swatch" style="background:#8A9A3A"></span><code>#8A9A3A</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-6</code></td>
+        <td><code>var(--md-ref-hue-cat-6)</code></td>
+        <td><span class="swatch" style="background:#B06880"></span><code>#B06880</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-7</code></td>
+        <td><code>var(--md-ref-hue-cat-7)</code></td>
+        <td><span class="swatch" style="background:#4A70A8"></span><code>#4A70A8</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-cat-8</code></td>
+        <td><code>var(--md-ref-hue-cat-8)</code></td>
+        <td><span class="swatch" style="background:#709858"></span><code>#709858</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-scrim-panel</code></td>
+        <td><code>rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-32))</code></td>
+        <td><span class="swatch" style="background:rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-32))"></span><code>rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-32))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-scrim-overlay</code></td>
+        <td><code>rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-36))</code></td>
+        <td><span class="swatch" style="background:rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-36))"></span><code>rgb(var(--md-ref-channel-scrim) / var(--md-ref-opacity-36))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-hover-tint</code></td>
+        <td><code>rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06))</code></td>
+        <td><span class="swatch" style="background:rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06))"></span><code>rgb(var(--md-ref-channel-ink) / var(--md-ref-opacity-06))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-opacity-drag-dim</code></td>
+        <td><code>var(--md-ref-opacity-40)</code></td>
+        <td><code>0.40</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-family</code></td>
+        <td><code>var(--md-ref-typeface-noto-tc)</code></td>
+        <td><code>&quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, -apple-system, BlinkMacSystemFont, sans-serif</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-feature</code></td>
+        <td><code>var(--md-ref-typeface-feature-ss01-cv11)</code></td>
+        <td><code>&quot;ss01&quot;, &quot;cv11&quot;</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-display-size</code></td>
+        <td><code>var(--md-ref-size-28)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-display-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-display-leading</code></td>
+        <td><code>var(--md-ref-leading-11)</code></td>
+        <td><code>1.1</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-display-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-020)</code></td>
+        <td><code>-0.02em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-lg-size</code></td>
+        <td><code>var(--md-ref-size-22)</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-lg-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-lg-leading</code></td>
+        <td><code>var(--md-ref-leading-11)</code></td>
+        <td><code>1.1</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-lg-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-020)</code></td>
+        <td><code>-0.02em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-size</code></td>
+        <td><code>var(--md-ref-size-18)</code></td>
+        <td><code>18px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-010)</code></td>
+        <td><code>-0.01em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-sm-size</code></td>
+        <td><code>var(--md-ref-size-16)</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-sm-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-sm-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-title-sm-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-010)</code></td>
+        <td><code>-0.01em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-size</code></td>
+        <td><code>var(--md-ref-size-14)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-weight</code></td>
+        <td><code>var(--md-ref-weight-400)</code></td>
+        <td><code>400</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-leading</code></td>
+        <td><code>var(--md-ref-leading-145)</code></td>
+        <td><code>1.45</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-tracking</code></td>
+        <td><code>var(--md-ref-tracking-005)</code></td>
+        <td><code>0.005em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-medium-size</code></td>
+        <td><code>var(--md-ref-size-14)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-medium-weight</code></td>
+        <td><code>var(--md-ref-weight-500)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-medium-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-medium-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-003)</code></td>
+        <td><code>-0.003em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-semibold-size</code></td>
+        <td><code>var(--md-ref-size-14)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-semibold-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-semibold-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-body-semibold-tracking</code></td>
+        <td><code>var(--md-ref-tracking-neg-005)</code></td>
+        <td><code>-0.005em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-label-size</code></td>
+        <td><code>var(--md-ref-size-12)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-label-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-label-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-label-tracking</code></td>
+        <td><code>var(--md-ref-tracking-080)</code></td>
+        <td><code>0.08em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-meta-size</code></td>
+        <td><code>var(--md-ref-size-12)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-meta-weight</code></td>
+        <td><code>var(--md-ref-weight-500)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-meta-leading</code></td>
+        <td><code>var(--md-ref-leading-135)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-meta-tracking</code></td>
+        <td><code>var(--md-ref-tracking-040)</code></td>
+        <td><code>0.04em</code></td>
+      </tr><tr>
+        <td><code>--md-sys-shape-corner-sm</code></td>
+        <td><code>var(--md-ref-radius-6)</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-shape-corner-md</code></td>
+        <td><code>var(--md-ref-radius-9)</code></td>
+        <td><code>9px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-shape-corner-lg</code></td>
+        <td><code>var(--md-ref-radius-12)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-shape-corner-xl</code></td>
+        <td><code>var(--md-ref-radius-16)</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-shape-corner-full</code></td>
+        <td><code>var(--md-ref-radius-full)</code></td>
+        <td><code>99px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-sm</code></td>
+        <td><code>var(--md-ref-shadow-sm)</code></td>
+        <td><code>0 1px 2px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-md</code></td>
+        <td><code>var(--md-ref-shadow-md)</code></td>
+        <td><code>0 2px 6px rgb(0 0 0 / 40%), 0 12px 24px rgb(0 0 0 / 32%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-lg</code></td>
+        <td><code>var(--md-ref-shadow-lg)</code></td>
+        <td><code>0 6px 18px rgb(0 0 0 / 50%), 0 24px 64px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-gap-xs</code></td>
+        <td><code>var(--md-ref-size-4)</code></td>
+        <td><code>4px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-gap-sm</code></td>
+        <td><code>var(--md-ref-size-6)</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-gap-md</code></td>
+        <td><code>var(--md-ref-size-8)</code></td>
+        <td><code>8px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-gap-lg</code></td>
+        <td><code>var(--md-ref-size-10)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-section-gap</code></td>
+        <td><code>var(--md-ref-size-14)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-page-gutter</code></td>
+        <td><code>var(--md-ref-size-22)</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-page-top</code></td>
+        <td><code>var(--md-ref-size-18)</code></td>
+        <td><code>18px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-inset-sm</code></td>
+        <td><code>var(--md-ref-size-10)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-inset-md</code></td>
+        <td><code>var(--md-ref-size-12)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-inset-lg</code></td>
+        <td><code>var(--md-ref-size-16)</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-spacing-inset-xl</code></td>
+        <td><code>var(--md-ref-size-20)</code></td>
+        <td><code>20px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-pad</code></td>
+        <td><code>var(--md-ref-size-16)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-row</code></td>
+        <td><code>var(--md-ref-size-36)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-inner</code></td>
+        <td><code>var(--md-ref-size-14)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-side-panel-width</code></td>
+        <td><code>var(--md-ref-size-232)</code></td>
+        <td><code>232px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-topbar-height</code></td>
+        <td><code>var(--md-ref-size-56)</code></td>
+        <td><code>56px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-kanban-col</code></td>
+        <td><code>var(--md-ref-size-296)</code></td>
+        <td><code>296px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-drawer-width</code></td>
+        <td><code>var(--md-ref-size-460)</code></td>
+        <td><code>460px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-overlay-max</code></td>
+        <td><code>var(--md-ref-size-520)</code></td>
+        <td><code>520px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-categorical</code></td>
+        <td><code>var(--md-ref-color-warm-100)</code></td>
+        <td><span class="swatch" style="background:#FFFFFF"></span><code>#FFFFFF</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-annotation-sm-size</code></td>
+        <td><code>var(--md-ref-size-10)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-annotation-sm-weight</code></td>
+        <td><code>var(--md-ref-weight-600)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-annotation-md-size</code></td>
+        <td><code>var(--md-ref-size-11)</code></td>
+        <td><code>11px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-typescale-annotation-md-weight</code></td>
+        <td><code>var(--md-ref-weight-400)</code></td>
+        <td><code>400</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-indicator-sm</code></td>
+        <td><code>var(--md-ref-size-22)</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-size-indicator-md</code></td>
+        <td><code>var(--md-ref-size-28)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-duration-sm</code></td>
+        <td><code>var(--md-ref-duration-120)</code></td>
+        <td><code>0.12s</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-duration-md</code></td>
+        <td><code>var(--md-ref-duration-180)</code></td>
+        <td><code>0.18s</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-duration-lg</code></td>
+        <td><code>var(--md-ref-duration-280)</code></td>
+        <td><code>0.28s</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-duration-press</code></td>
+        <td><code>var(--md-ref-duration-050)</code></td>
+        <td><code>0.05s</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-easing-standard</code></td>
+        <td><code>var(--md-ref-easing-standard)</code></td>
+        <td><code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-motion-press-transform</code></td>
+        <td><code>var(--md-ref-transform-press)</code></td>
+        <td><code>translateY(0.5px)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-background</code></td>
+        <td><code>var(--md-ref-color-dark-6)</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-background-elevated</code></td>
+        <td><code>var(--md-ref-color-dark-9)</code></td>
+        <td><span class="swatch" style="background:#161618"></span><code>#161618</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-surface</code></td>
+        <td><code>var(--md-ref-color-dark-11)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-surface-variant</code></td>
+        <td><code>var(--md-ref-color-dark-14)</code></td>
+        <td><span class="swatch" style="background:#1F1F23"></span><code>#1F1F23</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface</code></td>
+        <td><code>var(--md-ref-color-dark-93)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-secondary</code></td>
+        <td><code>var(--md-ref-color-dark-79)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-muted</code></td>
+        <td><code>var(--md-ref-color-dark-54)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-surface-faint</code></td>
+        <td><code>var(--md-ref-color-dark-37)</code></td>
+        <td><span class="swatch" style="background:#5F5E5A"></span><code>#5F5E5A</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-primary</code></td>
+        <td><code>var(--md-ref-color-violet-74)</code></td>
+        <td><span class="swatch" style="background:#8B83D4"></span><code>#8B83D4</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-primary</code></td>
+        <td><code>var(--md-ref-color-dark-6)</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-primary-container</code></td>
+        <td><code>var(--md-ref-color-violet-28)</code></td>
+        <td><span class="swatch" style="background:#322A56"></span><code>#322A56</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-on-primary-container</code></td>
+        <td><code>var(--md-ref-color-violet-74)</code></td>
+        <td><span class="swatch" style="background:#8B83D4"></span><code>#8B83D4</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline</code></td>
+        <td><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline-strong</code></td>
+        <td><code>rgb(255 255 255 / var(--md-ref-opacity-dark-14))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-14))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-14))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-outline-faint</code></td>
+        <td><code>var(--md-ref-color-dark-23)</code></td>
+        <td><span class="swatch" style="background:#3C3B38"></span><code>#3C3B38</code></td>
+      </tr><tr>
+        <td><code>--md-sys-color-divider</code></td>
+        <td><code>rgb(255 255 255 / var(--md-ref-opacity-dark-05))</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-05))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-05))</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-sm</code></td>
+        <td><code>var(--md-ref-shadow-dark-sm)</code></td>
+        <td><code>0 1px 2px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-md</code></td>
+        <td><code>var(--md-ref-shadow-dark-md)</code></td>
+        <td><code>0 2px 6px rgb(0 0 0 / 40%), 0 12px 24px rgb(0 0 0 / 32%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-elevation-lg</code></td>
+        <td><code>var(--md-ref-shadow-dark-lg)</code></td>
+        <td><code>0 6px 18px rgb(0 0 0 / 50%), 0 24px 64px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-pad</code></td>
+        <td><code>var(--md-ref-size-10)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-row</code></td>
+        <td><code>var(--md-ref-size-28)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-sys-density-inner</code></td>
+        <td><code>var(--md-ref-size-10)</code></td>
+        <td><code>10px</code></td>
+      </tr></tbody>
+    </table></div>
+  </section>
+<section class="panel" id="comp">
+    <h2 data-i18n="tokenComp">Component Tokens</h2>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th data-i18n="tokenColumnName">Token</th>
+        <th data-i18n="tokenColumnValue">值</th>
+        <th data-i18n="tokenColumnResolved">解析值</th>
+      </tr></thead>
+      <tbody><tr>
+        <td><code>--md-comp-button-container-color</code></td>
+        <td><code>var(--md-sys-color-surface)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-container-border</code></td>
+        <td><code>var(--md-sys-color-outline)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-container-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-md)</code></td>
+        <td><code>9px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-container-height</code></td>
+        <td><code>var(--md-sys-density-row)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-label-color</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-label-size</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-size)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-label-weight</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-weight)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-padding-inline</code></td>
+        <td><code>var(--md-sys-spacing-inset-md)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-gap</code></td>
+        <td><code>var(--md-sys-spacing-gap-sm)</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-hover-container-color</code></td>
+        <td><code>var(--md-sys-color-surface-variant)</code></td>
+        <td><span class="swatch" style="background:#1F1F23"></span><code>#1F1F23</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-active-transform</code></td>
+        <td><code>var(--md-sys-motion-press-transform)</code></td>
+        <td><code>translateY(0.5px)</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-transition</code></td>
+        <td><code>var(--md-sys-motion-duration-sm)</code></td>
+        <td><code>0.12s</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-primary-container-color</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-primary-container-border</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-primary-label-color</code></td>
+        <td><code>var(--md-sys-color-background)</code></td>
+        <td><span class="swatch" style="background:#0E0E10"></span><code>#0E0E10</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-primary-hover-container-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-secondary)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-ghost-container-color</code></td>
+        <td><code>transparent</code></td>
+        <td><code>transparent</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-ghost-container-border</code></td>
+        <td><code>transparent</code></td>
+        <td><code>transparent</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-ghost-label-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-secondary)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-comp-button-ghost-hover-container-color</code></td>
+        <td><code>var(--md-sys-color-surface-variant)</code></td>
+        <td><span class="swatch" style="background:#1F1F23"></span><code>#1F1F23</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-container-color</code></td>
+        <td><code>var(--md-sys-color-surface)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-container-border</code></td>
+        <td><code>var(--md-sys-color-outline)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-container-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-md)</code></td>
+        <td><code>9px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-container-padding</code></td>
+        <td><code>var(--md-sys-density-inner)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-stack-gap</code></td>
+        <td><code>var(--md-sys-spacing-gap-md)</code></td>
+        <td><code>8px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-hover-border</code></td>
+        <td><code>var(--md-sys-color-outline-strong)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-14))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-14))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-hover-elevation</code></td>
+        <td><code>var(--md-sys-elevation-sm)</code></td>
+        <td><code>0 1px 2px rgb(0 0 0 / 40%)</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-drag-opacity</code></td>
+        <td><code>var(--md-sys-opacity-drag-dim)</code></td>
+        <td><code>0.40</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-transition</code></td>
+        <td><code>var(--md-sys-motion-duration-sm)</code></td>
+        <td><code>0.12s</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-id-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-faint)</code></td>
+        <td><span class="swatch" style="background:#5F5E5A"></span><code>#5F5E5A</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-id-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-id-weight</code></td>
+        <td><code>var(--md-sys-typescale-meta-weight)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-id-tracking</code></td>
+        <td><code>var(--md-sys-typescale-meta-tracking)</code></td>
+        <td><code>0.04em</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-badge-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-sm)</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-badge-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-badge-weight</code></td>
+        <td><code>var(--md-sys-typescale-label-weight)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-title-color</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-title-size</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-size)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-title-weight</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-weight)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-title-leading</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-leading)</code></td>
+        <td><code>1.35</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-title-tracking</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-tracking)</code></td>
+        <td><code>-0.003em</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-dept-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-dept-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-meta-divider</code></td>
+        <td><code>var(--md-sys-color-divider)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-05))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-05))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-meta-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-due-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-due-overdue-color</code></td>
+        <td><code>var(--md-sys-color-status-error)</code></td>
+        <td><span class="swatch" style="background:#B83A2A"></span><code>#B83A2A</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-hours-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-secondary)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-hours-over-color</code></td>
+        <td><code>var(--md-sys-color-status-error)</code></td>
+        <td><span class="swatch" style="background:#B83A2A"></span><code>#B83A2A</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-hours-ratio-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-avatar-size</code></td>
+        <td><code>var(--md-sys-size-indicator-sm)</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kanban-card-avatar-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-full)</code></td>
+        <td><code>99px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-container-color</code></td>
+        <td><code>var(--md-sys-color-surface)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-container-border</code></td>
+        <td><code>var(--md-sys-color-outline)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-container-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-lg)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-container-padding-block</code></td>
+        <td><code>var(--md-sys-spacing-inset-lg)</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-container-padding-inline</code></td>
+        <td><code>var(--md-sys-spacing-page-top)</code></td>
+        <td><code>18px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-label-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-label-size</code></td>
+        <td><code>var(--md-sys-typescale-label-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-label-weight</code></td>
+        <td><code>var(--md-sys-typescale-label-weight)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-label-tracking</code></td>
+        <td><code>var(--md-sys-typescale-label-tracking)</code></td>
+        <td><code>0.08em</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-color</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-size</code></td>
+        <td><code>var(--md-sys-typescale-display-size)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-weight</code></td>
+        <td><code>var(--md-sys-typescale-display-weight)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-leading</code></td>
+        <td><code>var(--md-sys-typescale-display-leading)</code></td>
+        <td><code>1.1</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-tracking</code></td>
+        <td><code>var(--md-sys-typescale-display-tracking)</code></td>
+        <td><code>-0.02em</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-value-top-gap</code></td>
+        <td><code>var(--md-sys-spacing-gap-sm)</code></td>
+        <td><code>6px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-unit-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-unit-size</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-size)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-unit-weight</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-weight)</code></td>
+        <td><code>500</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-delta-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-delta-up-color</code></td>
+        <td><code>var(--md-sys-color-status-success)</code></td>
+        <td><span class="swatch" style="background:#3D8A55"></span><code>#3D8A55</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-delta-down-color</code></td>
+        <td><code>var(--md-sys-color-status-error)</code></td>
+        <td><span class="swatch" style="background:#B83A2A"></span><code>#B83A2A</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-delta-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-kpi-card-delta-gap</code></td>
+        <td><code>var(--md-sys-spacing-gap-xs)</code></td>
+        <td><code>4px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-full)</code></td>
+        <td><code>99px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-sm-size</code></td>
+        <td><code>var(--md-sys-size-indicator-sm)</code></td>
+        <td><code>22px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-md-size</code></td>
+        <td><code>var(--md-sys-size-indicator-md)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-label-color</code></td>
+        <td><code>var(--md-sys-color-on-categorical)</code></td>
+        <td><span class="swatch" style="background:#FFFFFF"></span><code>#FFFFFF</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-sm-label-size</code></td>
+        <td><code>var(--md-sys-typescale-annotation-sm-size)</code></td>
+        <td><code>10px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-md-label-size</code></td>
+        <td><code>var(--md-sys-typescale-annotation-md-size)</code></td>
+        <td><code>11px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-avatar-label-weight</code></td>
+        <td><code>var(--md-sys-typescale-annotation-sm-weight)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-container-color</code></td>
+        <td><code>var(--md-sys-color-surface)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-container-border</code></td>
+        <td><code>var(--md-sys-color-outline)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-container-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-lg)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-border</code></td>
+        <td><code>var(--md-sys-color-divider)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-05))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-05))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-padding-block</code></td>
+        <td><code>var(--md-sys-spacing-inset-md)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-padding-inline</code></td>
+        <td><code>var(--md-sys-spacing-inset-lg)</code></td>
+        <td><code>16px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-title-size</code></td>
+        <td><code>var(--md-sys-typescale-body-semibold-size)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-title-weight</code></td>
+        <td><code>var(--md-sys-typescale-body-semibold-weight)</code></td>
+        <td><code>600</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-sub-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-panel-header-sub-size</code></td>
+        <td><code>var(--md-sys-typescale-meta-size)</code></td>
+        <td><code>12px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-container-color</code></td>
+        <td><code>var(--md-sys-color-surface)</code></td>
+        <td><span class="swatch" style="background:#18181B"></span><code>#18181B</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-container-border</code></td>
+        <td><code>var(--md-sys-color-outline)</code></td>
+        <td><span class="swatch" style="background:rgb(255 255 255 / var(--md-ref-opacity-dark-07))"></span><code>rgb(255 255 255 / var(--md-ref-opacity-dark-07))</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-container-radius</code></td>
+        <td><code>var(--md-sys-shape-corner-md)</code></td>
+        <td><code>9px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-container-height</code></td>
+        <td><code>var(--md-sys-density-row)</code></td>
+        <td><code>28px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-label-color</code></td>
+        <td><code>var(--md-sys-color-on-surface)</code></td>
+        <td><span class="swatch" style="background:#EDEDE9"></span><code>#EDEDE9</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-label-size</code></td>
+        <td><code>var(--md-sys-typescale-body-medium-size)</code></td>
+        <td><code>14px</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-placeholder-color</code></td>
+        <td><code>var(--md-sys-color-on-surface-muted)</code></td>
+        <td><span class="swatch" style="background:#8B8985"></span><code>#8B8985</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-focus-border</code></td>
+        <td><code>var(--md-sys-color-on-surface-secondary)</code></td>
+        <td><span class="swatch" style="background:#C9C8C3"></span><code>#C9C8C3</code></td>
+      </tr><tr>
+        <td><code>--md-comp-input-padding-inline</code></td>
+        <td><code>var(--md-sys-spacing-inset-sm)</code></td>
+        <td><code>10px</code></td>
+      </tr></tbody>
+    </table></div>
+  </section>
+      </section>
+
+      
+      <section class="panel" id="doc-design-system-kickstart-md">
+      <span class="source">DESIGN_SYSTEM_KICKSTART.md</span>
+      <h1 id="doc-design-system-kickstart-md-design-system-extraction-kickstart">Design System Extraction Kickstart</h1>
+<p>Extract a reusable design-system specification from the provided references.</p>
+<p>Do not implement product screens yet. Do not scaffold app routes yet. Do not invent a landing page.</p>
+<h2 id="doc-design-system-kickstart-md-references">References</h2>
+<p>List screenshots, graphic/brand/editorial references, Figma URLs/nodes, rendered routes, project folders, and prototype sources here.</p>
+<h2 id="doc-design-system-kickstart-md-required-order">Required Order</h2>
+<ol><li>Fill <code>DESIGN_EVIDENCE_MAP.md</code>, record source fingerprints, and review duplicate source candidates.</li><li>Fill <code>DESIGN_PRINCIPLES.md</code>.</li><li>Fill <code>DESIGN_ELEMENTS.md</code>.</li><li>Fill <code>TOKEN_ARCHITECTURE.md</code>, review near token candidates, then fill <code>tokens/</code>.</li><li>Fill <code>COMPONENT_INVENTORY.md</code>, including reusable typographic/text-lockup candidates, and review similar component candidates.</li><li>Extract at least one primary component token spec into <code>design-system/components/</code>. For graphic/editorial-heavy references, this may be a high-value typographic lockup instead of an interactive UI control.</li><li>Fill <code>PAGE_COMPOSITION_RULES.md</code>, <code>INTERACTION_STATES.md</code>, and <code>ANTI_AI_STYLE_RULES.md</code>.</li><li>Generate <code>docs/design-system/index.html</code> and <code>docs/design-system/review.html</code>.</li><li>Run strict source, token, and component audits.</li><li>Update <code>SESSION_STATE.md</code>.</li><li>Stop and ask the user what to do next.</li></ol>
+<h2 id="doc-design-system-kickstart-md-boundary">Boundary</h2>
+<p>This package defines design-system rules and tokens. Product implementation begins only after the user approves the checkpoint.</p>
+    </section>
+<section class="panel" id="doc-session-state-md">
+      <span class="source">SESSION_STATE.md</span>
+      <h1 id="doc-session-state-md-design-system-session-state">Design System Session State</h1>
+<p>Update this file at every checkpoint.</p>
+<h2 id="doc-session-state-md-current-stage">Current Stage</h2>
+<ul><li>Stage: Not started</li><li>Last updated:</li><li>AI tool / model:</li></ul>
+<h2 id="doc-session-state-md-completed-outputs">Completed Outputs</h2>
+<ul><li>[ ] DESIGN_EVIDENCE_MAP.md</li><li>[ ] DESIGN_PRINCIPLES.md</li><li>[ ] DESIGN_ELEMENTS.md</li><li>[ ] TOKEN_ARCHITECTURE.md</li><li>[ ] COMPONENT_INVENTORY.md</li><li>[ ] design-system/components/*.md component token specs</li><li>[ ] INTERACTION_STATES.md</li><li>[ ] PAGE_COMPOSITION_RULES.md</li><li>[ ] ANTI_AI_STYLE_RULES.md</li><li>[ ] tokens/tokens-ref.css</li><li>[ ] tokens/tokens-sys.css</li><li>[ ] tokens/tokens-comp.css</li><li>[ ] docs/design-system/index.html</li><li>[ ] docs/design-system/review.html</li></ul>
+<h2 id="doc-session-state-md-key-design-decisions">Key Design Decisions</h2>
+<div class="table-wrap"><table><thead><tr><th>Decision</th><th>Evidence</th><th>Files updated</th></tr></thead><tbody></tbody></table></div>
+<h2 id="doc-session-state-md-token-layers-changed">Token Layers Changed</h2>
+<ul><li>Reference:</li><li>System:</li><li>Component:</li></ul>
+<h2 id="doc-session-state-md-source-duplicate-review">Source Duplicate Review</h2>
+<ul><li>Duplicate source candidates found:</li><li>Developer decisions recorded in <code>DESIGN_EVIDENCE_MAP.md</code>:</li><li>Source fingerprints recorded:</li></ul>
+<h2 id="doc-session-state-md-token-review">Token Review</h2>
+<ul><li>Near token candidates found:</li><li>Developer decisions recorded in <code>TOKEN_ARCHITECTURE.md</code>:</li></ul>
+<h2 id="doc-session-state-md-component-similarity-review">Component Similarity Review</h2>
+<ul><li>Similar component candidates found:</li><li>Developer decisions recorded in <code>COMPONENT_INVENTORY.md</code>:</li><li>Visual comparison assets:</li></ul>
+<h2 id="doc-session-state-md-open-questions">Open Questions</h2>
+<h2 id="doc-session-state-md-verification">Verification</h2>
+<ul><li>Source audit mode:</li><li>Source audit result:</li><li>Token audit mode:</li><li>Token audit result:</li><li>Component audit mode:</li><li>Component audit result:</li></ul>
+<h2 id="doc-session-state-md-generated-documentation">Generated Documentation</h2>
+<ul><li>HTML docs:</li><li>Review queue:</li></ul>
+<h2 id="doc-session-state-md-recommended-next-prompt">Recommended Next Prompt</h2>
+    </section>
+<section class="panel" id="doc-design-evidence-map-md">
+      <span class="source">DESIGN_EVIDENCE_MAP.md</span>
+      <h1 id="doc-design-evidence-map-md-design-evidence-map">Design Evidence Map</h1>
+<h2 id="doc-design-evidence-map-md-source-inventory">Source Inventory</h2>
+<div class="table-wrap"><table><thead><tr><th>Source ID</th><th>Type</th><th>Path</th><th>Source fingerprint</th><th>Screen or state</th><th>Notes</th><th>Confidence</th></tr></thead><tbody><tr><td>S01</td><td>project-code</td><td><code>src/app/globals.css</code></td><td><code>project-code:src/app/globals.css</code></td><td>All screens — CSS custom props + component classes</td><td>Primary token source; full design token vocabulary</td><td>High</td></tr><tr><td>S02</td><td>project-code</td><td><code>src/app/layout.tsx</code></td><td><code>project-code:src/app/layout.tsx</code></td><td>All — font import, lang attribute</td><td>Noto Sans TC 400/500/600/700; <code>lang=&quot;zh-Hant&quot;</code></td><td>High</td></tr><tr><td>S03</td><td>project-code</td><td><code>src/components/kanban/card.tsx</code></td><td><code>project-code:src/components/kanban/card.tsx</code></td><td>Kanban — card anatomy</td><td>KCard slots: id, category, priority flag, title, dept dot, due, hours, avatar</td><td>High</td></tr><tr><td>S04</td><td>project-code</td><td><code>src/components/kanban/board.tsx</code></td><td><code>project-code:src/components/kanban/board.tsx</code></td><td>Kanban — column layout</td><td>Column header, empty state, droppable body, drag overlay</td><td>High</td></tr><tr><td>S05</td><td>project-code</td><td><code>src/components/auth/login-page.tsx</code></td><td><code>project-code:src/components/auth/login-page.tsx</code></td><td>Auth — login screen</td><td>Brand mark &quot;C&quot;, Google auth button, domain restriction, in-app warning</td><td>High</td></tr><tr><td>S06</td><td>project-code</td><td><code>src/components/dashboard/index.tsx</code></td><td><code>project-code:src/components/dashboard/index.tsx</code></td><td>Dashboard — KPI/chart/crosstab</td><td>Crosstab table, drill-down, donut center lockup</td><td>High</td></tr><tr><td>S07</td><td>project-code</td><td><code>src/lib/types.ts</code></td><td><code>project-code:src/lib/types.ts</code></td><td>Domain model</td><td>CardStatus, Cat, Priority, Card, Member, LeaveEntry</td><td>High</td></tr><tr><td>S08</td><td>project-code</td><td><code>src/lib/data.ts</code></td><td><code>project-code:src/lib/data.ts</code></td><td>Data constants</td><td>15 DEPTS, 6 MEMBERS, hue assignments, STATUSES</td><td>High</td></tr><tr><td>S09</td><td>rendered-project</td><td><code>http://localhost:3001/ · 1280×720 · unauthenticated</code></td><td><code>rendered:localhost:3001/#login·1280x720</code></td><td>Login page screenshot</td><td><code>/tmp/design-ops-login.png</code></td><td>High</td></tr></tbody></table></div>
+<h2 id="doc-design-evidence-map-md-source-duplicate-review">Source Duplicate Review</h2>
+<p>All 9 source fingerprints are distinct (unique file paths or routes). No candidate pairs require a reuse/ignore/keep-distinct decision.</p>
+<div class="table-wrap"><table><thead><tr><th>Candidate source</th><th>Duplicate of</th><th>Match type</th><th>Developer decision</th></tr></thead><tbody></tbody></table></div>
+<h2 id="doc-design-evidence-map-md-evidence-rows">Evidence Rows</h2>
+<h3 id="doc-design-evidence-map-md-color">Color</h3>
+<div class="table-wrap"><table><thead><tr><th>EID</th><th>Source</th><th>Region</th><th>Observed pattern</th><th>Design decision</th><th>Affected output</th><th>Confidence</th></tr></thead><tbody><tr><td>E-C01</td><td>S01</td><td><code>:root</code> <code>--bg</code></td><td><code>#FAFAF7</code> warm off-white</td><td>Page background is warm-tinted, never pure white</td><td><code>--md-sys-color-background</code></td><td>High</td></tr><tr><td>E-C02</td><td>S01</td><td><code>:root</code> <code>--surface</code></td><td><code>#FFFFFF</code> pure white</td><td>Cards/panels use pure white to float above warm bg</td><td><code>--md-sys-color-surface</code></td><td>High</td></tr><tr><td>E-C03</td><td>S01</td><td><code>:root</code> <code>--surface-2</code></td><td><code>#F7F6F2</code> warm off-white</td><td>Secondary surface: input fills, column headers, modal footers</td><td><code>--md-sys-color-surface-variant</code></td><td>High</td></tr><tr><td>E-C04</td><td>S01</td><td><code>:root</code> <code>--bg-elev</code></td><td><code>#F4F3EE</code></td><td>Elevated body (<code>.main</code>, <code>.body</code>) — between bg and surface</td><td><code>--md-sys-color-background-elevated</code></td><td>High</td></tr><tr><td>E-C05</td><td>S01</td><td><code>:root</code> <code>--ink</code></td><td><code>#1A1A17</code> near-black warm</td><td>Primary text</td><td><code>--md-sys-color-on-surface</code></td><td>High</td></tr><tr><td>E-C06</td><td>S01</td><td><code>:root</code> <code>--ink-2</code></td><td><code>#2E2D29</code> dark warm gray</td><td>Secondary text, icon default, drawer secondary title</td><td><code>--md-sys-color-on-surface-secondary</code></td><td>High</td></tr><tr><td>E-C07</td><td>S01</td><td><code>:root</code> <code>--muted</code></td><td><code>#6B6864</code> mid warm gray</td><td>Tertiary text, metadata labels, sidebar group headers</td><td><code>--md-sys-color-on-surface-muted</code></td><td>High</td></tr><tr><td>E-C08</td><td>S01</td><td><code>:root</code> <code>--muted-2</code></td><td><code>#9A9893</code> light warm gray</td><td>Placeholder, disabled text, faint icon</td><td><code>--md-sys-color-on-surface-faint</code></td><td>High</td></tr><tr><td>E-C09</td><td>S01</td><td><code>:root</code> <code>--faint</code></td><td><code>#C7C5BF</code></td><td>Zero-value table cells, column empty text</td><td><code>--md-sys-color-outline-faint</code></td><td>High</td></tr><tr><td>E-C10</td><td>S01 S05</td><td><code>:root</code> <code>--accent</code></td><td><code>oklch(0.52 0.14 282)</code> violet</td><td>CTA bg, avatar, active nav icon, selected calendar, progress bar</td><td><code>--md-sys-color-primary</code></td><td>High</td></tr><tr><td>E-C11</td><td>S01</td><td><code>:root</code> <code>--accent-soft</code></td><td><code>oklch(0.94 0.03 282)</code></td><td>Soft accent fill: hover over drag column, calendar today</td><td><code>--md-sys-color-primary-container</code></td><td>High</td></tr><tr><td>E-C12</td><td>S01</td><td><code>:root</code> <code>--accent-ink</code></td><td><code>#FFFFFF</code></td><td>Text on accent bg in light mode</td><td><code>--md-sys-color-on-primary</code></td><td>High</td></tr><tr><td>E-C13</td><td>S01</td><td><code>:root</code> <code>--border</code></td><td><code>rgba(28,25,23,0.08)</code></td><td>All card/input/panel borders</td><td><code>--md-sys-color-outline</code></td><td>High</td></tr><tr><td>E-C14</td><td>S01</td><td><code>:root</code> <code>--border-strong</code></td><td><code>rgba(28,25,23,0.16)</code></td><td>Hover/active border, crosstab total row</td><td><code>--md-sys-color-outline-strong</code></td><td>High</td></tr><tr><td>E-C15</td><td>S01</td><td><code>:root</code> <code>--divider</code></td><td><code>rgba(28,25,23,0.06)</code></td><td>Internal separators (sidebar, panel-h, meta rows, card meta dashed)</td><td><code>--md-sys-color-divider</code></td><td>High</td></tr><tr><td>E-C16</td><td>S01 S08</td><td><code>hue-c1..c8</code></td><td>8 oklch categorical colors, L≈0.62–0.72, C≈0.10–0.13</td><td>Dept/member color coding; uniform perceptual weight across hues</td><td><code>--md-ref-color-cat-1..8</code></td><td>High</td></tr><tr><td>E-C17</td><td>S01 S08</td><td><code>st-*</code></td><td>5 status oklch: todo/progress/review/done/block</td><td>Kanban status dot, hours-over, overdue, delta indicators</td><td><code>--md-sys-color-status-*</code></td><td>High</td></tr><tr><td>E-C18</td><td>S01</td><td><code>[data-theme=&quot;dark&quot;]</code></td><td>Full dark override: bg <code>#0E0E10</code>, surface <code>#18181B</code>, ink <code>#EDEDE9</code></td><td>Dark mode supported; neutrals shift to cool-dark family</td><td>Dark token overrides</td><td>High</td></tr></tbody></table></div>
+<h3 id="doc-design-evidence-map-md-typography">Typography</h3>
+<div class="table-wrap"><table><thead><tr><th>EID</th><th>Source</th><th>Region</th><th>Observed</th><th>Decision</th><th>Affected</th><th>Confidence</th></tr></thead><tbody><tr><td>E-T01</td><td>S02</td><td><code>Noto_Sans_TC</code> import</td><td>Weights 400/500/600/700; <code>variable: --font-noto</code></td><td>Primary typeface; CJK-first</td><td><code>--md-ref-typeface-primary</code></td><td>High</td></tr><tr><td>E-T02</td><td>S01</td><td><code>body</code></td><td><code>14px / 1.45 / ls 0.005em</code></td><td>Base body: 14px, airy leading, slight track</td><td>Body typescale</td><td>High</td></tr><tr><td>E-T03</td><td>S01</td><td><code>.kpi-val</code></td><td><code>600 28px/1.1; ls -0.02em</code></td><td>Display numeric: largest scale, tight leading, negative track</td><td>Display typescale</td><td>High</td></tr><tr><td>E-T04</td><td>S01</td><td><code>.tb-title</code> <code>.drawer-h-title</code></td><td><code>600 16–18px; ls -0.01em</code></td><td>UI title: 600 weight, slight negative track</td><td>Title typescale</td><td>High</td></tr><tr><td>E-T05</td><td>S01</td><td><code>.kcard-title</code></td><td><code>500 14px/1.35</code></td><td>Content body: 500 weight, tighter leading than base body</td><td>Content typescale</td><td>High</td></tr><tr><td>E-T06</td><td>S01</td><td><code>.kpi-lbl</code> <code>.sb-group-h</code> <code>.xtab thead th</code></td><td><code>600 12px uppercase ls 0.06–0.08em</code></td><td>Data label: 12px small-caps style, heavy tracking</td><td>Label typescale</td><td>High</td></tr><tr><td>E-T07</td><td>S01</td><td><code>.kcard-id</code> <code>.kcard-hours</code> <code>.tl-time</code></td><td><code>500 12px; ls 0.04em</code></td><td>Metadata: 12px slightly tracked, not uppercase</td><td>Metadata typescale</td><td>High</td></tr><tr><td>E-T08</td><td>S01</td><td><code>.tnum</code> <code>.kcard-hours</code> <code>.cap-table</code></td><td><code>font-variant-numeric: tabular-nums</code></td><td>All numeric data: tabular-nums required</td><td>Numeric feature</td><td>High</td></tr><tr><td>E-T09</td><td>S01</td><td><code>body</code></td><td><code>font-feature-settings: &quot;ss01&quot;,&quot;cv11&quot;</code></td><td>OpenType features for CJK glyph polish</td><td>Font feature rule</td><td>High</td></tr><tr><td>E-T10</td><td>S01</td><td><code>.archive-card .month</code></td><td><code>600 22px/1 inherit; ls -0.02em</code></td><td>Month display: large numeric with tight tracking</td><td>Month lockup</td><td>High</td></tr></tbody></table></div>
+<h3 id="doc-design-evidence-map-md-spacing-layout">Spacing &amp; Layout</h3>
+<div class="table-wrap"><table><thead><tr><th>EID</th><th>Source</th><th>Region</th><th>Observed</th><th>Decision</th><th>Affected</th><th>Confidence</th></tr></thead><tbody><tr><td>E-SP01</td><td>S01</td><td><code>.app</code></td><td><code>grid: 232px 1fr</code></td><td>Sidebar fixed 232px; content fluid</td><td>App shell layout</td><td>High</td></tr><tr><td>E-SP02</td><td>S01</td><td><code>.topbar</code></td><td><code>min-height: 56px; padding: 14px 22px</code></td><td>Topbar: 56px min, 22px horizontal gutter</td><td>Topbar sizing</td><td>High</td></tr><tr><td>E-SP03</td><td>S01</td><td><code>.kanban</code> <code>.dash</code> <code>.history</code></td><td><code>padding: 18px 22px</code></td><td>All main views: 22px page gutter</td><td>Page gutter token</td><td>High</td></tr><tr><td>E-SP04</td><td>S01</td><td><code>--density-pad</code></td><td><code>16px</code> (compact: <code>10px</code>)</td><td>Component internal padding default</td><td>Density pad</td><td>High</td></tr><tr><td>E-SP05</td><td>S01</td><td><code>--density-row</code></td><td><code>36px</code> (compact: <code>28px</code>)</td><td>Control/row target height</td><td>Density row</td><td>High</td></tr><tr><td>E-SP06</td><td>S01</td><td><code>--density-card</code></td><td><code>14px</code> (compact: <code>10px</code>)</td><td>Kanban card internal padding</td><td>Card density</td><td>High</td></tr><tr><td>E-SP07</td><td>S01</td><td><code>.dash</code></td><td><code>gap: 14px</code></td><td>Dashboard section gap</td><td>Section gap</td><td>High</td></tr><tr><td>E-SP08</td><td>S01</td><td><code>.kcol-body</code></td><td><code>gap: 8px; padding: 10px</code></td><td>Kanban card stack gap 8px, body padding 10px</td><td>Stack gap</td><td>High</td></tr><tr><td>E-SP09</td><td>S01</td><td><code>.drawer</code></td><td><code>width: 460px; max-width: 92vw</code></td><td>Drawer: fixed 460px, responsive cap</td><td>Drawer width</td><td>High</td></tr></tbody></table></div>
+<h3 id="doc-design-evidence-map-md-shape-elevation">Shape &amp; Elevation</h3>
+<div class="table-wrap"><table><thead><tr><th>EID</th><th>Source</th><th>Region</th><th>Observed</th><th>Decision</th><th>Affected</th><th>Confidence</th></tr></thead><tbody><tr><td>E-SH01</td><td>S01</td><td><code>--r-sm: 6px</code></td><td>Chips, icon tool buttons, heat cells</td><td><code>--md-ref-radius-6</code></td><td>High</td></tr><tr><td>E-SH02</td><td>S01</td><td><code>--r: 9px</code></td><td>Buttons, inputs, nav items, kcard</td><td><code>--md-ref-radius-9</code></td><td>High</td></tr><tr><td>E-SH03</td><td>S01</td><td><code>--r-md: 12px</code></td><td>Panels, kanban columns, dept color picker</td><td><code>--md-ref-radius-12</code></td><td>High</td></tr><tr><td>E-SH04</td><td>S01</td><td><code>--r-lg: 16px</code></td><td>Modals, brand mark</td><td><code>--md-ref-radius-16</code></td><td>High</td></tr><tr><td>E-SH05</td><td>S01</td><td><code>.chip</code> <code>.dept-pill</code></td><td><code>border-radius: 99px</code></td><td>Pill/full radius badges</td><td><code>--md-ref-radius-full</code></td><td>High</td></tr><tr><td>E-SH06</td><td>S01</td><td><code>--shadow-sm</code></td><td><code>0 1px 2px rgba(.04), 0 0 0 0.5px rgba(.04)</code></td><td>Micro shadow + hairline ring</td><td><code>--md-sys-elevation-sm</code></td><td>High</td></tr><tr><td>E-SH07</td><td>S01</td><td><code>--shadow</code></td><td><code>0 1px 2px rgba(.04), 0 4px 12px rgba(.06)</code></td><td>Popover/floating card</td><td><code>--md-sys-elevation-md</code></td><td>High</td></tr><tr><td>E-SH08</td><td>S01</td><td><code>--shadow-lg</code></td><td><code>0 4px 14px rgba(.08), 0 16px 40px rgba(.10)</code></td><td>Modal/drawer</td><td><code>--md-sys-elevation-lg</code></td><td>High</td></tr></tbody></table></div>
+    </section>
+<section class="panel" id="doc-design-principles-md">
+      <span class="source">DESIGN_PRINCIPLES.md</span>
+      <h1 id="doc-design-principles-md-design-principles">Design Principles</h1>
+<p>Extracted from <code>src/app/globals.css</code>, <code>src/components/</code>, and rendered UI (S01–S09).</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Principle</th><th>Evidence</th><th>Implementation rule</th><th>Do</th><th>Don't</th></tr></thead><tbody><tr><td>1</td><td><strong>Warm-neutral foundation</strong></td><td><code>--bg: #FAFAF7</code>; <code>--ink: #1A1A17</code>; all neutral grays carry warm undertone (warm-gray palette with brownish cast)</td><td>Every background and text color must come from the warm-neutral token family. Do not introduce cool-gray neutrals or pure black/white without mapping them to a system token.</td><td>Use <code>--md-sys-color-background</code> (#FAFAF7) as the page canvas; use <code>--md-sys-color-surface</code> (#FFFFFF) to lift cards.</td><td>Replace warm-grays with pure grays (<code>#f5f5f5</code>, <code>#333</code>) or introduce cool blue-tinted neutrals not in the palette.</td></tr><tr><td>2</td><td><strong>Operational density</strong></td><td><code>--density-row: 36px</code>; <code>--density-pad: 16px</code>; compact mode at <code>28px</code>/<code>10px</code>; 14px base font; table rows <code>10px 14px</code>; kanban uses packed <code>8px</code> card gap</td><td>This is a dense operational tool, not a marketing dashboard. All components default to compact-ish proportions. Use density tokens; never inflate padding to make UI &quot;feel premium&quot;.</td><td>Stick to <code>--density-row</code> for control heights; use <code>14px</code> body text; keep table row padding tight (8–10px).</td><td>Inflate component heights to 44px+ or add spacious 24px internal padding for aesthetic reasons.</td></tr><tr><td>3</td><td><strong>Monochrome primary with violet accent</strong></td><td><code>--accent: oklch(0.52 0.14 282)</code> violet; used only on active states, CTAs, avatars, progress; all other surfaces neutral</td><td>Accent appears only on interactive affordances (active nav icon, primary button, avatar bg, selected calendar day, drag-over tint). Not used as a section background or decorative tint.</td><td>Apply accent to <code>.btn-primary</code>, <code>.sb-item[data-on]</code> icon, <code>.sb-avatar</code>, <code>.cal-day.selected</code>.</td><td>Use accent as a card background, section highlight, or general decorative tint.</td></tr><tr><td>4</td><td><strong>Semantic status colors</strong></td><td><code>--st-todo/progress/review/done/block</code> — 5 distinct oklch status colors used consistently across kanban dots, hour-overrun, due-date overdue, delta indicators</td><td>Each status color maps to exactly one semantic state. Use the status system token, not the raw oklch value, in component implementations.</td><td>Apply <code>--md-sys-color-status-error</code> for overdue/overrun; <code>--md-sys-color-status-success</code> for done/delta-up.</td><td>Reuse status colors as decorative or categorical colors, or invent a new semantic color without a status token.</td></tr><tr><td>5</td><td><strong>Categorical dept/member color coding</strong></td><td><code>hue-c1..c8</code>; 8 oklch hues at uniform chroma/lightness; mapped to DEPT_HUE and member <code>hue</code> fields; used as <code>color-mix()</code> tinted backgrounds + foregrounds</td><td>Department and member colors always come from the categorical hue family. The 8 hues are enumerated — do not introduce new hue slots. Use the <code>hue()</code> utility or component token to derive tinted bg from the hue foreground.</td><td>Derive badge bg as <code>color-mix(in oklab, var(--md-ref-color-cat-N) 14%, transparent)</code>.</td><td>Add a 9th categorical hue or use hardcoded hex colors for dept/member identification.</td></tr><tr><td>6</td><td><strong>Surface hierarchy without gradients</strong></td><td><code>.bg</code> → <code>.bg-elev</code> → <code>.surface</code> → <code>.surface-2</code> creates 4-level hierarchy purely through lightness steps; no gradients on surfaces; no glass/blur effects (except drawer scrim <code>backdrop-filter: blur(2px)</code>); elevation via <code>shadow-sm/md/lg</code></td><td>Depth is communicated via surface lightness + shadow, not gradient. The only blur is the overlay scrim behind modals/drawers, not on content surfaces.</td><td>Use <code>box-shadow: var(--md-sys-elevation-sm)</code> on floating cards; use <code>var(--md-sys-color-surface)</code> vs <code>var(--md-sys-color-background-elevated)</code> to separate stacking layers.</td><td>Add gradient fills, glassmorphism, or blurred content surfaces. The drawer scrim blur is the sole exception.</td></tr><tr><td>7</td><td><strong>CJK-first typography</strong></td><td><code>Noto Sans TC</code> with PingFang TC fallback; <code>lang=&quot;zh-Hant&quot;</code>; <code>font-feature-settings: &quot;ss01&quot;,&quot;cv11&quot;</code>; tabular-nums on all data; tight tracking on display numerics (<code>-0.02em</code>)</td><td>All text uses the CJK-capable Noto Sans TC stack. All numeric/financial data must use tabular-nums. Use weight 500–600 for UI labels; weight 400 for body prose. Tighten tracking only on display-size numerics (22px+).</td><td>Set <code>font-feature-settings: &quot;ss01&quot;,&quot;cv11&quot;</code> on <code>&lt;body&gt;</code>; apply <code>font-variant-numeric: tabular-nums</code> on <code>.tnum</code>/any numeric data class.</td><td>Use a Latin-only typeface as fallback, omit tabular-nums on numeric columns, or apply negative tracking to 12–14px labels.</td></tr></tbody></table></div>
+    </section>
+<section class="panel" id="doc-design-elements-md">
+      <span class="source">DESIGN_ELEMENTS.md</span>
+      <h1 id="doc-design-elements-md-design-elements">Design Elements</h1>
+<h2 id="doc-design-elements-md-color-system">Color System</h2>
+<h3 id="doc-design-elements-md-warm-neutral-palette-light-mode">Warm-Neutral Palette (light mode)</h3>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Hex</th><th>Role</th><th>System token</th></tr></thead><tbody><tr><td>100</td><td><code>#FFFFFF</code></td><td>Pure white — card/panel surface</td><td><code>--md-sys-color-surface</code></td></tr><tr><td>97</td><td><code>#FAFAF7</code></td><td>Page background</td><td><code>--md-sys-color-background</code></td></tr><tr><td>95</td><td><code>#F7F6F2</code></td><td>Secondary surface (input fill, column header, modal footer)</td><td><code>--md-sys-color-surface-variant</code></td></tr><tr><td>93</td><td><code>#F4F3EE</code></td><td>Elevated body region (<code>.main</code>, <code>.body</code> wrapper)</td><td><code>--md-sys-color-background-elevated</code></td></tr><tr><td>75</td><td><code>#C7C5BF</code></td><td>Faint — zero-value cells, empty state</td><td><code>--md-sys-color-outline-faint</code></td></tr><tr><td>58</td><td><code>#9A9893</code></td><td>Faint foreground — disabled, placeholder</td><td><code>--md-sys-color-on-surface-faint</code></td></tr><tr><td>42</td><td><code>#6B6864</code></td><td>Muted foreground — metadata, captions</td><td><code>--md-sys-color-on-surface-muted</code></td></tr><tr><td>18</td><td><code>#2E2D29</code></td><td>Secondary foreground — icons, secondary text</td><td><code>--md-sys-color-on-surface-secondary</code></td></tr><tr><td>10</td><td><code>#1A1A17</code></td><td>Primary foreground — body text</td><td><code>--md-sys-color-on-surface</code></td></tr></tbody></table></div>
+<h3 id="doc-design-elements-md-cool-dark-palette-dark-mode-overrides">Cool-Dark Palette (dark mode overrides)</h3>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Hex</th><th>Role</th></tr></thead><tbody><tr><td>93</td><td><code>#EDEDE9</code></td><td>Primary text in dark (ink)</td></tr><tr><td>79</td><td><code>#C9C8C3</code></td><td>Secondary text (ink-2)</td></tr><tr><td>54</td><td><code>#8B8985</code></td><td>Muted text</td></tr><tr><td>37</td><td><code>#5F5E5A</code></td><td>Faint text</td></tr><tr><td>23</td><td><code>#3C3B38</code></td><td>Faint / empty state</td></tr><tr><td>14</td><td><code>#1F1F23</code></td><td>Surface-2 (slightly cooler than light surface-2)</td></tr><tr><td>11</td><td><code>#18181B</code></td><td>Surface</td></tr><tr><td>9</td><td><code>#161618</code></td><td>Bg-elev</td></tr><tr><td>6</td><td><code>#0E0E10</code></td><td>Page background</td></tr></tbody></table></div>
+<h3 id="doc-design-elements-md-accent-primary-violet">Accent / Primary (violet)</h3>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Value</th><th>Role</th></tr></thead><tbody><tr><td>95</td><td><code>oklch(0.94 0.03 282)</code></td><td>Soft container (hover, calendar today)</td></tr><tr><td>74</td><td><code>oklch(0.74 0.14 282)</code></td><td>Accent in dark mode</td></tr><tr><td>66</td><td><code>oklch(0.66 0.11 282)</code></td><td>Categorical violet (UIUX dept, hue-c1)</td></tr><tr><td>52</td><td><code>oklch(0.52 0.14 282)</code></td><td>Primary accent (light mode) — CTA bg, avatar, active icon</td></tr></tbody></table></div>
+<p>On accent foreground: <code>#FFFFFF</code> (light) / <code>#0E0E10</code> (dark).</p>
+<h3 id="doc-design-elements-md-categorical-colors-department-member-hues">Categorical Colors (department/member hues)</h3>
+<p>Eight enumerated hues at uniform chroma ≈ 0.10–0.13, lightness ≈ 0.62–0.72:</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>oklch</th><th>Name</th><th>Default dept usage</th></tr></thead><tbody><tr><td>cat-1</td><td><code>oklch(0.66 0.11 282)</code></td><td>violet</td><td>設計部-UIUX</td></tr><tr><td>cat-2</td><td><code>oklch(0.68 0.11 30)</code></td><td>amber</td><td>總經理室</td></tr><tr><td>cat-3</td><td><code>oklch(0.66 0.11 200)</code></td><td>cyan</td><td>合作夥伴事業群-法人事業</td></tr><tr><td>cat-4</td><td><code>oklch(0.66 0.10 140)</code></td><td>green</td><td>人力資源部</td></tr><tr><td>cat-5</td><td><code>oklch(0.72 0.10 78)</code></td><td>lime</td><td>設計部-平面視覺</td></tr><tr><td>cat-6</td><td><code>oklch(0.66 0.11 340)</code></td><td>pink</td><td>金融事業群-大眾事業(券商)</td></tr><tr><td>cat-7</td><td><code>oklch(0.62 0.10 220)</code></td><td>blue</td><td>金融事業群-大眾事業</td></tr><tr><td>cat-8</td><td><code>oklch(0.66 0.10 110)</code></td><td>chartreuse</td><td>金融事業群-流量事業-同學會</td></tr></tbody></table></div>
+<p>Tinted badge bg: <code>color-mix(in oklab, &lt;cat-N&gt; 14–16%, transparent)</code>. Tinted column drop: 6%.</p>
+<h3 id="doc-design-elements-md-status-colors">Status Colors</h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>oklch</th><th>Semantic role</th><th>Used on</th></tr></thead><tbody><tr><td>status-neutral</td><td><code>oklch(0.62 0.02 270)</code></td><td>todo / default</td><td>Kanban column dot</td></tr><tr><td>status-info</td><td><code>oklch(0.62 0.13 232)</code></td><td>in progress (designing)</td><td>Column dot</td></tr><tr><td>status-warning</td><td><code>oklch(0.66 0.13 78)</code></td><td>review / caution</td><td>Column dot, cap-pct.warn</td></tr><tr><td>status-success</td><td><code>oklch(0.58 0.12 145)</code></td><td>done / positive delta</td><td>Column dot, kpi-delta.up, progress bar</td></tr><tr><td>status-error</td><td><code>oklch(0.58 0.16 25)</code></td><td>blocked / overrun / overdue</td><td>Column dot, kpi-delta.down, hours.over, due.overdue</td></tr></tbody></table></div>
+<h3 id="doc-design-elements-md-transparency-tokens">Transparency Tokens</h3>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Value</th><th>Role</th></tr></thead><tbody><tr><td>divider opacity</td><td><code>rgba(28,25,23,0.06)</code></td><td>Hairline separators — never use as border</td></tr><tr><td>border opacity</td><td><code>rgba(28,25,23,0.08)</code></td><td>Card/input/panel border</td></tr><tr><td>border-strong opacity</td><td><code>rgba(28,25,23,0.16)</code></td><td>Hover/active emphasis border</td></tr><tr><td>modal scrim</td><td><code>rgba(10,10,8,0.36)</code></td><td>Modal backdrop</td></tr><tr><td>drawer scrim</td><td><code>rgba(10,10,8,0.32)</code></td><td>Drawer backdrop</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="doc-design-elements-md-typography">Typography</h2>
+<div class="table-wrap"><table><thead><tr><th>Role</th><th>Font</th><th>Weight</th><th>Size</th><th>Line-height</th><th>Letter-spacing</th><th>Usage</th></tr></thead><tbody><tr><td>display-numeric</td><td>Noto Sans TC</td><td>600</td><td>28px</td><td>1.1</td><td>−0.02em</td><td>KPI value, large stat number</td></tr><tr><td>title-lg</td><td>Noto Sans TC</td><td>600</td><td>22px</td><td>1.1</td><td>−0.02em</td><td>Archive month, drawer hours value</td></tr><tr><td>title</td><td>Noto Sans TC</td><td>600</td><td>18px</td><td>auto</td><td>−0.01em</td><td>Drawer card title</td></tr><tr><td>title-sm</td><td>Noto Sans TC</td><td>600</td><td>16px</td><td>auto</td><td>−0.01em</td><td>Topbar page title</td></tr><tr><td>body</td><td>Noto Sans TC</td><td>400</td><td>14px</td><td>1.45</td><td>+0.005em</td><td>Base body; prose content</td></tr><tr><td>body-medium</td><td>Noto Sans TC</td><td>500</td><td>14px</td><td>1.35</td><td>−0.003em</td><td>Kanban card title, nav item, button</td></tr><tr><td>body-semibold</td><td>Noto Sans TC</td><td>600</td><td>14px</td><td>auto</td><td>−0.005em</td><td>Panel header, sidebar brand name</td></tr><tr><td>label</td><td>Noto Sans TC</td><td>600</td><td>12px</td><td>auto</td><td>+0.06–0.08em</td><td>Data column headers, KPI label — uppercase</td></tr><tr><td>meta</td><td>Noto Sans TC</td><td>500</td><td>12px</td><td>auto</td><td>+0.04em</td><td>Card ID, hours, badges — not uppercase</td></tr><tr><td>meta-sm</td><td>Noto Sans TC</td><td>500</td><td>10–11px</td><td>auto</td><td>auto</td><td>Avatar initial, mini badge</td></tr></tbody></table></div>
+<p><strong>Global rules:</strong></p>
+<ul><li>Font stack: <code>var(--font-noto), &quot;PingFang TC&quot;, -apple-system, BlinkMacSystemFont, sans-serif</code></li><li>OpenType: <code>font-feature-settings: &quot;ss01&quot;,&quot;cv11&quot;</code> on body</li><li>Numeric data: always <code>font-variant-numeric: tabular-nums</code></li><li>Display size (22px+): always negative letter-spacing (−0.01 to −0.02em)</li><li>Labels/headers (12px): always positive letter-spacing (+0.06–0.08em) when uppercase</li><li>Weights used: 400, 500, 600, 700 (700 only for bold emphasis within rich text)</li></ul>
+<p>---</p>
+<h2 id="doc-design-elements-md-typographic-composition-text-lockups">Typographic Composition / Text Lockups</h2>
+<div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Slots</th><th>Composition rule</th><th>Evidence</th><th>Component candidate</th></tr></thead><tbody><tr><td><strong>KPI metric</strong></td><td>[LABEL uppercase] / [VALUE large numeric] / [DELTA indicator]</td><td>Label 12px/600/uppercase/+0.08em tracking; value 28px/600/−0.02em tight leading; delta 12px with semantic color; vertical stack, gap 4–6px</td><td><code>.kpi</code> in globals.css, dashboard view</td><td><code>kpi-card.md</code> — extracted</td></tr><tr><td><strong>Archive month</strong></td><td>[YEAR small muted] [MONTH large] / [4 × STAT columns] / [VIEW BUTTON]</td><td>Month 22px/600 with year at 14px/muted prefix; stats in 4-col grid: label uppercase 12px + value 18px/600; button right-aligned</td><td><code>.archive-card</code> in globals.css</td><td>planned: <code>archive-card.md</code></td></tr><tr><td><strong>Donut center</strong></td><td>[VALUE large] / [CAPTION uppercase]</td><td>Value 22px/600/−0.02em; caption 12px/muted/uppercase/+0.08em; centered absolutely over SVG</td><td><code>.donut-center</code> in globals.css</td><td>planned: <code>chart-center-lockup.md</code></td></tr><tr><td><strong>Drawer hours cell</strong></td><td>[LABEL small] / [VALUE editable large] / [DELTA note]</td><td>Label 12px/muted; value 22px/600/−0.02em (editable input, no border); delta 12px/semantic color</td><td><code>.drawer-hours .cell</code> in globals.css</td><td>part of drawer-card spec</td></tr><tr><td><strong>Card meta row</strong></td><td>[DUE DATE] / [HOURS used/est] / [AVATAR]</td><td>All 12px; due with calendar icon; hours with clock icon + ratio <code>/estH</code> in muted; avatar right-aligned; separated by dashed divider</td><td><code>.kcard-meta</code> in globals.css</td><td>part of <code>kanban-card.md</code></td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="doc-design-elements-md-shape-and-corners">Shape And Corners</h2>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead><tbody><tr><td><code>--md-ref-radius-6</code></td><td>6px</td><td>Small: chip, icon tool button, heat cell bg</td></tr><tr><td><code>--md-ref-radius-9</code></td><td>9px</td><td>Default: button, input, nav item, kanban card</td></tr><tr><td><code>--md-ref-radius-12</code></td><td>12px</td><td>Medium: panel, kanban column, dept color picker</td></tr><tr><td><code>--md-ref-radius-16</code></td><td>16px</td><td>Large: modal, brand mark 48px variant</td></tr><tr><td><code>--md-ref-radius-full</code></td><td>99px</td><td>Pill: chip, dept-pill, avatar, month-pill, progress bar tracks</td></tr></tbody></table></div>
+<p>---</p>
+<h2 id="doc-design-elements-md-spacing-and-density">Spacing And Density</h2>
+<h3 id="doc-design-elements-md-fixed-tokens">Fixed tokens</h3>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead><tbody><tr><td><code>--md-ref-size-4</code></td><td>4px</td><td>Minimum gap (cal dots, chip-dot)</td></tr><tr><td><code>--md-ref-size-6</code></td><td>6px</td><td>Icon-label gap (kcard-row, kpi-delta)</td></tr><tr><td><code>--md-ref-size-8</code></td><td>8px</td><td>Card stack gap, small section gap</td></tr><tr><td><code>--md-ref-size-10</code></td><td>10px</td><td>Sidebar item padding / icon gap</td></tr><tr><td><code>--md-ref-size-12</code></td><td>12px</td><td>Section internal padding (panel-h, modal-body rows)</td></tr><tr><td><code>--md-ref-size-14</code></td><td>14px</td><td>Card internal padding (density-card default)</td></tr><tr><td><code>--md-ref-size-16</code></td><td>16px</td><td>Component pad default (density-pad), topbar vertical</td></tr><tr><td><code>--md-ref-size-18</code></td><td>18px</td><td>Page body top padding</td></tr><tr><td><code>--md-ref-size-20</code></td><td>20px</td><td>Drawer horizontal padding</td></tr><tr><td><code>--md-ref-size-22</code></td><td>22px</td><td>Page horizontal gutter (topbar, kanban, dash, history)</td></tr><tr><td><code>--md-ref-size-28</code></td><td>28px</td><td>Compact row height</td></tr><tr><td><code>--md-ref-size-36</code></td><td>36px</td><td>Default row/control height</td></tr><tr><td><code>--md-ref-size-56</code></td><td>56px</td><td>Topbar min-height</td></tr><tr><td><code>--md-ref-size-232</code></td><td>232px</td><td>Sidebar fixed width</td></tr><tr><td><code>--md-ref-size-296</code></td><td>296px</td><td>Kanban column fixed width</td></tr><tr><td><code>--md-ref-size-460</code></td><td>460px</td><td>Detail drawer fixed width</td></tr></tbody></table></div>
+<h3 id="doc-design-elements-md-density-variants">Density variants</h3>
+<div class="table-wrap"><table><thead><tr><th>Context</th><th>Default</th><th>Compact</th></tr></thead><tbody><tr><td>Component inner padding</td><td>16px</td><td>10px</td></tr><tr><td>Row / control height</td><td>36px</td><td>28px</td></tr><tr><td>Card inner padding</td><td>14px</td><td>10px</td></tr></tbody></table></div>
+<h3 id="doc-design-elements-md-near-token-decisions">Near-token decisions</h3>
+<p>See <code>TOKEN_ARCHITECTURE.md → Near Token Decisions</code>.</p>
+<p>---</p>
+<h2 id="doc-design-elements-md-elevation-and-depth">Elevation And Depth</h2>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Box-shadow</th><th>Role</th></tr></thead><tbody><tr><td><code>--md-sys-elevation-sm</code></td><td><code>0 1px 2px rgba(15,14,12,0.04), 0 0 0 0.5px rgba(15,14,12,0.04)</code></td><td>Active nav item, floating surface micro-lift</td></tr><tr><td><code>--md-sys-elevation-md</code></td><td><code>0 1px 2px rgba(15,14,12,0.04), 0 4px 12px rgba(15,14,12,0.06)</code></td><td>Card hover, popover, dropdown</td></tr><tr><td><code>--md-sys-elevation-lg</code></td><td><code>0 4px 14px rgba(15,14,12,0.08), 0 16px 40px rgba(15,14,12,0.10)</code></td><td>Drawer, modal, floating action</td></tr></tbody></table></div>
+<p>Dark mode shadows use higher base opacity (0.32–0.50) on pure black rgba.</p>
+<p>---</p>
+<h2 id="doc-design-elements-md-iconography-and-imagery">Iconography And Imagery</h2>
+<ul><li><strong>Library:</strong> Lucide icons — <code>stroke</code> style, <code>stroke-width: 2</code>, <code>stroke-linecap: round</code>, <code>stroke-linejoin: round</code></li><li><strong>Sizes used:</strong> 12px (inline meta icons: clock, calendar, flag), 20px (topbar actions), 24px (sidebar nav), variable for logo area</li><li><strong>Color:</strong> inherits <code>currentColor</code>; active/accent states set <code>color: var(--accent)</code> on the icon slot</li><li><strong>Label pairing:</strong> all icon-only toolbar buttons (<code>.tb-icon-btn</code>, <code>.kcol-tool</code>) require accessible labels or <code>title</code> attributes</li><li><strong>Imagery:</strong> no photography or illustration observed; product is purely data/text-driven</li><li><strong>Avatars:</strong> letter-based (<code>initial</code> field), hue-color bg, optional <code>photo?</code> field for real photo override</li><li><strong>Brand mark:</strong> single uppercase letter &quot;C&quot;, square with rounded corners, accent bg (light mode) or gradient (dark mode)</li></ul>
+    </section>
+<section class="panel" id="doc-token-architecture-md">
+      <span class="source">TOKEN_ARCHITECTURE.md</span>
+      <h1 id="doc-token-architecture-md-token-architecture">Token Architecture</h1>
+<h2 id="doc-token-architecture-md-prefixes">Prefixes</h2>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Prefix</th><th>Responsibility</th></tr></thead><tbody><tr><td>Reference</td><td><code>--md-ref-*</code></td><td>Raw values only — no semantic or component names</td></tr><tr><td>System</td><td><code>--md-sys-*</code></td><td>Shared semantic roles — references ref tokens only</td></tr><tr><td>Component</td><td><code>--md-comp-*</code></td><td>Component slots — references sys tokens only</td></tr></tbody></table></div>
+<h2 id="doc-token-architecture-md-inheritance">Inheritance</h2>
+<pre><code data-lang="txt">component token -&gt; system token -&gt; reference value</code></pre>
+<p>No component token may skip a layer and point directly at a ref token. No system token may include component-specific anatomy in its name.</p>
+<h2 id="doc-token-architecture-md-reference-color-scale">Reference Color Scale</h2>
+<pre><code data-lang="txt">100 (lightest) -&gt; 0 (darkest)</code></pre>
+<ul><li><code>100</code> is the lightest visible step (white or near-white).</li><li><code>0</code> is the darkest visible step (near-black).</li><li>Warm-neutral palette: steps 100, 97, 95, 93, 75, 58, 42, 18, 10.</li><li>Cool-dark palette (dark mode): steps 93, 79, 54, 37, 23, 14, 11, 9, 6.</li><li>Accent (violet): steps 95, 74, 66, 52.</li><li>Categorical colors: not a lightness progression — named by hue (cat-1..8).</li><li>Status colors: not a lightness progression — named by semantic role.</li></ul>
+<h2 id="doc-token-architecture-md-layer-rules">Layer Rules</h2>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Allowed</th><th>Forbidden</th></tr></thead><tbody><tr><td>Reference</td><td>raw color steps, raw sizes, raw radii, font family names, raw weights, raw opacity values</td><td>semantic names (primary, surface, error), component names (button, card, nav)</td></tr><tr><td>System</td><td>color roles with <code>on-*</code> pairs, spacing roles, shape roles, typescale roles, elevation roles, density roles</td><td>component anatomy (button-padding, card-header-gap), hardcoded values when ref tokens exist</td></tr><tr><td>Component</td><td>component slots: container, label, icon, meta, state layer</td><td>raw values, reference token references</td></tr></tbody></table></div>
+<h2 id="doc-token-architecture-md-near-token-decisions">Near Token Decisions</h2>
+<h3 id="doc-token-architecture-md-colors">Colors</h3>
+<div class="table-wrap"><table><thead><tr><th>Candidate A</th><th>Candidate B</th><th>Difference</th><th>Decision</th><th>Rationale</th></tr></thead><tbody><tr><td><code>--divider: rgba(28,25,23,0.06)</code></td><td><code>--border: rgba(28,25,23,0.08)</code></td><td>2% alpha</td><td><strong>keep distinct</strong></td><td>Divider is a hairline content separator; border is a visible control outline. Different semantic weight and WCAG role. Evidence: divider used inside panels, border on interactive surfaces.</td></tr><tr><td><code>--bg: #FAFAF7</code></td><td><code>--surface-2: #F7F6F2</code></td><td>~2 lightness units</td><td><strong>keep distinct</strong></td><td>Background is the page canvas (step 97); surface-2 is an elevated secondary surface (step 95) within components (input fills, column headers). Different stacking level.</td></tr><tr><td><code>--hue-c3: oklch(0.66 0.11 200)</code></td><td><code>--hue-c7: oklch(0.62 0.10 220)</code></td><td>ΔL=0.04 ΔH=20°</td><td><strong>keep distinct</strong></td><td>Both are categorical department colors. Merging would eliminate a color identity for a department team. Evidence: separate hue entries in DEPT_HUE.</td></tr><tr><td><code>--hue-c8: oklch(0.66 0.10 110)</code></td><td><code>--hue-c4: oklch(0.66 0.10 140)</code></td><td>ΔH=30°</td><td><strong>keep distinct</strong></td><td>Same as above — categorical identifiers for distinct departments.</td></tr></tbody></table></div>
+<h3 id="doc-token-architecture-md-spacing-size">Spacing / Size</h3>
+<div class="table-wrap"><table><thead><tr><th>Candidate A</th><th>Candidate B</th><th>Difference</th><th>Decision</th><th>Rationale</th></tr></thead><tbody><tr><td><code>--density-card: 14px</code></td><td><code>--density-pad: 16px</code></td><td>2px</td><td><strong>keep distinct</strong></td><td>Card padding is intentionally tighter than component padding to maintain card compactness. Evidence: both tokens are explicit in globals.css and behave differently in compact mode (10px vs 10px — same in compact, differ only in default).</td></tr><tr><td><code>6px</code> (inline icon gap)</td><td><code>8px</code> (kcard-row gap, stack)</td><td>2px</td><td><strong>keep distinct</strong></td><td>Represents xs vs sm gap step. Merging would unify icon-label tightness with stack gaps, changing visual rhythm.</td></tr></tbody></table></div>
+<h2 id="doc-token-architecture-md-dark-mode">Dark Mode</h2>
+<p>Dark mode overrides the same system token names under <code>[data-theme=&quot;dark&quot;]</code>. Reference tokens for the cool-dark palette are defined separately and aliased in system tokens via the dark override block.</p>
+<p>The accent token shifts: light <code>oklch(0.52 0.14 282)</code> → dark <code>oklch(0.74 0.14 282)</code> (lightened for contrast on dark surface). Accent-soft inverts: light <code>oklch(0.94 0.03 282)</code> → dark <code>oklch(0.28 0.05 282)</code>. On-primary shifts from <code>#FFFFFF</code> to <code>#0E0E10</code>.</p>
+<h2 id="doc-token-architecture-md-density-mode">Density Mode</h2>
+<p>Density is driven by <code>[data-density=&quot;compact&quot;]</code> overriding three tokens:</p>
+<pre><code data-lang="css">[data-density=&quot;compact&quot;] {
+  --md-sys-density-pad: var(--md-ref-size-10);
+  --md-sys-density-row: var(--md-ref-size-28);
+  --md-sys-density-card: var(--md-ref-size-10);
+}</code></pre>
+<p>Components that consume density tokens will automatically adapt. Do not hardcode padding values in component tokens; reference density system tokens.</p>
+<h2 id="doc-token-architecture-md-required-audit">Required Audit</h2>
+<p>Run after each extraction or component pass:</p>
+<pre><code data-lang="sh">node ~/.claude/skills/design-system-extractor/scripts/audit_tokens.mjs /Users/user/Work/design-ops --strict</code></pre>
+<p>Audit enforces:</p>
+<ul><li>No <code>comp</code> token references a <code>ref</code> token directly</li><li>No <code>sys</code> name includes component anatomy</li><li>No <code>ref</code> name includes semantic role names</li><li><code>ref</code> color steps follow 100→0 (lightest→darkest)</li><li>Near-color and near-numeric candidates have documented decisions</li><li>Every background-like <code>sys</code> color has a matching <code>on-*</code> pair</li></ul>
+    </section>
+<section class="panel" id="doc-component-inventory-md">
+      <span class="source">COMPONENT_INVENTORY.md</span>
+      <h1 id="doc-component-inventory-md-component-inventory">Component Inventory</h1>
+<h2 id="doc-component-inventory-md-component-similarity-review">Component Similarity Review</h2>
+<p>No similarity conflicts detected during initial extraction. All extracted components have distinct purpose, anatomy, and behavior.</p>
+<div class="table-wrap"><table><thead><tr><th>New candidate</th><th>Similar existing component</th><th>Visual reference</th><th>Similarity reason</th><th>Suggested action</th><th>Developer decision</th><th>Rationale</th></tr></thead><tbody><tr><td>KPI Card</td><td>Donut center lockup</td><td><a href="assets/component-review/kpi-vs-donut.svg">assets/component-review/kpi-vs-donut.svg</a> — schematic fallback, source preview unavailable (no Figma source or screenshot crop accessible)</td><td>Both show large numeric + muted caption</td><td>keep distinct</td><td>keep distinct</td><td>KPI Card is a full surface panel with border; donut lockup is absolutely positioned inside SVG canvas — different anatomy, role, layout</td></tr><tr><td>Button (default)</td><td>Month Pill prev/next buttons</td><td><a href="assets/component-review/button-vs-month-pill.svg">assets/component-review/button-vs-month-pill.svg</a> — schematic fallback, source preview unavailable (no Figma source or screenshot crop accessible)</td><td>Both are bordered controls 32px tall</td><td>keep distinct</td><td>keep distinct</td><td>Month pill is a composite navigation control with a value display slot; button is a standalone action trigger with no embedded display state</td></tr></tbody></table></div>
+<h2 id="doc-component-inventory-md-extracted">Extracted</h2>
+<div class="table-wrap"><table><thead><tr><th>Component</th><th>File</th><th>Priority</th><th>Status</th><th>Required tokens</th><th>Missing states</th><th>Notes</th></tr></thead><tbody><tr><td>Button</td><td><code>components/button.md</code></td><td>P0</td><td><strong>extracted</strong></td><td>color, shape, density, typescale</td><td>loading</td><td>3 variants: default/primary/ghost</td></tr><tr><td>Kanban Card</td><td><code>components/kanban-card.md</code></td><td>P0</td><td><strong>extracted</strong></td><td>color, shape, density, typescale, status, categorical</td><td>focus-visible</td><td>Domain-specific; drag+drop; hours-over/overdue semantic modifiers</td></tr><tr><td>KPI Card</td><td><code>components/kpi-card.md</code></td><td>P0</td><td><strong>extracted</strong></td><td>color, shape, typescale, status</td><td>not applicable (display-only)</td><td>Typographic lockup component; 3-slot: label + value + delta</td></tr></tbody></table></div>
+<h2 id="doc-component-inventory-md-planned">Planned</h2>
+<div class="table-wrap"><table><thead><tr><th>Component</th><th>CSS class(es)</th><th>Priority</th><th>Status</th><th>Observed sources</th><th>Notes</th></tr></thead><tbody><tr><td>Sidebar Item</td><td><code>.sb-item</code> <code>.sb-group-h</code></td><td>P1</td><td><strong>planned</strong></td><td>S01</td><td>Nav item with icon+label; active state with elevation-sm; group header variant</td></tr><tr><td>Brand Mark</td><td><code>.sb-mark</code> + login mark</td><td>P1</td><td><strong>planned</strong></td><td>S01 S05</td><td>Square monogram mark; 26px (sidebar) and 48px (login) sizes</td></tr><tr><td>Panel</td><td><code>.panel</code> <code>.panel-h</code></td><td>P1</td><td><strong>planned</strong></td><td>S01</td><td>Surface container with optional header + divider</td></tr><tr><td>Input / Select</td><td><code>.input</code></td><td>P1</td><td><strong>planned</strong></td><td>S01</td><td>32px height; same radius+border as button; focus border on ink-2</td></tr><tr><td>Avatar</td><td><code>.av</code> <code>.av-sm</code> <code>.av-md</code></td><td>P1</td><td><strong>planned</strong></td><td>S01 S03</td><td>Letter-based circle; hue bg; 22px and 28px</td></tr><tr><td>Badge / Tag family</td><td><code>.chip</code> <code>.tag</code> <code>.dept-pill</code> <code>.kcard-cat</code></td><td>P2</td><td><strong>planned</strong></td><td>S01 S03</td><td>Pill (chip), square (tag), data category badge — 3 sub-variants</td></tr><tr><td>Kanban Column</td><td><code>.kcol</code> <code>.kcol-h</code> <code>.kcol-body</code></td><td>P1</td><td><strong>planned</strong></td><td>S01 S04</td><td>296px fixed; droppable; drag-over tinted bg</td></tr><tr><td>Detail Drawer</td><td><code>.drawer</code> <code>.drawer-h</code> <code>.drawer-body</code></td><td>P1</td><td><strong>planned</strong></td><td>S01 S10</td><td>460px slide-in from right; backdrop scrim with blur</td></tr><tr><td>Modal</td><td><code>.modal</code> <code>.modal-h</code> <code>.modal-body</code> <code>.modal-f</code></td><td>P2</td><td><strong>planned</strong></td><td>S01</td><td>Centered overlay max 520px; footer bg surface-variant</td></tr><tr><td>Month Pill Navigator</td><td><code>.month-pill</code></td><td>P2</td><td><strong>planned</strong></td><td>S01</td><td>Composite: prev chevron + value + next chevron</td></tr><tr><td>Crosstab Table</td><td><code>.xtab</code></td><td>P2</td><td><strong>planned</strong></td><td>S01 S06</td><td>Sticky col+row headers; heat cell overlay; tabular-nums</td></tr><tr><td>Capacity Table</td><td><code>.cap-table</code></td><td>P2</td><td><strong>planned</strong></td><td>S01 S11</td><td>Inline editable number inputs; cap bar inline</td></tr><tr><td>Timeline</td><td><code>.timeline</code> <code>.tl-row</code></td><td>P3</td><td><strong>planned</strong></td><td>S01 S10</td><td>Activity feed: dot + vertical line + content</td></tr><tr><td>Donut Center Lockup</td><td><code>.donut-center</code></td><td>P3</td><td><strong>planned</strong></td><td>S01 S06</td><td>Typographic: 22px numeric + uppercase caption; absolute-centered over SVG</td></tr><tr><td>Archive Card</td><td><code>.archive-card</code></td><td>P3</td><td><strong>planned</strong></td><td>S01</td><td>Month summary: large month + 4-stat grid + view button</td></tr><tr><td>Leave Calendar</td><td><code>.cal-grid</code> <code>.cal-day</code></td><td>P3</td><td><strong>planned</strong></td><td>S01 S11</td><td>7-col grid; today/selected/holiday/weekend states</td></tr><tr><td>Form Row</td><td><code>.form-row</code> <code>.form-grid</code></td><td>P3</td><td><strong>planned</strong></td><td>S01</td><td>Uppercase label + input, 1- or 2-col layout</td></tr></tbody></table></div>
+<h2 id="doc-component-inventory-md-out-of-scope">Out of Scope</h2>
+<div class="table-wrap"><table><thead><tr><th>Component</th><th>Reason</th></tr></thead><tbody><tr><td>Rich Text Editor (TipTap)</td><td>Third-party; <code>.ProseMirror</code> classes are library-owned; design-system governs prose-content colors only</td></tr><tr><td>Chart SVGs (CircleChart, BarsChart)</td><td>Recharts library; design-system governs legend colors and donut-center lockup only</td></tr><tr><td>Google Auth button</td><td>Third-party OAuth; governed by Google Brand Guidelines</td></tr><tr><td>Notification Panel</td><td>Planned after drawer spec is complete</td></tr></tbody></table></div>
+    </section>
+<section class="panel" id="doc-component-spec-template-md">
+      <span class="source">COMPONENT_SPEC_TEMPLATE.md</span>
+      <h1 id="doc-component-spec-template-md-component-spec-template">Component Spec Template</h1>
+<p>Copy this template to <code>design-system/components/&lt;component-name&gt;.md</code> for each extracted component.</p>
+<h2 id="doc-component-spec-template-md-purpose">Purpose</h2>
+<h2 id="doc-component-spec-template-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+<h2 id="doc-component-spec-template-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td></td></tr><tr><td>Anatomy</td><td></td></tr><tr><td>Variants / states / modes</td><td></td></tr><tr><td>Token contract summary</td><td></td></tr><tr><td>Layout / density</td><td></td></tr><tr><td>Visual reference</td><td></td></tr><tr><td>Similar components reviewed</td><td></td></tr></tbody></table></div>
+<h2 id="doc-component-spec-template-md-anatomy">Anatomy</h2>
+<h2 id="doc-component-spec-template-md-variants">Variants</h2>
+<h2 id="doc-component-spec-template-md-states">States</h2>
+<p>Default, hover, pressed, focus-visible, disabled, selected/active, loading, error as applicable. For display-only, graphic, or typographic components, mark interactive states as <code>not applicable</code> and document observed modes such as scale, emphasis, alignment, theme, responsive wrapping, or language/script behavior.</p>
+<h2 id="doc-component-spec-template-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody></tbody></table></div>
+<h2 id="doc-component-spec-template-md-layout-rules">Layout Rules</h2>
+<p>Include slot order, hierarchy ratio, alignment, line count, max line length, line-break behavior, gap, padding, and responsive behavior when this is a typographic component or text lockup.</p>
+<h2 id="doc-component-spec-template-md-content-rules">Content Rules</h2>
+<h2 id="doc-component-spec-template-md-accessibility-rules">Accessibility Rules</h2>
+<h2 id="doc-component-spec-template-md-do-don-t">Do / Don't</h2>
+<h2 id="doc-component-spec-template-md-implementation-notes">Implementation Notes</h2>
+    </section>
+<section class="panel" id="doc-interaction-states-md">
+      <span class="source">INTERACTION_STATES.md</span>
+      <h1 id="doc-interaction-states-md-interaction-states">Interaction States</h1>
+<p>Evidence source: <code>src/app/globals.css</code> (S01), component implementations (S03, S04, S10).</p>
+<h2 id="doc-interaction-states-md-global-state-tokens">Global State Tokens</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Visual behavior</th><th>Tokens used</th><th>Accessibility notes</th></tr></thead><tbody><tr><td><strong>Default</strong></td><td>Component-native color; <code>--md-sys-color-outline</code> border on interactive surfaces</td><td><code>--md-sys-color-surface</code>, <code>--md-sys-color-outline</code></td><td>Contrast requirement: interactive text ≥ 4.5:1 vs bg</td></tr><tr><td><strong>Hover</strong></td><td>Background shifts to <code>--md-sys-color-surface-variant</code>; border may strengthen to <code>--md-sys-color-outline-strong</code>; transition <code>0.12s</code></td><td><code>--md-sys-color-surface-variant</code>, <code>--md-sys-color-outline-strong</code></td><td>No color-only state change — hover is supplemental</td></tr><tr><td><strong>Pressed</strong></td><td><code>transform: translateY(0.5px)</code> micro-press; transition <code>0.05s</code></td><td><code>--md-sys-motion-duration-sm</code></td><td>Felt as click confirmation; no additional color change</td></tr><tr><td><strong>Focus-visible</strong></td><td>Not explicitly styled in current source; browser default outline applies. Recommended: 2px solid <code>--md-sys-color-primary</code> outline, offset 2px</td><td><code>--md-sys-color-primary</code></td><td>Required for keyboard accessibility; do not suppress <code>:focus-visible</code></td></tr><tr><td><strong>Disabled</strong></td><td>Not explicitly styled in source for most components; infer: <code>opacity: 0.4</code>, <code>pointer-events: none</code>, <code>cursor: not-allowed</code></td><td><code>--md-ref-opacity-border</code></td><td><code>disabled</code> attribute required (not just CSS); <code>aria-disabled</code> for non-button elements</td></tr><tr><td><strong>Selected / Active</strong></td><td>Nav item: <code>background: var(--md-sys-color-surface)</code>, <code>box-shadow: var(--md-sys-elevation-sm)</code>, icon color → <code>--md-sys-color-primary</code>. Calendar: bg → <code>--md-sys-color-primary</code>. Layout picker: bg → <code>--md-sys-color-on-surface</code>, text → <code>--md-sys-color-background</code></td><td><code>--md-sys-color-primary</code>, <code>--md-sys-elevation-sm</code>, <code>--md-sys-color-on-surface</code></td><td><code>aria-selected</code> or <code>aria-current=&quot;page&quot;</code> for nav</td></tr><tr><td><strong>Loading</strong></td><td>Not observed in production components; infer spinner + disabled state pattern</td><td>—</td><td><code>aria-busy=&quot;true&quot;</code> on container</td></tr><tr><td><strong>Error / Status</strong></td><td><code>--md-sys-color-status-error</code> on affected text/icon (overdue due date, hours-over, delta-down, blocked column dot)</td><td><code>--md-sys-color-status-error</code></td><td>Error state must not rely on color alone; pair with icon or text label</td></tr><tr><td><strong>Drag (grab)</strong></td><td><code>cursor: grab</code>; <code>.dragging</code> class: <code>opacity: 0.4</code>, <code>cursor: grabbing</code></td><td>—</td><td>Keyboard drag requires DnD Kit keyboard sensor; <code>aria-grabbed</code> deprecated — use <code>aria-roledescription</code></td></tr><tr><td><strong>Drag over (drop target)</strong></td><td>Column body: <code>background: color-mix(in oklab, var(--md-sys-color-primary) 6%, transparent)</code></td><td><code>--md-sys-color-primary</code>, <code>--md-ref-opacity-hover</code></td><td>Visible drop target indication required for accessibility</td></tr></tbody></table></div>
+<h2 id="doc-interaction-states-md-semantic-state-modifiers-data-driven">Semantic State Modifiers (Data-Driven)</h2>
+<p>These states are set by business logic, not user interaction:</p>
+<div class="table-wrap"><table><thead><tr><th>Modifier</th><th>CSS class</th><th>Color</th><th>Trigger</th></tr></thead><tbody><tr><td>Hours overrun</td><td><code>.kcard-hours.over</code></td><td><code>--md-sys-color-status-error</code></td><td><code>actual &gt; est</code></td></tr><tr><td>Due overdue</td><td><code>.kcard-due.overdue</code></td><td><code>--md-sys-color-status-error</code></td><td><code>dueDate &lt; today</code> AND <code>status !== 'done'</code></td></tr><tr><td>Capacity warning</td><td><code>.cap-pct.warn</code></td><td><code>--md-sys-color-status-warning</code></td><td>capacity 75–99%</td></tr><tr><td>Capacity over</td><td><code>.cap-pct.over</code></td><td><code>--md-sys-color-status-error</code></td><td>capacity ≥ 100%</td></tr><tr><td>Delta positive</td><td><code>.kpi-delta.up</code></td><td><code>--md-sys-color-status-success</code></td><td>value increase vs prior period</td></tr><tr><td>Delta negative</td><td><code>.kpi-delta.down</code></td><td><code>--md-sys-color-status-error</code></td><td>value decrease vs prior period</td></tr></tbody></table></div>
+<h2 id="doc-interaction-states-md-overlay-scrim-states">Overlay &amp; Scrim States</h2>
+<div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Trigger</th><th>Behavior</th></tr></thead><tbody><tr><td>Drawer scrim</td><td><code>.drawer-scrim.open</code></td><td><code>opacity: 1</code>; <code>pointer-events: auto</code>; <code>backdrop-filter: blur(2px)</code></td></tr><tr><td>Modal scrim</td><td><code>.modal-scrim.open</code></td><td><code>opacity: 1</code>; <code>backdrop-filter: blur(2px)</code></td></tr><tr><td>Drawer slide</td><td><code>.drawer.open</code></td><td><code>transform: translateX(0)</code>; easing <code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code></td></tr><tr><td>Modal slide</td><td><code>.modal-scrim.open .modal</code></td><td><code>transform: translateY(0)</code></td></tr></tbody></table></div>
+<p>Both overlays start hidden (<code>opacity: 0; pointer-events: none</code>) and open by adding the <code>.open</code> class.</p>
+<h2 id="doc-interaction-states-md-motion">Motion</h2>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead><tbody><tr><td><code>--md-sys-motion-duration-sm</code></td><td><code>0.12s</code></td><td>Button bg, card border, nav item bg, hover transitions</td></tr><tr><td><code>--md-sys-motion-duration-md</code></td><td><code>0.18s</code></td><td>Drawer scrim opacity, modal scrim opacity</td></tr><tr><td><code>--md-sys-motion-duration-lg</code></td><td><code>0.28s</code></td><td>Drawer slide-in, sidebar mobile slide</td></tr><tr><td><code>--md-sys-motion-easing-standard</code></td><td><code>cubic-bezier(0.25, 0.46, 0.45, 0.94)</code></td><td>Drawer transform</td></tr><tr><td>Press transform</td><td><code>translateY(0.5px)</code> at <code>0.05s</code></td><td>Button active feedback</td></tr></tbody></table></div>
+<h3 id="doc-interaction-states-md-reduced-motion">Reduced-Motion</h3>
+<p>Not currently implemented in source. Recommendation: wrap drawer/modal transitions in:</p>
+<pre><code data-lang="css">@media (prefers-reduced-motion: reduce) {
+  .drawer, .modal-scrim .modal, .sidebar { transition: none; }
+}</code></pre>
+<h2 id="doc-interaction-states-md-calendar-state-combinations">Calendar State Combinations</h2>
+<p><code>.cal-day</code> can combine multiple modifiers:</p>
+<div class="table-wrap"><table><thead><tr><th>Combination</th><th>Result</th></tr></thead><tbody><tr><td><code>.cal-day.today</code></td><td><code>color-mix(in oklab, primary 12%, transparent)</code> bg</td></tr><tr><td><code>.cal-day.selected</code></td><td><code>--md-sys-color-primary</code> bg; white text</td></tr><tr><td><code>.cal-day.holiday:not(.selected)</code></td><td><code>.cal-n</code> color → <code>--md-sys-color-status-error</code></td></tr><tr><td><code>.cal-day.weekend</code></td><td><code>.cal-n</code> weight 400, color muted-2</td></tr><tr><td><code>.cal-day.clickable:hover</code></td><td><code>--md-sys-color-surface-variant</code> bg</td></tr></tbody></table></div>
+    </section>
+<section class="panel" id="doc-page-composition-rules-md">
+      <span class="source">PAGE_COMPOSITION_RULES.md</span>
+      <h1 id="doc-page-composition-rules-md-page-composition-rules">Page Composition Rules</h1>
+<p>Evidence source: <code>src/app/globals.css</code> (S01), <code>src/app/page.tsx</code> (S01), <code>src/app/layout.tsx</code> (S02).</p>
+<h2 id="doc-page-composition-rules-md-viewport-and-app-shell">Viewport And App Shell</h2>
+<ul><li><strong>Primary viewport</strong>: desktop ≥ 768px; fixed app shell with sidebar + main content</li><li><strong>App shell grid</strong>: <code>grid-template-columns: 232px 1fr; height: 100vh</code></li><li><strong>Regions</strong>:</li><li><code>.sidebar</code> — 232px, fixed width, full viewport height, scrollable overflow</li><li><code>.main</code> — fluid, min-width 0, flex column: <code>.topbar</code> (fixed 56px min-height) + <code>.body</code> (flex 1, scrollable)</li><li><code>.body</code> — scrollable main content area; background <code>--md-sys-color-background-elevated</code> (<code>#F4F3EE</code>)</li><li><strong>Mobile (≤768px)</strong>: sidebar offscreen, slides in over content on hamburger tap; overlay scrim; main takes full width</li><li><strong><code>overflow: hidden</code></strong> on body — intentional; scroll is managed per-region, not at page level</li></ul>
+<h2 id="doc-page-composition-rules-md-layout-rhythm">Layout Rhythm</h2>
+<ul><li><strong>Page gutter</strong>: 22px horizontal, 18px vertical (all primary views: kanban, dash, history)</li><li><strong>Section gap</strong> (dashboard grid): 14px</li><li><strong>Card stack gap</strong> (kanban): 8px between cards within a column</li><li><strong>Topbar height</strong>: 56px min; padding 14px 22px</li></ul>
+<p>Every main view starts with <code>padding: 18px 22px</code> — do not vary this without a density-level reason.</p>
+<h2 id="doc-page-composition-rules-md-section-rules">Section Rules</h2>
+<ul><li>Sections wrap in <code>.panel</code> (white surface, 12px radius, 1px border) when they contain multiple rows of structured data (table, chart, leave list)</li><li>Sections that are primarily canvas-level (kanban board, dashboard grid) are NOT wrapped in panels — they live directly on the elevated body background</li><li>Use <code>gap: 14px</code> for spacing between panels in a grid; use <code>gap: 8px</code> for spacing between cards in a kanban column</li></ul>
+<h2 id="doc-page-composition-rules-md-typographic-composition-rules">Typographic Composition Rules</h2>
+<ul><li><strong>KPI metric lockup</strong>: label → value → delta; vertical stack; always uppercase label; never break the label-value-delta hierarchy within one card</li><li><strong>Panel header</strong>: <code>font: 600 14px</code>; paired with an optional muted subtitle at 12px; both in a horizontal flex row with spacer for right-side tools</li><li><strong>Topbar title</strong>: <code>600 16px</code>; optional breadcrumb at 12px muted below</li><li><strong>Drawer title</strong>: 18px/600; id badge at 12px/500 above it</li><li><strong>Table headers</strong>: always <code>uppercase; letter-spacing: 0.06em; font-weight: 600; 12px; color: muted</code></li><li><strong>Display numerics (22–28px)</strong>: always <code>tabular-nums; letter-spacing: -0.02em</code> — tight tracking at large sizes</li><li><strong>Data labels adjacent to values</strong>: always smaller than values (12px label → 18–28px value); never same size</li></ul>
+<h2 id="doc-page-composition-rules-md-navigation-regions">Navigation Regions</h2>
+<h3 id="doc-page-composition-rules-md-sidebar">Sidebar</h3>
+<ul><li>Width: 232px; background: <code>--md-sys-color-background</code> (same warm off-white as page bg, not white)</li><li>Border right: 1px solid <code>--md-sys-color-divider</code></li><li>Structure: brand area → group labels + items → spacer → user avatar</li><li>Group label (<code>.sb-group-h</code>): 12px/600/uppercase/+0.08em tracking; muted-2 color</li><li>Nav item (<code>.sb-item</code>): 14px/500; icon 24px; gap 10px; radius 9px; hover bg surface-variant; active: surface bg + elevation-sm + primary icon color</li><li>Bottom user block: avatar (28px hue circle) + name + role; always pinned at bottom</li></ul>
+<h3 id="doc-page-composition-rules-md-topbar">Topbar</h3>
+<ul><li>Background: <code>--md-sys-color-background</code> (not surface — merges visually with sidebar bg)</li><li>Border bottom: 1px solid <code>--md-sys-color-divider</code></li><li>Left: hamburger (mobile only) → title + breadcrumb</li><li>Right: toolbar (search bar or icon buttons + action buttons + notification)</li><li>Desktop: all toolbar items visible; mobile: collapses to icon buttons, search in secondary filter bar below topbar</li></ul>
+<h2 id="doc-page-composition-rules-md-cards-and-surfaces">Cards And Surfaces</h2>
+<ul><li><strong>Do</strong> use panels (<code>.panel</code>) for data tables, chart containers, and leave lists</li><li><strong>Do not</strong> wrap every screen section in a panel; kanban and dashboard use direct grid layout</li><li><strong>Do not</strong> nest outlined panels inside outlined panels (one level of surface lift max)</li><li>Kanban cards: white surface on warm elevated body (<code>#F4F3EE</code>) — the contrast creates visual separation without needing additional shadows on default state</li><li>Card hover: elevation-sm + stronger border (not a color change to the card body)</li></ul>
+<h2 id="doc-page-composition-rules-md-lists-and-rows">Lists And Rows</h2>
+<ul><li>Table rows: <code>padding: 8–10px 14px</code>; <code>border-bottom: 1px solid var(--md-sys-color-divider)</code></li><li>Leave rows: <code>padding: 8px 16px</code>; hover bg → surface-variant</li><li>No row uses an individual card/panel treatment — rows are lightweight, not boxed</li><li>Sticky first column for wide tables (cap-table, xtab): <code>position: sticky; left: 0; z-index: 2</code></li><li>Table footers: <code>font-weight: 600; bg: surface-variant; border-top: 1px solid outline-strong</code></li></ul>
+<h2 id="doc-page-composition-rules-md-scroll-and-fixed-region-behavior">Scroll And Fixed Region Behavior</h2>
+<ul><li>Sidebar: independently scrollable (<code>overflow-y: auto</code>) — long nav lists scroll independently</li><li>Kanban board: horizontal scroll at body level (<code>min-width: max-content</code>) — columns never wrap</li><li>Dashboard: vertical scroll within <code>.body</code></li><li>Crosstab table: max-height 460px with internal scroll (<code>overflow: auto</code>)</li><li>Drawer body: <code>overflow-y: auto</code>; header + footer are fixed inside the drawer</li><li>App body: <code>overflow: hidden</code> — no document-level scroll</li></ul>
+<h2 id="doc-page-composition-rules-md-responsive-behavior">Responsive Behavior</h2>
+<div class="table-wrap"><table><thead><tr><th>Breakpoint</th><th>Behavior</th></tr></thead><tbody><tr><td>≥769px (desktop)</td><td>Full sidebar (232px), toolbar with all controls visible</td></tr><tr><td>≤768px (mobile)</td><td>Sidebar offscreen; hamburger + slide overlay; topbar simplified; filter bar below topbar</td></tr><tr><td>Kanban mobile</td><td>Column width: <code>min(280px, 85vw)</code>; horizontal scroll</td></tr><tr><td>Dashboard mobile</td><td>Grid collapses to 1- or 2-col; KPI val at 22px; legends go 1-col</td></tr><tr><td>Capacity mobile</td><td>Table wraps with sticky first column; cap-grid goes 1-col</td></tr><tr><td>History mobile</td><td>Archive card 2-col header + 2-col stat grid</td></tr></tbody></table></div>
+<h2 id="doc-page-composition-rules-md-composition-patterns">Composition Patterns</h2>
+<div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Evidence</th><th>Layout rule</th><th>Components</th><th>Tokens</th></tr></thead><tbody><tr><td>Kanban view</td><td>S01 S04</td><td>Horizontal flex of 296px columns; elevated body bg; 22px gutter</td><td>KanbanColumn, KanbanCard, Button, Topbar</td><td><code>--md-sys-size-kanban-col</code>, page gutter, density</td></tr><tr><td>Dashboard classic</td><td>S01 S06</td><td>2-col grid; section gap 14px; panels fill cells</td><td>KPI Card, Panel (chart), Panel (table), Layout picker</td><td><code>--md-sys-spacing-section-gap</code>, <code>--md-sys-shape-corner-lg</code></td></tr><tr><td>Dashboard focus</td><td>S01 S06</td><td>1.4fr/1fr asymmetric; left hero spans 2 rows; right has KPI sub-grid</td><td>same as classic</td><td>asymmetric grid fractions</td></tr><tr><td>Admin / Capacity</td><td>S01 S11</td><td>1.4fr/1fr grid; left = main table; right = side panels stack</td><td>Panel, cap-table, leave-list</td><td>page gutter, section gap</td></tr><tr><td>Auth screen</td><td>S01 S05</td><td>Full-viewport centered; surface-variant bg; single surface card 360px</td><td>Brand Mark, input-like divider, Button</td><td><code>--md-sys-color-background-elevated</code>, <code>--md-sys-shape-corner-xl</code></td></tr><tr><td>Detail drawer</td><td>S01 S10</td><td>Fixed right 460px; slides over content; backdrop scrim</td><td>Drawer, meta grid, Timeline, RTE</td><td><code>--md-sys-size-drawer-width</code>, elevation-lg</td></tr></tbody></table></div>
+    </section>
+<section class="panel" id="doc-anti-ai-style-rules-md">
+      <span class="source">ANTI_AI_STYLE_RULES.md</span>
+      <h1 id="doc-anti-ai-style-rules-md-anti-ai-style-rules">Anti-AI Style Rules</h1>
+<p>Project-specific constraints for CMoneyDesign 設計部工作看板. Apply before generating any UI recommendation.</p>
+<h2 id="doc-anti-ai-style-rules-md-do-not-add-unless-evidenced">Do Not Add Unless Evidenced</h2>
+<ul><li>Background gradients on any content surface (the sidebar brand mark uses a subtle gradient; that's the only occurrence)</li><li>Glassmorphism or frosted glass on content surfaces (the only blur is the modal/drawer overlay scrim)</li><li>Glow blobs, orbs, bokeh, SVG abstract waves, animated backgrounds</li><li>Generic SaaS hero sections with marketing copy</li><li>Decorative illustration panels</li><li>Nested outlined cards — one surface layer maximum</li><li>Row-as-card treatment — data rows are rows, not cards</li><li>Extra whitespace beyond observed density (this is an operational tool; density is a feature)</li><li>Additional border-radius steps beyond the 4 defined (6, 9, 12, 16px)</li><li>Additional shadow levels beyond the 3 defined (sm, md, lg)</li><li>Over-saturated tinted surfaces using accent (violet accent appears only on active states, avatars, and CTAs)</li></ul>
+<h2 id="doc-anti-ai-style-rules-md-color-constraints">Color Constraints</h2>
+<ul><li>Do not introduce a 9th categorical color without a new department entity to map it to</li><li>Do not apply accent as a section-background tint (e.g. a violet hero band, tinted sidebar)</li><li>Do not assume white foreground on custom bg colors — use <code>--md-sys-color-on-primary</code> (white) only on violet (<code>--md-sys-color-primary</code>) and confirmed dark surfaces</li><li>Do not use <code>status-error</code> for anything other than: blocked/overrun hours, overdue due dates, negative delta, blocked column status</li><li>Do not add semantic colors (amber warning, info blue, etc.) outside the 5-status system unless a new product state requires it</li><li>Dark mode surface neutrals are cooler (slightly blueish) than light mode; do not use warm-neutral hex values for dark mode surfaces</li></ul>
+<h2 id="doc-anti-ai-style-rules-md-typography-constraints">Typography Constraints</h2>
+<ul><li>Do not use display scale (28px) for any UI text that is not a primary metric value</li><li>Do not make all text 600-weight — the weight hierarchy (400 body / 500 content / 600 label+heading) is intentional</li><li>Do not reduce tracking on 12px labels — they require +0.06–0.08em at uppercase scale</li><li>Do not add tracking to body text beyond the existing +0.005em baseline</li><li>Do not remove <code>font-variant-numeric: tabular-nums</code> from any numeric data column, table cell, or metric value</li><li>Do not use font sizes outside the defined scale (10, 11, 12, 13, 14, 15, 16, 18, 22, 28px) without evidence</li></ul>
+<h2 id="doc-anti-ai-style-rules-md-layout-constraints">Layout Constraints</h2>
+<ul><li>Do not increase topbar height above 56px</li><li>Do not reduce sidebar width below 232px on desktop</li><li>Do not break the page-gutter uniformity (22px horizontal, 18px vertical) without a density-level override</li><li>Do not add a bottom navigation bar — this is a desktop-first tool; mobile uses the sidebar overlay pattern</li><li>Do not wrap every kanban column in a second panel — columns are already panels (<code>.kcol</code> uses surface bg + border)</li><li>Do not add fixed-position floating action buttons other than the existing <code>.perm-info-btn</code> (a domain-specific permissions hint)</li></ul>
+<h2 id="doc-anti-ai-style-rules-md-component-constraints">Component Constraints</h2>
+<ul><li>Do not flatten kanban card slots — the id / category-badge / priority-flag / title / dept / meta structure is intentional and must be preserved</li><li>Do not use the same border radius for the modal (16px) and the kanban column (12px) — the hierarchy is deliberate</li><li>Do not add card hover animations beyond the current border-color + shadow transition</li><li>Do not replace the dashed meta-row divider in kanban cards with a solid divider — the dashed style signals metadata, not a section boundary</li><li>Do not add a thumbnail/image slot to kanban cards — the product model has no visual attachments on cards (attachments are a count only)</li><li>Do not invent a &quot;compact variant&quot; for the KPI card — density is already handled at the system level via <code>--md-sys-density-*</code> tokens; the KPI card uses fixed padding</li></ul>
+<h2 id="doc-anti-ai-style-rules-md-realistic-content-rules">Realistic Content Rules</h2>
+<ul><li>Use realistic zh-Hant department names from <code>DEPTS</code> constant — do not use placeholder names like &quot;Department A&quot;</li><li>Use realistic member aliases from <code>MEMBERS</code> — do not use &quot;User 1&quot;, &quot;Admin&quot;, &quot;John&quot;</li><li>Card titles must be product/design task language (e.g. <code>金融大眾首頁改版</code>, <code>保險商品頁 Banner</code>) — not generic lorem ipsum</li><li>KPI labels must use product vocabulary: <code>本月工時</code>, <code>完成率</code>, <code>任務總數</code>, <code>產能</code> — not generic <code>Revenue</code>, <code>Users</code>, <code>Growth</code></li><li>Status names use zh-Hant (待辦 / 設計中 / 審查中 / 完成 / 暫停) — not English status labels in UI</li></ul>
+    </section>
+<section class="panel" id="doc-components-button-md">
+      <span class="source">components/button.md</span>
+      <h1 id="doc-components-button-md-button">Button</h1>
+<h2 id="doc-components-button-md-purpose">Purpose</h2>
+<p>Triggers an action. Three variants cover the full emphasis range: default (neutral bordered), primary (filled ink), ghost (no visible border). Used in topbar toolbar, modal footers, drawer forms, and admin actions.</p>
+<h2 id="doc-components-button-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO02</td><td>S01 <code>globals.css</code></td><td><code>.btn</code> <code>.btn-primary</code> <code>.btn-ghost</code></td><td>All three variants defined; 32px height; border-radius <code>var(--r)</code> (9px)</td></tr><tr><td>E-CO02</td><td>S01 <code>globals.css</code></td><td><code>.btn:active</code></td><td><code>transform: translateY(0.5px)</code> — micro press feedback</td></tr><tr><td>E-CO02</td><td>S01 <code>globals.css</code></td><td><code>.tb-icon-btn</code></td><td>Icon-only variant: <code>width: 32px; padding: 0; justify-content: center</code></td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior</td><td>Action trigger; taps/clicks fire a handler</td></tr><tr><td>Anatomy</td><td>container · optional leading icon · label · optional trailing icon</td></tr><tr><td>Variants / states</td><td>default, primary, ghost; disabled (inferred); icon-only</td></tr><tr><td>Token contract summary</td><td>container-color, border, radius, height from sys; label-color, size, weight from sys typescale</td></tr><tr><td>Layout / density</td><td>Height = <code>--md-sys-density-row</code> (36px default, 28px compact); padding-inline 12px; gap 6px</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>None — first button extraction</td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-anatomy">Anatomy</h2>
+<ol><li><strong>container</strong> — bordered surface, height from density token</li><li><strong>leading-icon</strong> (optional) — 14–16px lucide icon, inherits label color</li><li><strong>label</strong> — 14px/500 body-medium</li><li><strong>trailing-icon</strong> (optional) — same as leading-icon</li></ol>
+<h2 id="doc-components-button-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>container-color</th><th>border</th><th>label-color</th><th>hover</th></tr></thead><tbody><tr><td><strong>default</strong></td><td><code>--md-sys-color-surface</code></td><td><code>--md-sys-color-outline</code></td><td><code>--md-sys-color-on-surface</code></td><td>bg → <code>surface-variant</code></td></tr><tr><td><strong>primary</strong></td><td><code>--md-sys-color-on-surface</code></td><td><code>--md-sys-color-on-surface</code></td><td><code>--md-sys-color-background</code></td><td>bg → <code>on-surface-secondary</code></td></tr><tr><td><strong>ghost</strong></td><td><code>transparent</code></td><td><code>transparent</code></td><td><code>--md-sys-color-on-surface-secondary</code></td><td>bg → <code>surface-variant</code></td></tr><tr><td><strong>icon-only</strong></td><td>same as default/primary/ghost</td><td>same</td><td>—</td><td>width 32px, no padding</td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Behavior</th></tr></thead><tbody><tr><td>default</td><td><code>--md-comp-button-container-color</code> bg, <code>--md-comp-button-container-border</code> border</td></tr><tr><td>hover</td><td><code>--md-comp-button-hover-container-color</code> bg transition 0.12s</td></tr><tr><td>pressed</td><td><code>transform: translateY(0.5px)</code></td></tr><tr><td>focus-visible</td><td>browser default outline; supplement with 2px solid <code>--md-sys-color-primary</code> offset 2px if restyling</td></tr><tr><td>disabled</td><td>opacity 0.4 (inferred — no explicit disabled class in source); <code>pointer-events: none</code></td></tr><tr><td>loading</td><td>not observed; treat as disabled with spinner if needed</td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-button-container-color</code></td><td><code>--md-sys-color-surface</code></td><td>Default bg</td><td>default</td></tr><tr><td><code>--md-comp-button-container-border</code></td><td><code>--md-sys-color-outline</code></td><td>Default border</td><td>default</td></tr><tr><td><code>--md-comp-button-container-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>Radius (9px)</td><td>all</td></tr><tr><td><code>--md-comp-button-container-height</code></td><td><code>--md-sys-density-row</code></td><td>Height (density-aware)</td><td>all</td></tr><tr><td><code>--md-comp-button-label-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>Label text</td><td>default</td></tr><tr><td><code>--md-comp-button-label-size</code></td><td><code>--md-sys-typescale-body-medium-size</code></td><td>14px</td><td>all</td></tr><tr><td><code>--md-comp-button-label-weight</code></td><td><code>--md-sys-typescale-body-medium-weight</code></td><td>500</td><td>all</td></tr><tr><td><code>--md-comp-button-padding-inline</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>12px horizontal</td><td>all</td></tr><tr><td><code>--md-comp-button-gap</code></td><td><code>--md-sys-spacing-gap-sm</code></td><td>6px icon gap</td><td>all</td></tr><tr><td><code>--md-comp-button-hover-container-color</code></td><td><code>--md-sys-color-surface-variant</code></td><td>Hover bg</td><td>hover</td></tr><tr><td><code>--md-comp-button-primary-container-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>Primary bg</td><td>primary/default</td></tr><tr><td><code>--md-comp-button-primary-label-color</code></td><td><code>--md-sys-color-background</code></td><td>Primary text</td><td>primary/default</td></tr><tr><td><code>--md-comp-button-ghost-label-color</code></td><td><code>--md-sys-color-on-surface-secondary</code></td><td>Ghost text</td><td>ghost/default</td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-layout-rules">Layout Rules</h2>
+<ul><li>Height: <code>--md-sys-density-row</code> — automatically responds to compact density override</li><li><code>min-width</code>: not set; allow label to determine width; icon-only pins width at 32px</li><li><code>padding-inline</code>: 12px (default); 0 for icon-only</li><li><code>gap</code>: 6px between icon and label</li><li>Text: <code>white-space: nowrap</code>; do not truncate button labels</li><li><code>flex-shrink: 0</code> — buttons must not compress in toolbar rows</li></ul>
+<h2 id="doc-components-button-md-content-rules">Content Rules</h2>
+<ul><li>Label: 1–4 words; prefer imperative verbs in zh-Hant (「新增」「下載」「登入」)</li><li>Icon: optional, never repeated with a redundant label symbol</li><li>No emoji in button labels</li></ul>
+<h2 id="doc-components-button-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>Semantic element: <code>&lt;button&gt;</code> required; do not implement as <code>&lt;div&gt;</code> or <code>&lt;a&gt;</code></li><li><code>disabled</code> attribute must be set when the action is unavailable (not just <code>opacity</code>)</li><li>Icon-only buttons: require <code>aria-label</code> or <code>title</code></li><li>Focus: <code>focus-visible</code> style required; do not suppress <code>:focus-visible</code> outline entirely</li><li>Contrast: primary variant ink-on-surface meets WCAG AA (≥4.5:1 at 14px)</li></ul>
+<h2 id="doc-components-button-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>Do</th><th>Don't</th></tr></thead><tbody><tr><td>Use <code>btn-primary</code> for the single most important CTA per context</td><td>Use multiple <code>btn-primary</code> in one toolbar row</td></tr><tr><td>Use <code>btn-ghost</code> for secondary/cancel actions in modal footers</td><td>Use ghost for primary CTAs</td></tr><tr><td>Match height to <code>--md-sys-density-row</code> for layout alignment</td><td>Hardcode height to 32px bypassing density token</td></tr><tr><td>Group related actions with <code>gap: 8px</code></td><td>Stack buttons vertically unless the viewport forces it</td></tr></tbody></table></div>
+<h2 id="doc-components-button-md-implementation-notes">Implementation Notes</h2>
+<ul><li>The existing <code>.btn</code> CSS in <code>globals.css</code> implements this spec. Token CSS in <code>tokens-comp.css</code> maps slots to system tokens for agent consumption.</li><li><code>font-family: inherit</code> is explicitly set on <code>button</code> in globals.css — do not omit when re-implementing.</li><li><code>transition: background 0.12s, transform 0.05s</code> drives the hover + press animation.</li></ul>
+    </section>
+<section class="panel" id="doc-components-kanban-card-md">
+      <span class="source">components/kanban-card.md</span>
+      <h1 id="doc-components-kanban-card-md-kanban-card">Kanban Card</h1>
+<h2 id="doc-components-kanban-card-md-purpose">Purpose</h2>
+<p>Represents one work item in a Kanban column. Draggable between columns. Opens the detail drawer on click. Communicates task identity (id, title, category), requester dept, priority flag, time status (due date, hours tracked vs estimated), and assigned owner — all within a fixed 276px content width.</p>
+<h2 id="doc-components-kanban-card-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO01</td><td>S01 <code>globals.css</code></td><td><code>.kcard</code> and sub-classes</td><td>Full CSS spec: padding, gaps, border, radius, drag state</td></tr><tr><td>E-CO01</td><td>S03 <code>kanban/card.tsx</code></td><td>Full component</td><td>Slot structure: id, cat badge, prio flag, title, dept dot+name, meta row (due, hours, avatar)</td></tr><tr><td>E-CO01</td><td>S08 <code>lib/data.ts</code></td><td><code>DEPT_HUE</code> mapping</td><td>Dept dot color sourced from hue mapping</td></tr><tr><td>E-CO01</td><td>S07 <code>lib/types.ts</code></td><td><code>Card</code> interface</td><td>`prio: 'high'</td><td>'normal'</td><td>'low'<code>; </code>actual&gt;est` triggers hours-over state</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior</td><td>Display + drag-and-drop; click opens detail drawer; dragging shows <code>.dragging</code> opacity state</td></tr><tr><td>Anatomy</td><td>container · [id + category-badge + priority-flag] row · title · dept-row · meta-row [due + hours + avatar]</td></tr><tr><td>Variants / states</td><td>default, hover, dragging; hours-over, due-overdue (semantic state modifiers)</td></tr><tr><td>Token contract summary</td><td>container: surface bg, outline border, corner-md, density-inner padding; title: body-medium; meta: meta size + status-error for over states</td></tr><tr><td>Layout / density</td><td>Width set by column (296px col − 20px body padding = 276px); padding from <code>--md-sys-density-inner</code></td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>No similar components in initial inventory</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-anatomy">Anatomy</h2>
+<ul><li><strong>due</strong> — <code>&lt;Calendar size={12}&gt;</code> + <code>MM/DD</code> date; 12px muted; overdue modifier: status-error color</li><li><strong>hours</strong> — <code>&lt;Clock size={12}&gt;</code> + <code>actual</code>/<code>est</code>h; 12px ink-2; <code>ratio</code> in muted; over modifier: status-error color</li><li><strong>avatar</strong> — 22px circle; hue bg; initial letter; right-aligned via <code>margin-left: auto</code>; shows photo if available</li></ul>
+<h2 id="doc-components-kanban-card-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>Trigger</th><th>Visual change</th></tr></thead><tbody><tr><td>default</td><td>—</td><td>White surface, outline border</td></tr><tr><td>hover</td><td><code>:hover</code></td><td>border → <code>outline-strong</code>; elevation-sm appears</td></tr><tr><td>dragging</td><td><code>isDragging</code> prop</td><td>opacity 0.4; <code>cursor: grabbing</code></td></tr><tr><td>hours-over</td><td><code>actual &gt; est</code></td><td>hours slot color → <code>status-error</code></td></tr><tr><td>due-overdue</td><td>due &lt; today AND status ≠ done</td><td>due slot color → <code>status-error</code></td></tr><tr><td>no-owner</td><td><code>owner</code> missing</td><td>avatar slot hidden</td></tr><tr><td>high-priority</td><td><code>prio === 'high'</code></td><td>priority flag icon visible</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Behavior</th></tr></thead><tbody><tr><td>default</td><td><code>--md-comp-kanban-card-container-color</code> surface; <code>--md-comp-kanban-card-container-border</code> outline</td></tr><tr><td>hover</td><td>border → <code>--md-comp-kanban-card-hover-border</code>; box-shadow → <code>--md-comp-kanban-card-hover-elevation</code>; transition 0.12s</td></tr><tr><td>dragging</td><td><code>opacity: 0.4</code>; <code>cursor: grabbing</code>; source card dims while drag overlay shows full opacity clone</td></tr><tr><td>focus-visible</td><td>not explicitly implemented in source; add 2px <code>--md-sys-color-primary</code> outline offset 2px</td></tr><tr><td>disabled / blocked</td><td>not applicable — blocked status is a column state, not a card state</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-kanban-card-container-color</code></td><td><code>--md-sys-color-surface</code></td><td>Card bg</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-container-border</code></td><td><code>--md-sys-color-outline</code></td><td>Card border</td><td>default</td></tr><tr><td><code>--md-comp-kanban-card-container-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>9px radius</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-container-padding</code></td><td><code>--md-sys-density-inner</code></td><td>Inner padding (density-aware)</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-stack-gap</code></td><td><code>--md-sys-spacing-gap-md</code></td><td>Gap between cards in column</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-hover-border</code></td><td><code>--md-sys-color-outline-strong</code></td><td>Hover border emphasis</td><td>hover</td></tr><tr><td><code>--md-comp-kanban-card-hover-elevation</code></td><td><code>--md-sys-elevation-sm</code></td><td>Hover shadow</td><td>hover</td></tr><tr><td><code>--md-comp-kanban-card-id-color</code></td><td><code>--md-sys-color-on-surface-faint</code></td><td>Task ID text</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-title-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>Title text</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-title-size</code></td><td><code>--md-sys-typescale-body-medium-size</code></td><td>14px</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-title-weight</code></td><td><code>--md-sys-typescale-body-medium-weight</code></td><td>500</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-dept-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>Dept text</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-meta-divider</code></td><td><code>--md-sys-color-divider</code></td><td>Dashed meta separator</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-due-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>Due date default</td><td>default</td></tr><tr><td><code>--md-comp-kanban-card-due-overdue-color</code></td><td><code>--md-sys-color-status-error</code></td><td>Due date overdue</td><td>overdue modifier</td></tr><tr><td><code>--md-comp-kanban-card-hours-color</code></td><td><code>--md-sys-color-on-surface-secondary</code></td><td>Hours default</td><td>default</td></tr><tr><td><code>--md-comp-kanban-card-hours-over-color</code></td><td><code>--md-sys-color-status-error</code></td><td>Hours over-est</td><td>over modifier</td></tr><tr><td><code>--md-comp-kanban-card-hours-ratio-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td><code>/estH</code> ratio</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-avatar-size</code></td><td><code>--md-sys-size-avatar-sm</code></td><td>Avatar diameter (22px)</td><td>all</td></tr><tr><td><code>--md-comp-kanban-card-avatar-radius</code></td><td><code>--md-sys-shape-corner-full</code></td><td>Circle</td><td>all</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-layout-rules">Layout Rules</h2>
+<ul><li>Width: determined by parent column (296px); do not set explicit width on card</li><li><code>padding</code>: <code>--md-sys-density-inner</code> (14px default, 10px compact)</li><li>Internal <code>gap</code> between major slots: 8px</li><li><code>cursor: grab</code>; <code>cursor: grabbing</code> during active drag</li><li>Title: no truncation — allow multi-line wrapping, max ~3 lines before column layout breaks</li><li>Meta row <code>border-top: 1px dashed var(--md-sys-color-divider)</code> — only a dashed divider, not solid</li><li>Avatar: <code>margin-left: auto</code> — always right-aligned in meta row</li></ul>
+<h2 id="doc-components-kanban-card-md-content-rules">Content Rules</h2>
+<ul><li><strong>id</strong>: format <code>D-NNN</code> or similar; always monospace-feature (<code>tabular-nums</code>)</li><li><strong>category badge</strong>: only <code>UIUX</code> or <code>平面視覺</code> — two categories only; no others introduced without extending the <code>data-cat</code> CSS</li><li><strong>title</strong>: required; 5–60 characters typical; zh-Hant text; do not truncate</li><li><strong>dept</strong>: must use <code>DEPT_SHORT</code> abbreviation; not the full department name</li><li><strong>due</strong>: <code>MM/DD</code> format only</li><li><strong>hours</strong>: integer or one decimal; ratio always shown as <code>actual/estH</code></li></ul>
+<h2 id="doc-components-kanban-card-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>Draggable card needs <code>role=&quot;listitem&quot;</code> within <code>role=&quot;list&quot;</code> column</li><li><code>aria-label</code> on the card container: include card id and title</li><li>Drag handle affordance: the entire card is draggable; keyboard drag requires DnD kit keyboard sensor</li><li>Hours and due date icons are decorative (<code>aria-hidden=&quot;true&quot;</code>)</li><li>Avatar image: <code>alt={owner.name}</code> when photo is used; initial-only spans do not need alt</li></ul>
+<h2 id="doc-components-kanban-card-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>Do</th><th>Don't</th></tr></thead><tbody><tr><td>Use <code>status-error</code> for BOTH overdue due AND hours-over — they share the same semantic</td><td>Use different colors for overdue and hours-over</td></tr><tr><td>Let title wrap naturally within the card</td><td>Truncate title with ellipsis</td></tr><tr><td>Use the <code>hue()</code> utility function for dept dot and avatar bg</td><td>Hardcode department colors as hex values</td></tr><tr><td>Show avatar only when an owner is assigned</td><td>Show a placeholder avatar when no owner</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-card-md-implementation-notes">Implementation Notes</h2>
+<ul><li>Drag is handled by <code>@dnd-kit/sortable</code>; the <code>useSortable</code> hook provides <code>transform</code>, <code>transition</code>, and <code>isDragging</code></li><li>Category badge background uses <code>color-mix(in oklab, var(--hue-cN) 14%, transparent)</code> — requires <code>data-cat</code> attribute on the badge element</li><li>Dept dot uses the <code>hue()</code> utility: <code>hue(DEPT_HUE[card.dept] || 1)</code> resolving to the corresponding categorical hue</li><li>The <code>FIXED_SORT</code> set (<code>done</code>, <code>pending</code>) disables manual reordering within those columns</li></ul>
+    </section>
+<section class="panel" id="doc-components-kpi-card-md">
+      <span class="source">components/kpi-card.md</span>
+      <h1 id="doc-components-kpi-card-md-kpi-card">KPI Card</h1>
+<h2 id="doc-components-kpi-card-md-purpose">Purpose</h2>
+<p>Displays a single key performance indicator as a titled metric panel. Surfaces 3 slots: an uppercase category label, a large numeric value with optional unit, and a directional delta indicator. Used in the Dashboard view to show aggregate stats such as total cards, estimated hours, capacity usage, and completion rate.</p>
+<h2 id="doc-components-kpi-card-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO03</td><td>S01 <code>globals.css</code></td><td><code>.kpi</code> <code>.kpi-lbl</code> <code>.kpi-val</code> <code>.kpi-delta</code></td><td>Full slot CSS: 28px value, 12px/600/uppercase label, 12px delta with directional colors</td></tr><tr><td>E-CO03</td><td>S06 <code>dashboard/index.tsx</code></td><td>KPI panel rendering</td><td>Used in <code>layout-classic</code> and <code>layout-focus</code> grid; renders via <code>.kpi</code> class with 4 stat variants</td></tr></tbody></table></div>
+<h2 id="doc-components-kpi-card-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior</td><td>Display-only; no interaction; renders a metric snapshot</td></tr><tr><td>Anatomy</td><td>container · label · value (+ optional unit) · delta indicator</td></tr><tr><td>Variants / states</td><td>default; delta-up (success color); delta-down (error color); no-delta</td></tr><tr><td>Token contract summary</td><td>container: surface, outline border, corner-lg; label: 12px/600/uppercase/+0.08em; value: 28px/600/−0.02em; delta: 12px + semantic color</td></tr><tr><td>Layout / density</td><td><code>padding: 16px 18px</code>; flex-column; gap 4px between slots; value has <code>margin-top: 6px</code> from label</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Donut center lockup has similar numeric+caption structure but lives inside SVG canvas; kept distinct</td></tr></tbody></table></div>
+<h2 id="doc-components-kpi-card-md-anatomy">Anatomy</h2>
+<ul><li>default: muted color</li><li><code>.up</code>: <code>--md-sys-color-status-success</code></li><li><code>.down</code>: <code>--md-sys-color-status-error</code></li></ul>
+<h2 id="doc-components-kpi-card-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>Trigger</th><th>Delta color</th></tr></thead><tbody><tr><td>default</td><td>no delta class</td><td><code>--md-sys-color-on-surface-muted</code></td></tr><tr><td>delta-up</td><td><code>.kpi-delta.up</code></td><td><code>--md-sys-color-status-success</code></td></tr><tr><td>delta-down</td><td><code>.kpi-delta.down</code></td><td><code>--md-sys-color-status-error</code></td></tr><tr><td>no-delta</td><td>delta slot omitted</td><td>—</td></tr><tr><td>with-unit</td><td><code>unit</code> span present</td><td>unit shown at smaller size beside value</td></tr></tbody></table></div>
+<h2 id="doc-components-kpi-card-md-states">States</h2>
+<p>Interactive states: <code>not applicable</code> — display-only component.</p>
+<p>Observed modes:</p>
+<ul><li><strong>with-unit</strong>: <code>&lt;span class=&quot;unit&quot;&gt;H&lt;/span&gt;</code> or <code>%</code> appended inline in value slot</li><li><strong>delta-up / delta-down</strong>: CSS class applied by data logic</li><li><strong>no-delta</strong>: delta slot may be omitted entirely</li></ul>
+<h2 id="doc-components-kpi-card-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-kpi-card-container-color</code></td><td><code>--md-sys-color-surface</code></td><td>Card bg</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-container-border</code></td><td><code>--md-sys-color-outline</code></td><td>Card border</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-container-radius</code></td><td><code>--md-sys-shape-corner-lg</code></td><td>12px radius</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-label-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>Label text</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-label-size</code></td><td><code>--md-sys-typescale-label-size</code></td><td>12px</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-label-weight</code></td><td><code>--md-sys-typescale-label-weight</code></td><td>600</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-label-tracking</code></td><td><code>--md-sys-typescale-label-tracking</code></td><td>+0.08em</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>Value text</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-size</code></td><td><code>--md-sys-typescale-display-size</code></td><td>28px</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-weight</code></td><td><code>--md-sys-typescale-display-weight</code></td><td>600</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-leading</code></td><td><code>--md-sys-typescale-display-leading</code></td><td>1.1</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-tracking</code></td><td><code>--md-sys-typescale-display-tracking</code></td><td>−0.02em</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-value-top-gap</code></td><td><code>--md-sys-spacing-gap-sm</code></td><td>6px label→value gap</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-unit-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>Unit text</td><td>with-unit</td></tr><tr><td><code>--md-comp-kpi-card-unit-size</code></td><td><code>--md-sys-typescale-body-medium-size</code></td><td>14px</td><td>with-unit</td></tr><tr><td><code>--md-comp-kpi-card-delta-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>Delta neutral</td><td>default</td></tr><tr><td><code>--md-comp-kpi-card-delta-up-color</code></td><td><code>--md-sys-color-status-success</code></td><td>Delta positive</td><td>delta-up</td></tr><tr><td><code>--md-comp-kpi-card-delta-down-color</code></td><td><code>--md-sys-color-status-error</code></td><td>Delta negative</td><td>delta-down</td></tr><tr><td><code>--md-comp-kpi-card-delta-size</code></td><td><code>--md-sys-typescale-meta-size</code></td><td>12px</td><td>all</td></tr><tr><td><code>--md-comp-kpi-card-delta-gap</code></td><td><code>--md-sys-spacing-gap-xs</code></td><td>4px icon gap</td><td>all</td></tr></tbody></table></div>
+<h2 id="doc-components-kpi-card-md-layout-rules">Layout Rules</h2>
+<ul><li>Container padding: <code>16px 18px</code> (asymmetric: 16px top/bottom, 18px left/right; uses ref sizes)</li><li>Flex direction: column; <code>gap: 4px</code> between label, value, delta</li><li><code>margin-top: 6px</code> on <code>.kpi-val</code> (value slot) — extra breathing room after label</li><li>Value and unit are inline-flex in the same visual row; unit at <code>margin-left: 4px</code></li><li>Delta row: flex row, <code>align-items: center</code>, <code>gap: 4px</code></li><li>Card does not have fixed height — height driven by content</li></ul>
+<h2 id="doc-components-kpi-card-md-content-rules">Content Rules</h2>
+<ul><li><strong>label</strong>: ALL CAPS in zh-Hant or English; maximum 16 characters; must communicate the metric category, not the value (e.g. <code>本月工時</code>, <code>完成率</code>, <code>任務數</code>)</li><li><strong>value</strong>: integer or up to 1 decimal; always <code>font-variant-numeric: tabular-nums</code>; no thousands separator in current usage</li><li><strong>unit</strong>: optional suffix string: <code>H</code> (hours), <code>%</code>, <code>件</code> (items) — no space between value and unit</li><li><strong>delta</strong>: short description: e.g. <code>↑ +12%</code>, <code>較上月 −3H</code>; keep under 20 characters</li></ul>
+<h2 id="doc-components-kpi-card-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>Semantic role: <code>&lt;div&gt;</code> with no ARIA role required for display-only stat panels</li><li>Screen-reader: the value must be readable in sequence — label + value + unit; do not separate them with decorative elements</li><li>Numeric: <code>font-variant-numeric: tabular-nums</code> is visual only; ensure the underlying text is readable numeric characters</li><li>Delta icon (arrow/chevron): if used, mark <code>aria-hidden=&quot;true&quot;</code>; convey direction via text color alone is insufficient — add visually-hidden text describing the direction</li></ul>
+<h2 id="doc-components-kpi-card-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>Do</th><th>Don't</th></tr></thead><tbody><tr><td>Use display-numeric scale (28px) for the primary value only</td><td>Use 28px for labels or secondary metrics</td></tr><tr><td>Apply uppercase + wide tracking to the label slot</td><td>Uppercase the value itself</td></tr><tr><td>Use <code>status-success</code> for positive delta, <code>status-error</code> for negative</td><td>Use accent color for deltas</td></tr><tr><td>Group KPI cards in a 2- or 4-column dashboard grid</td><td>Place a KPI card inline with body text</td></tr><tr><td>Apply <code>tabular-nums</code> to the value at all times</td><td>Use proportional numerics — number alignment breaks in data tables</td></tr></tbody></table></div>
+<h2 id="doc-components-kpi-card-md-implementation-notes">Implementation Notes</h2>
+<ul><li>The existing <code>.kpi</code>, <code>.kpi-lbl</code>, <code>.kpi-val</code>, <code>.kpi-delta</code> classes in <code>globals.css</code> are the reference implementation.</li><li>In the <code>layout-focus</code> dashboard, KPI cards appear in a <code>focus-kpis</code> sub-grid (<code>1fr 1fr</code>, gap 14px).</li><li>Unit is a <code>&lt;span class=&quot;unit&quot;&gt;</code> inside <code>.kpi-val</code> — not a separate block element.</li><li>The <code>.up</code> / <code>.down</code> class on <code>.kpi-delta</code> is set by data logic in <code>dashboard/index.tsx</code>.</li></ul>
+    </section>
+    </main>
+  </div>
+  <script>
+(() => {
+  const STORAGE_KEY = "design-system-docs-lang";
+  const DEFAULT_LOCALE = "zh-Hant";
+  const copy = {"zh-Hant":{"htmlLang":"zh-Hant","pageTitle":"設計系統文件","brand":"設計系統","subtitle":"自動產生文件","langSelectorLabel":"語言","navOverview":"總覽","navTokens":"Tokens","navReviewQueue":"審查佇列","navMissingDocuments":"缺少文件","heroTitle":"設計系統文件","heroLead":"此靜態參考文件由 <code>design-system/</code> Markdown 與 <code>tokens/</code> CSS 自訂屬性自動產生。","pillGenerated":"產生時間","pillDocuments":"份文件","pillTokens":"個 tokens","summaryAriaLabel":"文件摘要","statDocuments":"設計系統文件","statTokens":"Token 總數","statTokenRef":"Reference tokens","statTokenSys":"System tokens","statTokenComp":"Component tokens","statMissing":"缺少預期文件","tokenRef":"Reference Tokens","tokenSys":"System Tokens","tokenComp":"Component Tokens","tokenColumnName":"Token","tokenColumnValue":"值","tokenColumnResolved":"解析值","noTokensFound":"找不到 tokens。","missingDocumentsTitle":"缺少文件","missingDocumentsLead":"此套件中找不到以下預期的設計系統文件。","componentPrefix":"元件：","docKickstart":"Kickstart","docSessionState":"Session 狀態","docEvidenceMap":"設計證據對照","docDesignPrinciples":"設計原則","docDesignElements":"設計元素","docTokenArchitecture":"Token 架構","docComponentInventory":"元件盤點","docComponentSpecTemplate":"元件規格範本","docInteractionStates":"互動狀態","docPageComposition":"頁面組成","docAntiAiStyleRules":"Anti-AI 風格規則"},"en":{"htmlLang":"en","pageTitle":"Design System Documentation","brand":"Design System","subtitle":"Generated documentation","langSelectorLabel":"Language","navOverview":"Overview","navTokens":"Tokens","navReviewQueue":"Review Queue","navMissingDocuments":"Missing Documents","heroTitle":"Design System Documentation","heroLead":"This static reference was generated from <code>design-system/</code> Markdown files and <code>tokens/</code> CSS custom properties.","pillGenerated":"Generated","pillDocuments":"documents","pillTokens":"tokens","summaryAriaLabel":"Documentation summary","statDocuments":"Design-system documents","statTokens":"Total tokens","statTokenRef":"Reference tokens","statTokenSys":"System tokens","statTokenComp":"Component tokens","statMissing":"Missing expected docs","tokenRef":"Reference Tokens","tokenSys":"System Tokens","tokenComp":"Component Tokens","tokenColumnName":"Token","tokenColumnValue":"Value","tokenColumnResolved":"Resolved","noTokensFound":"No tokens found.","missingDocumentsTitle":"Missing Documents","missingDocumentsLead":"These expected design-system documents were not found in this package.","componentPrefix":"Component: ","docKickstart":"Kickstart","docSessionState":"Session State","docEvidenceMap":"Evidence Map","docDesignPrinciples":"Design Principles","docDesignElements":"Design Elements","docTokenArchitecture":"Token Architecture","docComponentInventory":"Component Inventory","docComponentSpecTemplate":"Component Spec Template","docInteractionStates":"Interaction States","docPageComposition":"Page Composition","docAntiAiStyleRules":"Anti-AI Style Rules"},"ja":{"htmlLang":"ja","pageTitle":"デザインシステムドキュメント","brand":"Design System","subtitle":"自動生成ドキュメント","langSelectorLabel":"言語","navOverview":"概要","navTokens":"Tokens","navReviewQueue":"Review Queue","navMissingDocuments":"不足ドキュメント","heroTitle":"デザインシステムドキュメント","heroLead":"この静的リファレンスは <code>design-system/</code> の Markdown と <code>tokens/</code> CSS カスタムプロパティから生成されました。","pillGenerated":"生成","pillDocuments":"件のドキュメント","pillTokens":"件の tokens","summaryAriaLabel":"ドキュメント概要","statDocuments":"デザインシステムドキュメント","statTokens":"Token 総数","statTokenRef":"Reference tokens","statTokenSys":"System tokens","statTokenComp":"Component tokens","statMissing":"不足している想定ドキュメント","tokenRef":"Reference Tokens","tokenSys":"System Tokens","tokenComp":"Component Tokens","tokenColumnName":"Token","tokenColumnValue":"値","tokenColumnResolved":"解決値","noTokensFound":"tokens が見つかりません。","missingDocumentsTitle":"不足ドキュメント","missingDocumentsLead":"このパッケージで次の想定デザインシステムドキュメントが見つかりませんでした。","componentPrefix":"コンポーネント：","docKickstart":"Kickstart","docSessionState":"Session 状態","docEvidenceMap":"Evidence Map","docDesignPrinciples":"デザイン原則","docDesignElements":"デザイン要素","docTokenArchitecture":"Token アーキテクチャ","docComponentInventory":"コンポーネント一覧","docComponentSpecTemplate":"コンポーネント仕様テンプレート","docInteractionStates":"インタラクション状態","docPageComposition":"ページ構成","docAntiAiStyleRules":"Anti-AI スタイルルール"}};
+
+  const buttons = Array.from(document.querySelectorAll("[data-language-button]"));
+
+  function setLanguage(language) {
+    const messages = copy[language] || copy[DEFAULT_LOCALE];
+    document.documentElement.lang = messages.htmlLang;
+    document.title = messages.pageTitle;
+
+    document.querySelectorAll("[data-i18n]").forEach((node) => {
+      const value = messages[node.dataset.i18n];
+      if (typeof value !== "string") return;
+      if (node.dataset.i18nHtml === "true") {
+        node.innerHTML = value;
+      } else {
+        node.textContent = value;
+      }
+    });
+
+    document.querySelectorAll("[data-i18n-template]").forEach((node) => {
+      if (node.dataset.i18nTemplate === "component" && node.dataset.i18nName) {
+        node.textContent = (messages.componentPrefix || "") + node.dataset.i18nName;
+      }
+    });
+
+    buttons.forEach((button) => {
+      const selected = button.dataset.languageButton === language;
+      button.setAttribute("aria-selected", String(selected));
+    });
+
+    try {
+      localStorage.setItem(STORAGE_KEY, language);
+    } catch (_error) {
+      /* ignore storage failures */
+    }
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setLanguage(button.dataset.languageButton);
+    });
+  });
+
+  let initial = DEFAULT_LOCALE;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && copy[stored]) initial = stored;
+  } catch (_error) {
+    /* ignore storage failures */
+  }
+  setLanguage(initial);
+})();
+</script>
+</body>
+</html>

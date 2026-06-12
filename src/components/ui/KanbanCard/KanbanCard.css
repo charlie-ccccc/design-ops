@@ -59,10 +59,13 @@
 
 .ui-kanban-card__prio {
   margin-left: auto;
-  color: var(--md-sys-color-status-error);
   display: flex;
   align-items: center;
 }
+.ui-kanban-card__prio--urgent { color: #ef4444; }
+.ui-kanban-card__prio--high   { color: #f97316; }
+.ui-kanban-card__prio--low    { color: #3b82f6; }
+.ui-kanban-card__prio--lowest { color: #93c5fd; }
 
 /* Title */
 .ui-kanban-card__title {

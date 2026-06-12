@@ -64,7 +64,7 @@ const makeDefaultForm = (currentUser: AppUser) => ({
   requester: currentUser.uid,
   requesterName: currentUser.name,
   cat: '' as Cat | '',
-  prio: 'low' as Priority | '',
+  prio: 'normal' as Priority | '',
   due: '',
   owner: '',
   desc: DESC_TEMPLATE,
@@ -162,9 +162,11 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
             <Input as="select" style={{ width: '100%' }} value={form.prio}
               onChange={e => set('prio', (e.target as HTMLSelectElement).value as Priority)}>
               <option value="">請選擇</option>
+              <option value="urgent">最高</option>
               <option value="high">高</option>
-              <option value="normal">中</option>
+              <option value="normal">一般</option>
               <option value="low">低</option>
+              <option value="lowest">最低</option>
             </Input>
           </FormRow>
 

@@ -1,6 +1,6 @@
 export type CardStatus = 'belog' | 'todo' | 'designing' | 'reviewing' | 'done' | 'pending';
 export type Cat = 'UIUX' | '平面視覺';
-export type Priority = 'high' | 'normal' | 'low';
+export type Priority = 'urgent' | 'high' | 'normal' | 'low' | 'lowest';
 export type DashLayout = 'classic' | 'focus' | 'grid';
 export type ChartType = 'donut' | 'pie' | 'bars';
 

@@ -479,11 +479,13 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
 
                 <dt>優先級</dt>
                 <dd>
-                  {readOnly ? ({ high: '高', normal: '中', low: '低' }[c.prio] || c.prio) : (
+                  {readOnly ? ({ urgent: '最高', high: '高', normal: '一般', low: '低', lowest: '最低' }[c.prio] || c.prio) : (
                     <Input as="select" value={c.prio} onChange={e => onUpdate(c.id, { prio: (e.target as HTMLSelectElement).value as Card['prio'] })}>
+                      <option value="urgent">最高</option>
                       <option value="high">高</option>
-                      <option value="normal">中</option>
+                      <option value="normal">一般</option>
                       <option value="low">低</option>
+                      <option value="lowest">最低</option>
                     </Input>
                   )}
                 </dd>

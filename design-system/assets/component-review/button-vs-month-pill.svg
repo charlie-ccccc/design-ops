@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="160" viewBox="0 0 480 160">
+  <rect width="480" height="160" fill="#FAFAF7"/>
+  <!-- Button (left) -->
+  <rect x="40" y="60" width="120" height="36" rx="9" fill="#FFFFFF" stroke="#DEDBD4" stroke-width="1"/>
+  <text x="100" y="83" font-family="sans-serif" font-size="14" font-weight="500" fill="#1A1A17" text-anchor="middle">新增任務</text>
+  <text x="100" y="130" font-family="sans-serif" font-size="9" fill="#9A9893" text-anchor="middle">Button — standalone action trigger</text>
+  <!-- Month Pill (right) -->
+  <rect x="290" y="60" width="160" height="36" rx="9" fill="#FFFFFF" stroke="#DEDBD4" stroke-width="1"/>
+  <text x="310" y="83" font-family="sans-serif" font-size="16" fill="#9A9893" text-anchor="middle">‹</text>
+  <text x="370" y="83" font-family="sans-serif" font-size="13" font-weight="500" fill="#1A1A17" text-anchor="middle">2025/06</text>
+  <text x="430" y="83" font-family="sans-serif" font-size="16" fill="#9A9893" text-anchor="middle">›</text>
+  <text x="370" y="130" font-family="sans-serif" font-size="9" fill="#9A9893" text-anchor="middle">Month Pill — composite: chevrons + value display</text>
+</svg>

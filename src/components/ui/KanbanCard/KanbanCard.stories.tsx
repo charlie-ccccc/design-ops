@@ -5,7 +5,7 @@ const meta = {
   title: 'Components/KanbanCard',
   component: KanbanCard,
   argTypes: {
-    priority: { control: 'select', options: ['high', 'normal', 'low'] },
+    priority: { control: 'select', options: ['urgent', 'high', 'normal', 'low', 'lowest'] },
     isDragging: { control: 'boolean' },
     isOverdue: { control: 'boolean' },
   },
@@ -31,8 +31,24 @@ export const Default: Story = {
   },
 };
 
+export const UrgentPriority: Story = {
+  name: 'Urgent Priority (最高)',
+  args: {
+    id: 'D-099',
+    title: '緊急！官網首頁 DOWN 機修復',
+    cat: 'UIUX',
+    dept: 'UI',
+    deptHue: 1,
+    due: '6/12',
+    est: 4,
+    actual: 1,
+    owner: SAMPLE_OWNER,
+    priority: 'urgent',
+  },
+};
+
 export const HighPriority: Story = {
-  name: 'High Priority',
+  name: 'High Priority (高)',
   args: {
     id: 'D-051',
     title: '行動版設計規範更新',

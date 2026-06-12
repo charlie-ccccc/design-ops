@@ -1,8 +1,8 @@
-import { Calendar, Clock, Flag } from 'lucide-react';
+import { Calendar, Clock, ChevronsUp, ChevronUp, ChevronDown, ChevronsDown } from 'lucide-react';
 import { Avatar } from '../Avatar/Avatar';
 import './KanbanCard.css';
 
-type KanbanCardPriority = 'high' | 'normal' | 'low';
+type KanbanCardPriority = 'urgent' | 'high' | 'normal' | 'low' | 'lowest';
 type KanbanCardCat = 'UIUX' | '平面視覺';
 
 type KanbanCardOwner = {
@@ -60,11 +60,10 @@ export function KanbanCard({
       <div className="ui-kanban-card__header">
         <span className="ui-kanban-card__id">{id}</span>
         <span className="ui-kanban-card__cat" data-cat={cat}>{cat}</span>
-        {priority === 'high' && (
-          <span className="ui-kanban-card__prio" aria-label="高優先">
-            <Flag size={12} aria-hidden="true" />
-          </span>
-        )}
+        {priority === 'urgent' && <span className="ui-kanban-card__prio ui-kanban-card__prio--urgent" aria-label="最高"><ChevronsUp size={12} /></span>}
+        {priority === 'high'   && <span className="ui-kanban-card__prio ui-kanban-card__prio--high"   aria-label="高"><ChevronUp size={12} /></span>}
+        {priority === 'low'    && <span className="ui-kanban-card__prio ui-kanban-card__prio--low"    aria-label="低"><ChevronDown size={12} /></span>}
+        {priority === 'lowest' && <span className="ui-kanban-card__prio ui-kanban-card__prio--lowest" aria-label="最低"><ChevronsDown size={12} /></span>}
       </div>
 
       <div className="ui-kanban-card__title">{title}</div>
