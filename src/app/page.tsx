@@ -3,17 +3,15 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
-  Search, Plus, Download,
-  ChevronLeft, ChevronRight, Menu,
 } from 'lucide-react';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat, HistoryMonth } from '@/lib/types';
 import {
-  STATUSES, DEPTS, DEPT_SHORT, DEPT_HUE,
+  STATUSES, DEPT_HUE,
   DEFAULT_HOLIDAYS,
 } from '@/lib/data';
-import { sum, groupBy, hue, formatId, shiftMonth, workingDaysInMonth, workingDaysBetween, dueMonthOf } from '@/lib/utils';
+import { sum, groupBy, formatId, shiftMonth, workingDaysInMonth, workingDaysBetween, dueMonthOf } from '@/lib/utils';
 import { useFirestoreCards } from '@/hooks/use-firestore-cards';
 import { useFirestoreUsers } from '@/hooks/use-firestore-users';
 import { useFirestoreSettings } from '@/hooks/use-firestore-settings';
@@ -26,6 +24,7 @@ import History from '@/components/history/index';
 import Permissions from '@/components/permissions/index';
 import LoginPage from '@/components/auth/login-page';
 import NotificationPanel from '@/components/ui/notification-panel';
+import { AppTopbar } from '@/components/ui/AppTopbar/AppTopbar';
 import { useAuth } from '@/contexts/auth-context';
 import type { AppUser } from '@/contexts/auth-context';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -68,7 +67,6 @@ export default function App() {
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const [page, setPage] = useState<Page>(() => {
     if (typeof window !== 'undefined') {
@@ -544,85 +542,23 @@ export default function App() {
 
       {/* ── Main ── */}
       <main className="main">
-        <header className="topbar">
-          {/* Left */}
-          <div className="tb-left">
-            <button className="sb-hamburger" onClick={() => setSidebarOpen(o => !o)}>
-              <Menu size={20} />
-            </button>
-            <div className="tb-title">
-              {[...workspacePages, ...adminPages].find(p => p.id === page)?.name}
-              {page === 'kanban' && (filterMember || filterDept || query) && (
-                <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginLeft: 8 }}>· 篩選中</span>
-              )}
-            </div>
-            {page === 'capacity' && (
-              <div className="month-pill tb-desktop-only">
-                <button onClick={() => setMonth(m => shiftMonth(m, -1))}><ChevronLeft size={14} /></button>
-                <span className="month-pill-val">{month}</span>
-                <button onClick={() => setMonth(m => shiftMonth(m, 1))}><ChevronRight size={14} /></button>
-              </div>
-            )}
-          </div>
-
-          <span className="tb-spacer" />
-
-          {/* Desktop-only filters */}
-          <div className="tb-tools tb-desktop-only">
-            {page === 'kanban' && (
-              <>
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  {members.map(m => (
-                    <button key={m.id} onClick={() => setFilterMember(filterMember === m.id ? '' : m.id)} title={m.name}
-                      style={{
-                        appearance: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                        width: 22, height: 22, borderRadius: '50%', background: 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
-                        opacity: filterMember && filterMember !== m.id ? 0.3 : 1,
-                        boxShadow: filterMember === m.id ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}` : 'none',
-                        transition: 'opacity 0.15s, box-shadow 0.15s',
-                      }}>
-                      {m.photo
-                        ? <img src={m.photo} alt={m.name} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-                        : <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>}
-                    </button>
-                  ))}
-                </div>
-                <div style={{ width: 1, height: 18, background: 'var(--border)', margin: '0 2px' }} />
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-2)', pointerEvents: 'none' }}>
-                    <Search size={13} />
-                  </span>
-                  <input className="input" placeholder="搜尋標題 / ID" style={{ paddingLeft: 26, width: 150 }}
-                    value={query} onChange={e => setQuery(e.target.value)} />
-                </div>
-              </>
-            )}
-            {(page === 'kanban' || (page === 'dashboard' && !dashFilter)) && (
-              <select className="input" value={filterDept} onChange={e => setFilterDept(e.target.value)}>
-                <option value="">全部單位</option>
-                {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
-              </select>
-            )}
-          </div>
-
-          {/* Right — always visible */}
-          <div className="tb-tools">
-            {page === 'kanban' && (
-              <>
-                <button className="btn btn-primary tb-desktop-only"
-                  onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                  <Plus size={14} /> 新需求單
-                </button>
-                <button className="sb-hamburger tb-mobile-only"
-                  onClick={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}>
-                  <Plus size={20} />
-                </button>
-              </>
-            )}
-            {page === 'dashboard' && (
-              <button className="btn tb-desktop-only"><Download size={14} /> 匯出</button>
-            )}
+        <AppTopbar
+          page={page}
+          onMenuToggle={() => setSidebarOpen(o => !o)}
+          members={members}
+          filterMember={filterMember}
+          onFilterMember={setFilterMember}
+          filterDept={filterDept}
+          onFilterDept={setFilterDept}
+          query={query}
+          onQuery={setQuery}
+          onNewCard={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}
+          hasDrillFilter={!!dashFilter}
+          onExport={() => {}}
+          month={month}
+          onMonthPrev={() => setMonth(m => shiftMonth(m, -1))}
+          onMonthNext={() => setMonth(m => shiftMonth(m, 1))}
+          notificationSlot={
             <NotificationPanel
               notifications={notifications ?? []}
               onMarkRead={markRead}
@@ -630,40 +566,8 @@ export default function App() {
               onOpenCard={id => setOpenCardId(id)}
               onDelete={deleteNotif}
             />
-          </div>
-        </header>
-
-        {/* Mobile-only filter bar (kanban page) */}
-        {page === 'kanban' && (
-          <div className="tb-mobile-filters">
-            {searchOpen ? (
-              <>
-                <div className="tb-search-bar">
-                  <Search size={15} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-                  <input placeholder="搜尋標題 / ID"
-                    value={query} onChange={e => setQuery(e.target.value)} autoFocus />
-                </div>
-                <button className="tb-search-cancel" onClick={() => { setSearchOpen(false); setQuery(''); }}>
-                  取消
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="sb-hamburger tb-search-btn" onClick={() => setSearchOpen(true)}>
-                  <Search size={20} />
-                </button>
-                <select className="input" style={{ flex: 1 }} value={filterMember} onChange={e => setFilterMember(e.target.value)}>
-                  <option value="">全部成員</option>
-                  {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                </select>
-                <select className="input" style={{ flex: 1 }} value={filterDept} onChange={e => setFilterDept(e.target.value)}>
-                  <option value="">全部單位</option>
-                  {DEPTS.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
-                </select>
-              </>
-            )}
-          </div>
-        )}
+          }
+        />
 
         <div className="body">
           {page === 'kanban' && (
