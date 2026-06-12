@@ -598,9 +598,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                         {[...comments].reverse().map(cm => {
                           const isEditing = editingCommentId === cm.id;
                           const canEditThis = canEdit && cm.author === currentUserName;
+                          const cmUser = ALL_USERS.find(u => u.name === cm.author);
                           return (
                             <div key={cm.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                              <div className="av av-sm" style={{ background: 'var(--md-sys-color-primary)', flexShrink: 0 }}>{cm.author[0]}</div>
+                              {cmUser?.photo
+                                ? <img src={cmUser.photo} alt={cm.author} className="av av-sm" style={{ objectFit: 'cover', flexShrink: 0 }} />
+                                : <div className="av av-sm" style={{ background: cmUser ? hue(cmUser.hue) : 'var(--md-sys-color-primary)', flexShrink: 0 }}>{cm.author[0]}</div>}
                               <div style={{ flex: 1, background: 'var(--md-sys-color-surface-variant)', borderRadius: 8, padding: '8px 12px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                                   <span style={{ fontSize: 14, fontWeight: 600 }}>{cm.author}</span>
