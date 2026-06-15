@@ -61,8 +61,7 @@ function PermissionsWrapper({
       onUpdateUser={(uid, patch) =>
         setUsers(prev => prev.map(u => u.uid === uid ? { ...u, ...patch } : u))
       }
-      onDeleteUser={uid => setUsers(prev => prev.filter(u => u.uid !== uid))}
-      depts={depts}
+depts={depts}
       onUpdateDepts={setDepts}
       deptColors={deptColors}
       onUpdateDeptColors={setDeptColors}

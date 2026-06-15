@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LayoutGrid, BarChart2, TrendingUp, Archive, Shield,
 } from 'lucide-react';
-import { doc, updateDoc, deleteField, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Card, LeaveEntry, PublicHoliday, CardStatus, Member, Cat, HistoryMonth } from '@/lib/types';
 import {
@@ -422,10 +422,6 @@ export default function App() {
     addCard(nc).catch(console.error);
   }, [cards, addCard]);
 
-  const onDeleteUser = useCallback(async (uid: string) => {
-    await deleteDoc(doc(db, 'users', uid));
-  }, []);
-
   const onUpdateUser = useCallback(async (uid: string, patch: Partial<AppUser>) => {
     if (patch.roles) {
       const currentUser = siteUsers.find(u => u.uid === uid);
@@ -631,7 +627,7 @@ export default function App() {
             />
           )}
           {page === 'permissions' && showAdmin && (
-            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} onDeleteUser={onDeleteUser} depts={depts} onUpdateDepts={updateDepts} deptColors={deptColors} onUpdateDeptColors={updateDeptColors} tab={permTab} onTabChange={setPermTab} />
+            <Permissions users={siteUsers} currentUser={user} onUpdateUser={onUpdateUser} depts={depts} onUpdateDepts={updateDepts} deptColors={deptColors} onUpdateDeptColors={updateDeptColors} tab={permTab} onTabChange={setPermTab} />
           )}
         </div>
       </main>

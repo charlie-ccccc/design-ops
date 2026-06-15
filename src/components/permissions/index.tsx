@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Info, Palette, Trash2 } from 'lucide-react';
+import { Plus, X, Info, Palette } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
@@ -31,7 +31,6 @@ interface PermissionsProps {
   users: AppUser[];
   currentUser: AppUser;
   onUpdateUser: (uid: string, patch: Partial<AppUser>) => void;
-  onDeleteUser?: (uid: string) => void;
   depts: string[];
   onUpdateDepts: (depts: string[]) => void;
   deptColors: Record<string, string>;
@@ -40,11 +39,11 @@ interface PermissionsProps {
   onTabChange: (t: 'users' | 'depts') => void;
 }
 
-export default function Permissions({ users, currentUser, onUpdateUser, onDeleteUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors, tab, onTabChange: setTab }: PermissionsProps) {
+export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors, tab, onTabChange: setTab }: PermissionsProps) {
   const [newDept, setNewDept] = useState('');
   const [infoOpen, setInfoOpen] = useState(false);
   const [pickerDept, setPickerDept] = useState<string | null>(null);
-  const [confirmDeleteUid, setConfirmDeleteUid] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<Role | 'all'>('all');
 
   const isAdmin = currentUser.roles.includes('Admin');
   const rank = (u: AppUser) => u.roles.includes('Admin') ? 0 : u.roles.includes('成員') ? 1 : 2;
@@ -71,6 +70,10 @@ export default function Permissions({ users, currentUser, onUpdateUser, onDelete
   const sorted = displayOrder
     .map(uid => users.find(u => u.uid === uid))
     .filter((u): u is AppUser => u !== undefined);
+
+  const filtered = roleFilter === 'all'
+    ? sorted
+    : sorted.filter(u => u.roles.includes(roleFilter));
 
   function addDept() {
     const d = newDept.trim();
@@ -160,27 +163,13 @@ export default function Permissions({ users, currentUser, onUpdateUser, onDelete
         <span style={{ color: 'var(--md-sys-color-on-surface-muted)', fontSize: 13 }}>—</span>
       ),
     },
-    ...(isAdmin && onDeleteUser ? [{
-      key: 'delete',
-      header: '',
-      align: 'right' as const,
-      render: (u: AppUser) => u.uid === currentUser.uid ? null : (
-        <button
-          onClick={() => setConfirmDeleteUid(u.uid)}
-          title="刪除使用者"
-          style={{
-            appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
-            padding: 4, borderRadius: 4, color: 'var(--md-sys-color-on-surface-muted)',
-            display: 'flex', alignItems: 'center',
-            transition: 'color 0.15s',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#ef4444')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--md-sys-color-on-surface-muted)')}
-        >
-          <Trash2 size={14} />
-        </button>
-      ),
-    }] : []),
+  ];
+
+  const filterOptions: { value: Role | 'all'; label: string }[] = [
+    { value: 'all',  label: '全部' },
+    { value: 'Admin', label: 'Admin' },
+    { value: '成員',  label: '成員' },
+    { value: '一般',  label: '一般' },
   ];
 
   return (
@@ -208,17 +197,41 @@ export default function Permissions({ users, currentUser, onUpdateUser, onDelete
 
         {tab === 'users' && (
           <>
-            {!isAdmin && (
-              <div style={{ padding: '6px 16px 6px', fontSize: 13, color: 'var(--st-block)' }}>
-                需 Admin 權限才能修改角色
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px 8px' }}>
+              {filterOptions.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setRoleFilter(opt.value)}
+                  style={{
+                    appearance: 'none', fontFamily: 'inherit', cursor: 'pointer',
+                    fontSize: 13, padding: '3px 12px', borderRadius: 20,
+                    border: `1px solid ${roleFilter === opt.value ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'}`,
+                    background: roleFilter === opt.value ? 'color-mix(in oklab, var(--md-sys-color-primary) 12%, transparent)' : 'none',
+                    color: roleFilter === opt.value ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface-muted)',
+                    fontWeight: roleFilter === opt.value ? 600 : 400,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {opt.label}
+                  <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.7 }}>
+                    {opt.value === 'all'
+                      ? sorted.length
+                      : sorted.filter(u => u.roles.includes(opt.value as Role)).length}
+                  </span>
+                </button>
+              ))}
+              {!isAdmin && (
+                <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--st-block)' }}>
+                  需 Admin 權限才能修改角色
+                </span>
+              )}
+            </div>
             <Table
               columns={columns}
-              rows={sorted}
+              rows={filtered}
               getKey={u => u.uid}
               isRowHighlighted={u => u.uid === currentUser.uid}
-              emptyText="尚無用戶資料"
+              emptyText="沒有符合的使用者"
             />
           </>
         )}
@@ -295,40 +308,6 @@ export default function Permissions({ users, currentUser, onUpdateUser, onDelete
             僅 @cmoney.com.tw 帳號可透過 Google 登入
           </div>
         </div>
-      </Modal>
-
-      <Modal
-        open={confirmDeleteUid !== null}
-        onClose={() => setConfirmDeleteUid(null)}
-        title="確認刪除使用者"
-      >
-        {(() => {
-          const target = users.find(u => u.uid === confirmDeleteUid);
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 14, lineHeight: 1.6 }}>
-                確定要刪除 <strong>{target?.name}</strong>（{target?.email}）？
-                <br />
-                <span style={{ color: 'var(--md-sys-color-on-surface-muted)', fontSize: 13 }}>
-                  刪除後該使用者將無法登入，此操作無法復原。
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <Button onClick={() => setConfirmDeleteUid(null)}>取消</Button>
-                <Button
-                  variant="primary"
-                  style={{ background: '#ef4444', borderColor: '#ef4444' }}
-                  onClick={() => {
-                    if (confirmDeleteUid) onDeleteUser?.(confirmDeleteUid);
-                    setConfirmDeleteUid(null);
-                  }}
-                >
-                  確認刪除
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
       </Modal>
     </div>
   );
