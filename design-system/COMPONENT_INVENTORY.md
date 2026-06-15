@@ -16,28 +16,31 @@ No similarity conflicts detected during initial extraction. All extracted compon
 | Button | `components/button.md` | P0 | **extracted** | color, shape, density, typescale | loading | 3 variants: default/primary/ghost |
 | Kanban Card | `components/kanban-card.md` | P0 | **extracted** | color, shape, density, typescale, status, categorical | focus-visible | Domain-specific; drag+drop; hours-over/overdue semantic modifiers |
 | KPI Card | `components/kpi-card.md` | P0 | **extracted** | color, shape, typescale, status | not applicable (display-only) | Typographic lockup component; 3-slot: label + value + delta |
+| Avatar | `components/avatar.md` | P1 | **extracted** | color, shape, typescale, categorical | not applicable (display-only) | 3 sizes: sm/md/lg; hue-based bg; photo fallback |
+| BrandMark | `components/brand-mark.md` | P1 | **extracted** | shape | not applicable (display-only) | sm (26px) and lg (48px); gradient bg; dark mode reversal |
+| Panel | `components/panel.md` | P1 | **extracted** | color, shape, typescale | not applicable (display-only) | Optional header (title + subtitle + actions slot) |
+| Input / Select | `components/input.md` | P1 | **extracted** | color, shape, density, typescale, status | disabled | as="input" or as="select"; hasError state |
+| Badge / Tag family | `components/badge.md` | P2 | **extracted** | color, shape, typescale, categorical | not applicable (display-only) | Chip + Tag + DeptPill; direct sys token use; no comp layer |
+| SidebarItem | `components/sidebar-item.md` | P1 | **extracted** | color, shape, density, elevation, typescale | not applicable | SidebarGroup + SidebarItem; active: surface + elevation-sm + primary icon |
+| KanbanColumn | `components/kanban-column.md` | P1 | **extracted** | color | drag-handle keyboard | 296px fixed; drag-over color-mix 6%; empty dashed border |
+| DetailDrawer | `components/detail-drawer.md` | P1 | **extracted** | color, shape, typescale, motion | not applicable | 460px from right; backdrop blur; Escape close |
+| Modal | `components/modal.md` | P2 | **extracted** | color, shape, typescale, motion | not applicable | Centered overlay; default 520px, lg 640px; corner-xl; footer surface-variant |
+| MonthPillNavigator | `components/month-pill-navigator.md` | P2 | **extracted** | color, shape, typescale, motion | not applicable | Composite: prev + value + next; 30px height; divider borders |
+| FormRow | `components/form-row.md` | P3 | **extracted** | color, typescale | not applicable | FormRow + FormGrid; uppercase label; no comp token layer |
+| ArchiveCard | `components/archive-card.md` | P3 | **extracted** | color, shape, typescale, elevation, motion | not applicable | 3-col grid; month + 4-stats + action; live badge; hover border+shadow |
+| DonutCenterLockup | `components/donut-center-lockup.md` | P3 | **extracted** | color, typescale | not applicable (display-only) | position: absolute inset: 0; value + uppercase label; tabular-nums; no comp layer |
+| Timeline | `components/timeline.md` | P3 | **extracted** | color, typescale | not applicable (display-only) | dot + ::after vertical line; last-child hides line |
+| LeaveCalendar | `components/leave-calendar.md` | P3 | **extracted** | color, categorical | not applicable | 7-col grid; global .cal-* classes; up to 4 leave dots |
+| AppTopbar | `components/app-topbar.md` | P1 | **extracted** | color, typescale, density | not applicable | Multi-page tool variants (kanban/dashboard/capacity); global .topbar classes; no comp layer |
+| MemberCell | `components/member-cell.md` | P1 | **extracted** | color, typescale | not applicable (display-only) | Avatar + name + optional sub; direct sys token use; no comp layer |
+| Table | `components/table.md` | P2 | **extracted** | color, typescale | not applicable | Generic Table<T>; sticky header + optional sticky first col; footer; tabular-nums |
 
 ## Planned
 
 | Component | CSS class(es) | Priority | Status | Observed sources | Notes |
 |---|---|---|---|---|---|
-| Sidebar Item | `.sb-item` `.sb-group-h` | P1 | **planned** | S01 | Nav item with icon+label; active state with elevation-sm; group header variant |
-| Brand Mark | `.sb-mark` + login mark | P1 | **planned** | S01 S05 | Square monogram mark; 26px (sidebar) and 48px (login) sizes |
-| Panel | `.panel` `.panel-h` | P1 | **planned** | S01 | Surface container with optional header + divider |
-| Input / Select | `.input` | P1 | **planned** | S01 | 32px height; same radius+border as button; focus border on ink-2 |
-| Avatar | `.av` `.av-sm` `.av-md` | P1 | **planned** | S01 S03 | Letter-based circle; hue bg; 22px and 28px |
-| Badge / Tag family | `.chip` `.tag` `.dept-pill` `.kcard-cat` | P2 | **planned** | S01 S03 | Pill (chip), square (tag), data category badge — 3 sub-variants |
-| Kanban Column | `.kcol` `.kcol-h` `.kcol-body` | P1 | **planned** | S01 S04 | 296px fixed; droppable; drag-over tinted bg |
-| Detail Drawer | `.drawer` `.drawer-h` `.drawer-body` | P1 | **planned** | S01 S10 | 460px slide-in from right; backdrop scrim with blur |
-| Modal | `.modal` `.modal-h` `.modal-body` `.modal-f` | P2 | **planned** | S01 | Centered overlay max 520px; footer bg surface-variant |
-| Month Pill Navigator | `.month-pill` | P2 | **planned** | S01 | Composite: prev chevron + value + next chevron |
 | Crosstab Table | `.xtab` | P2 | **planned** | S01 S06 | Sticky col+row headers; heat cell overlay; tabular-nums |
 | Capacity Table | `.cap-table` | P2 | **planned** | S01 S11 | Inline editable number inputs; cap bar inline |
-| Timeline | `.timeline` `.tl-row` | P3 | **planned** | S01 S10 | Activity feed: dot + vertical line + content |
-| Donut Center Lockup | `.donut-center` | P3 | **planned** | S01 S06 | Typographic: 22px numeric + uppercase caption; absolute-centered over SVG |
-| Archive Card | `.archive-card` | P3 | **planned** | S01 | Month summary: large month + 4-stat grid + view button |
-| Leave Calendar | `.cal-grid` `.cal-day` | P3 | **planned** | S01 S11 | 7-col grid; today/selected/holiday/weekend states |
-| Form Row | `.form-row` `.form-grid` | P3 | **planned** | S01 | Uppercase label + input, 1- or 2-col layout |
 
 ## Out of Scope
 

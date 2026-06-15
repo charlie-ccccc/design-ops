@@ -282,6 +282,24 @@
       <p class="brand" data-i18n="brand">設計系統</p>
 <nav>
         <a href="#overview" data-i18n="navOverview">總覽</a><a href="#tokens" data-i18n="navTokens">Tokens</a><a href="review.html" data-i18n="navReviewQueue">審查佇列</a><a href="#doc-design-system-kickstart-md" data-i18n="docKickstart">Kickstart</a><a href="#doc-session-state-md" data-i18n="docSessionState">Session 狀態</a><a href="#doc-design-evidence-map-md" data-i18n="docEvidenceMap">設計證據對照</a><a href="#doc-design-principles-md" data-i18n="docDesignPrinciples">設計原則</a><a href="#doc-design-elements-md" data-i18n="docDesignElements">設計元素</a><a href="#doc-token-architecture-md" data-i18n="docTokenArchitecture">Token 架構</a><a href="#doc-component-inventory-md" data-i18n="docComponentInventory">元件盤點</a><a href="#doc-component-spec-template-md" data-i18n="docComponentSpecTemplate">元件規格範本</a><a href="#doc-interaction-states-md" data-i18n="docInteractionStates">互動狀態</a><a href="#doc-page-composition-rules-md" data-i18n="docPageComposition">頁面組成</a><a href="#doc-anti-ai-style-rules-md" data-i18n="docAntiAiStyleRules">Anti-AI 風格規則</a><a href="#doc-components-button-md" data-i18n-template="component" data-i18n-name="Button">元件：Button</a><a href="#doc-components-kanban-card-md" data-i18n-template="component" data-i18n-name="Kanban Card">元件：Kanban Card</a><a href="#doc-components-kpi-card-md" data-i18n-template="component" data-i18n-name="Kpi Card">元件：Kpi Card</a>
+          <a href="#doc-components-app-topbar-md" data-i18n-template="component" data-i18n-name="App Topbar">元件：App Topbar</a>
+          <a href="#doc-components-archive-card-md" data-i18n-template="component" data-i18n-name="Archive Card">元件：Archive Card</a>
+          <a href="#doc-components-avatar-md" data-i18n-template="component" data-i18n-name="Avatar">元件：Avatar</a>
+          <a href="#doc-components-badge-md" data-i18n-template="component" data-i18n-name="Badge">元件：Badge</a>
+          <a href="#doc-components-brand-mark-md" data-i18n-template="component" data-i18n-name="Brand Mark">元件：Brand Mark</a>
+          <a href="#doc-components-detail-drawer-md" data-i18n-template="component" data-i18n-name="Detail Drawer">元件：Detail Drawer</a>
+          <a href="#doc-components-donut-center-lockup-md" data-i18n-template="component" data-i18n-name="Donut Center Lockup">元件：Donut Center Lockup</a>
+          <a href="#doc-components-form-row-md" data-i18n-template="component" data-i18n-name="Form Row">元件：Form Row</a>
+          <a href="#doc-components-input-md" data-i18n-template="component" data-i18n-name="Input">元件：Input</a>
+          <a href="#doc-components-kanban-column-md" data-i18n-template="component" data-i18n-name="Kanban Column">元件：Kanban Column</a>
+          <a href="#doc-components-leave-calendar-md" data-i18n-template="component" data-i18n-name="Leave Calendar">元件：Leave Calendar</a>
+          <a href="#doc-components-member-cell-md" data-i18n-template="component" data-i18n-name="Member Cell">元件：Member Cell</a>
+          <a href="#doc-components-modal-md" data-i18n-template="component" data-i18n-name="Modal">元件：Modal</a>
+          <a href="#doc-components-month-pill-navigator-md" data-i18n-template="component" data-i18n-name="Month Pill Navigator">元件：Month Pill Navigator</a>
+          <a href="#doc-components-panel-md" data-i18n-template="component" data-i18n-name="Panel">元件：Panel</a>
+          <a href="#doc-components-sidebar-item-md" data-i18n-template="component" data-i18n-name="Sidebar Item">元件：Sidebar Item</a>
+          <a href="#doc-components-table-md" data-i18n-template="component" data-i18n-name="Table">元件：Table</a>
+          <a href="#doc-components-timeline-md" data-i18n-template="component" data-i18n-name="Timeline">元件：Timeline</a>
       </nav>
     </aside>
     <main>
@@ -2048,6 +2066,692 @@
 <div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>僅對主要數值使用顯示數字級別（28px）</td><td>對標籤或次要指標使用 28px</td></tr><tr><td>對標籤插槽套用全大寫 + 寬字距</td><td>將數值本身改為大寫</td></tr><tr><td>正差異使用 <code>status-success</code>，負差異使用 <code>status-error</code></td><td>對差異指標使用強調色</td></tr><tr><td>將 KPI 卡片群組於 2 或 4 欄的儀表板格線中</td><td>將 KPI 卡片置於內文文字中</td></tr><tr><td>始終對數值套用 <code>tabular-nums</code></td><td>使用比例數字——數字對齊在資料表中會失效</td></tr></tbody></table></div>
 <h2 id="doc-components-kpi-card-md-implementation-notes">實作注意事項</h2>
 <ul><li><code>globals.css</code> 中現有的 <code>.kpi</code>、<code>.kpi-lbl</code>、<code>.kpi-val</code>、<code>.kpi-delta</code> 類別為參考實作。</li><li>在 <code>layout-focus</code> 儀表板中，KPI 卡片出現在 <code>focus-kpis</code> 子格線中（<code>1fr 1fr</code>，間距 14px）。</li><li>Unit 是 <code>.kpi-val</code> 內的 <code>&lt;span class=&quot;unit&quot;&gt;</code>——非獨立的 block 元素。</li><li><code>.kpi-delta</code> 上的 <code>.up</code> / <code>.down</code> class 由 <code>dashboard/index.tsx</code> 中的資料邏輯設定。</li></ul>
+    </section>
+
+<section class="panel" id="doc-components-app-topbar-md">
+      <span class="source">components/app-topbar.md</span>
+      <h1 id="doc-components-app-topbar-md-apptopbar">AppTopbar</h1>
+<p>應用程式頂部導覽列，依頁面（看板 / 儀表板 / 容量）顯示不同工具組合。桌面版與行動版佈局不同。支援通知插槽。</p>
+<h2 id="doc-components-app-topbar-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-AT01</td><td><code>src/components/ui/AppTopbar/AppTopbar.tsx</code></td><td>AppTopbar component</td><td>multi-page: kanban/dashboard/capacity; notification slot</td></tr><tr><td>E-CO-AT02</td><td>globals.css</td><td>.topbar, .tb-left, .tb-tools, .btn, .input classes</td><td>global utility classes; mobile: search bar + filter selects</td></tr></tbody></table></div>
+<h2 id="doc-components-app-topbar-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>應用程式頂部功能列；每個頁面有特定工具組合；非通用 shell，與頁面脈絡強綁定</td></tr><tr><td>Anatomy</td><td>左側（頁面標題 / logo）· 工具區（搜尋 + 篩選 + 操作按鈕 + 通知 slot）</td></tr><tr><td>Variants / states / modes</td><td>kanban 頁（成員篩選 + 搜尋 + 部門選擇 + 新增卡片）、dashboard 頁（部門篩選 + 匯出）、capacity 頁（月份 Pill）；桌面 / 行動 layout</td></tr><tr><td>Token contract summary</td><td>使用 globals.css <code>.topbar</code> 全局類別；與 density-row、surface、outline sys token 對應</td></tr><tr><td>Layout / density</td><td><code>display: flex; justify-content: space-between</code>；高度 density-row × 1.5 或固定 48px</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Panel（Panel 是資料容器；AppTopbar 是應用殼層頂部，有頁面切換語意）</td></tr></tbody></table></div>
+<h2 id="doc-components-app-topbar-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;header class=&quot;topbar&quot;&gt;
+  &lt;div class=&quot;tb-left&quot;&gt;
+    &lt;span class=&quot;tb-title&quot;&gt;{pageTitle}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;tb-tools&quot;&gt;
+    &lt;!-- kanban: 成員篩選 Avatar row + 搜尋 Input + 部門 Select + 新增按鈕 --&gt;
+    &lt;!-- dashboard: 部門 Select + 匯出 Button --&gt;
+    &lt;!-- capacity: MonthPillNavigator --&gt;
+    &lt;div class=&quot;tb-notification-slot&quot;&gt;{notification}&lt;/div&gt;   ← 可選
+  &lt;/div&gt;
+&lt;/header&gt;</code></pre>
+<h2 id="doc-components-app-topbar-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>工具組合</th></tr></thead><tbody><tr><td>kanban</td><td><code>page=&quot;kanban&quot;</code></td><td>成員篩選列 + 搜尋框 + 部門選單 + 「新增卡片」按鈕</td></tr><tr><td>dashboard</td><td><code>page=&quot;dashboard&quot;</code></td><td>部門選單 + 「匯出」按鈕</td></tr><tr><td>capacity</td><td><code>page=&quot;capacity&quot;</code></td><td>MonthPillNavigator</td></tr><tr><td>mobile</td><td><code>viewport &lt; 640px</code></td><td>搜尋框 + 篩選選單（折疊）</td></tr></tbody></table></div>
+<h2 id="doc-components-app-topbar-md-states">States</h2>
+<p>無特殊元件狀態；子元件（Input、Select、Button）各自有 hover/focus/active。</p>
+<h2 id="doc-components-app-topbar-md-token-contract">Token Contract</h2>
+<p>AppTopbar 使用 globals.css 全局類別直接引用 sys token，無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token / class</th><th>Purpose</th></tr></thead><tbody><tr><td>topbar bg</td><td><code>.topbar</code> → <code>--md-sys-color-surface</code></td><td>頂部背景</td></tr><tr><td>topbar border-bottom</td><td><code>.topbar</code> → <code>--md-sys-color-divider</code></td><td>底部分隔線</td></tr><tr><td>topbar height</td><td><code>.topbar</code> → <code>--md-sys-density-row × 1.5</code>（≈48px）</td><td>高度</td></tr><tr><td>title text</td><td><code>--md-sys-color-on-surface</code> / <code>--md-sys-typescale-body-semibold-*</code></td><td>頁面標題</td></tr><tr><td>tool gap</td><td><code>--md-sys-spacing-gap-sm</code></td><td>工具間距</td></tr></tbody></table></div>
+<h2 id="doc-components-app-topbar-md-layout-rules">Layout Rules</h2>
+<ul><li><code>position: sticky; top: 0; z-index: elevated</code></li><li><code>padding-inline: var(--md-sys-spacing-page-side)</code></li><li>行動版：工具區折疊為次行（搜尋欄在第二行）</li></ul>
+<h2 id="doc-components-app-topbar-md-content-rules">Content Rules</h2>
+<ul><li><code>pageTitle</code>：頁面名稱（「看板」「儀表板」「容量管理」）</li><li><code>notification</code> slot：放 NotificationPanel 觸發按鈕</li></ul>
+<h2 id="doc-components-app-topbar-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>&lt;header role=&quot;banner&quot;&gt;</code> 確保地標語意</li><li>搜尋 Input 需有 <code>aria-label=&quot;搜尋任務&quot;</code></li><li>行動版折疊工具需有 aria-expanded 狀態</li></ul>
+<h2 id="doc-components-app-topbar-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>根據 <code>page</code> prop 渲染對應工具組合</td><td>在 Topbar 中自訂非標準工具，繞過 prop API</td></tr><tr><td>通知使用 <code>notification</code> slot</td><td>在 Topbar 中直接硬編碼通知 icon</td></tr></tbody></table></div>
+<h2 id="doc-components-app-topbar-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/AppTopbar/AppTopbar.tsx</code> 使用 globals.css 全局類別（<code>.topbar</code>、<code>.tb-left</code>、<code>.tb-tools</code>），無附屬 CSS 模組。這是一個領域耦合（domain-coupled）元件，高度依賴應用程式的頁面結構，不建議在其他專案中直接重用。</p>
+    </section>
+
+<section class="panel" id="doc-components-archive-card-md">
+      <span class="source">components/archive-card.md</span>
+      <h1 id="doc-components-archive-card-md-archivecard">ArchiveCard</h1>
+<p>月度存檔摘要卡片，3 欄格線：月份標題（200px）+ 4 個統計數值格線 + 操作按鈕（110px）。hover 時顯示邊框強調與陰影。支援「直播中」Live 徽章。</p>
+<h2 id="doc-components-archive-card-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-AC01</td><td><code>src/components/ui/ArchiveCard/ArchiveCard.tsx</code></td><td>ArchiveCard component</td><td>3-col grid; month/stats/action; live badge; hover border+elevation</td></tr><tr><td>E-CO-AC02</td><td><code>src/components/ui/ArchiveCard/ArchiveCard.css</code></td><td>CSS classes</td><td>month 22px/600/-0.02em; stats 4-col; hover border-color-strong + elevation-sm</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>月度資料摘要列表項目；可點擊進入歷史存檔；顯示月份 + 統計 + 操作</td></tr><tr><td>Anatomy</td><td>月份欄（22px 標題）· 統計欄（4 項數值）· 行動欄（按鈕）</td></tr><tr><td>Variants / states / modes</td><td>default、live（含徽章）；hover 狀態</td></tr><tr><td>Token contract summary</td><td>border hover 強度、elevation-sm on hover；month 字體顯示級別</td></tr><tr><td>Layout / density</td><td>3-col 固定比例（200px + 1fr + 110px）；響應式：行動裝置縮為 2 欄</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Panel（Panel 是殼層；ArchiveCard 是帶固定欄位結構的資料展示列表項）</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-archive-card [ui-archive-card--live]&quot;&gt;
+  &lt;div class=&quot;ui-archive-card__month&quot;&gt;
+    &lt;span class=&quot;ui-archive-card__live-badge&quot;&gt;直播中&lt;/span&gt;   ← 可選
+    &lt;span class=&quot;ui-archive-card__month-label&quot;&gt;{month}&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;ui-archive-card__stats&quot;&gt;
+    &lt;div class=&quot;ui-archive-card__stat&quot;&gt;
+      &lt;span class=&quot;ui-archive-card__stat-label&quot;&gt;{label}&lt;/span&gt;
+      &lt;span class=&quot;ui-archive-card__stat-value&quot;&gt;{value}&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;!-- 重複 4 次 --&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;ui-archive-card__action&quot;&gt;
+    &lt;button class=&quot;btn&quot;&gt;{label}&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-archive-card-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>無 live 徽章</td></tr><tr><td>live</td><td><code>isLive={true}</code></td><td>月份欄顯示 primary 色「直播中」徽章</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>outline 邊框</td></tr><tr><td>hover</td><td><code>:hover</code></td><td><code>outline-strong</code> 邊框 + <code>elevation-sm</code> 陰影</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-archive-card-bg</code></td><td><code>--md-sys-color-surface</code></td><td>背景</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-border</code></td><td><code>--md-sys-color-outline</code></td><td>邊框</td><td>default</td></tr><tr><td><code>--md-comp-archive-card-radius</code></td><td><code>--md-sys-shape-corner-lg</code></td><td>圓角</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-hover-border</code></td><td><code>--md-sys-color-outline-strong</code></td><td>hover 邊框</td><td>hover</td></tr><tr><td><code>--md-comp-archive-card-hover-shadow</code></td><td><code>--md-sys-elevation-sm</code></td><td>hover 陰影</td><td>hover</td></tr><tr><td><code>--md-comp-archive-card-month-size</code></td><td><code>--md-sys-typescale-display-size</code></td><td>月份字體（22px）</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-month-weight</code></td><td><code>--md-sys-typescale-display-weight</code>（600）</td><td>月份字重</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-month-tracking</code></td><td><code>--md-sys-typescale-display-tracking</code>（-0.02em）</td><td>月份字間距</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-stat-label-size</code></td><td><code>--md-sys-typescale-meta-size</code></td><td>統計標籤字體</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-stat-label-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>統計標籤顏色</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-stat-value-size</code></td><td><code>--md-sys-typescale-body-semibold-size</code></td><td>統計數值字體</td><td>all</td></tr><tr><td><code>--md-comp-archive-card-live-color</code></td><td><code>--md-sys-color-primary</code></td><td>live 徽章顏色</td><td>live</td></tr><tr><td><code>--md-comp-archive-card-transition</code></td><td><code>--md-sys-motion-duration-sm</code></td><td>hover 動畫</td><td>hover</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-layout-rules">Layout Rules</h2>
+<ul><li>3-col grid：<code>200px 1fr 110px</code></li><li>統計欄：4-col grid（<code>repeat(4, 1fr)</code>）</li><li>行動裝置（&lt; 640px）：退化為 2 欄（月份 + 統計，行動獨佔一行）</li><li>padding：<code>var(--md-sys-spacing-inset-lg)</code></li></ul>
+<h2 id="doc-components-archive-card-md-content-rules">Content Rules</h2>
+<ul><li><code>month</code>：年月字串（「2026年5月」）</li><li>stats：最多 4 項；label + value 兩行</li><li>live badge：「直播中」文字，primary 色，無邊框 pill</li></ul>
+<h2 id="doc-components-archive-card-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>整個卡片可為 <code>&lt;a&gt;</code> 或帶 <code>role=&quot;button&quot;</code> 的 <code>&lt;div&gt;</code>（若為點擊導覽）</li><li>live badge <code>aria-label=&quot;目前直播中&quot;</code> 或以 <code>aria-live</code> 標示</li></ul>
+<h2 id="doc-components-archive-card-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>月份欄固定 200px，統計欄自適應</td><td>讓所有欄位等比例伸縮</td></tr><tr><td>hover 同時改邊框顏色 + 加陰影</td><td>只改陰影或只改邊框</td></tr></tbody></table></div>
+<h2 id="doc-components-archive-card-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/ArchiveCard/ArchiveCard.tsx</code> 為參考實作。月份字體使用 display scale（22px/600/-0.02em）製造視覺層次，統計標籤使用 meta scale 保持密度。</p>
+    </section>
+
+<section class="panel" id="doc-components-avatar-md">
+      <span class="source">components/avatar.md</span>
+      <h1 id="doc-components-avatar-md-avatar">Avatar</h1>
+<p>字母型或照片圓形頭像，用於代表成員身份。背景色來自分類色相系統，與成員的 <code>hue</code> 欄位對應。</p>
+<h2 id="doc-components-avatar-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-AV01</td><td><code>src/components/ui/Avatar/Avatar.tsx</code></td><td>Avatar component</td><td>3 sizes: sm/md/lg; hue-based bg; photo fallback</td></tr><tr><td>E-CO-AV02</td><td><code>src/components/ui/Avatar/Avatar.css</code></td><td>CSS slots</td><td>sys token usage: shape-corner-full, on-categorical, annotation scales</td></tr><tr><td>E-CO-AV03</td><td><code>tokens/tokens-comp.css</code></td><td>Avatar section</td><td>comp tokens already extracted</td></tr></tbody></table></div>
+<h2 id="doc-components-avatar-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>顯示成員識別符號；無互動（display-only），但常作為 Kanban Card 和 MemberCell 的子元件</td></tr><tr><td>Anatomy</td><td>圓形容器 · 字母初始 or <code>&lt;img&gt;</code></td></tr><tr><td>Variants / states / modes</td><td>sm（22px）、md（28px）、lg（36px）；photo vs. letter</td></tr><tr><td>Token contract summary</td><td>radius、size、label-color、label-size from sys；bg 由行內 style 動態設定為 <code>--md-sys-color-cat-N</code></td></tr><tr><td>Layout / density</td><td>固定尺寸，flex-shrink: 0；不受密度 token 影響</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>MemberCell（MemberCell 是含名稱文字的複合元件；Avatar 是單獨的圖像 primitive）</td></tr></tbody></table></div>
+<h2 id="doc-components-avatar-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;span class=&quot;ui-avatar ui-avatar--{size}&quot;&gt;
+  &lt;img&gt;  ← 僅 photo 模式
+  {initial}  ← 字母模式
+&lt;/span&gt;</code></pre>
+<h2 id="doc-components-avatar-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>sm</td><td><code>size=&quot;sm&quot;</code>（預設）</td><td>22×22px，11px 字體</td></tr><tr><td>md</td><td><code>size=&quot;md&quot;</code></td><td>28×28px，略大字體</td></tr><tr><td>lg</td><td><code>size=&quot;lg&quot;</code></td><td>36×36px，14px/600</td></tr><tr><td>photo</td><td><code>photo</code> prop 存在</td><td><code>&lt;img&gt;</code> 覆蓋字母</td></tr></tbody></table></div>
+<h2 id="doc-components-avatar-md-states">States</h2>
+<p>僅顯示元件，無互動狀態。父元件（KanbanCard 懸停）可能有視覺變化，Avatar 本身不變。</p>
+<h2 id="doc-components-avatar-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-avatar-radius</code></td><td><code>--md-sys-shape-corner-full</code></td><td>圓形</td><td>all</td></tr><tr><td><code>--md-comp-avatar-sm-size</code></td><td><code>--md-sys-size-indicator-sm</code></td><td>22px 直徑</td><td>sm</td></tr><tr><td><code>--md-comp-avatar-md-size</code></td><td><code>--md-sys-size-indicator-md</code></td><td>28px 直徑</td><td>md</td></tr><tr><td><code>--md-comp-avatar-label-color</code></td><td><code>--md-sys-color-on-categorical</code></td><td>字母顏色</td><td>all</td></tr><tr><td><code>--md-comp-avatar-sm-label-size</code></td><td><code>--md-sys-typescale-annotation-sm-size</code></td><td>sm 字體</td><td>sm</td></tr><tr><td><code>--md-comp-avatar-md-label-size</code></td><td><code>--md-sys-typescale-annotation-md-size</code></td><td>md 字體</td><td>md</td></tr><tr><td><code>--md-comp-avatar-label-weight</code></td><td><code>--md-sys-typescale-annotation-sm-weight</code></td><td>字重</td><td>all</td></tr><tr><td>*(inline style)*</td><td><code>--md-sys-color-cat-{1–8}</code></td><td>背景色（動態）</td><td>all</td></tr></tbody></table></div>
+<h2 id="doc-components-avatar-md-layout-rules">Layout Rules</h2>
+<ul><li>固定尺寸，永不 flex-grow</li><li><code>flex-shrink: 0</code>——在 meta row 中不壓縮</li><li><code>overflow: hidden</code>——photo 裁切為圓形</li><li>lg（36px）僅用於抽屜標頭等大型情境，不用於卡片</li></ul>
+<h2 id="doc-components-avatar-md-content-rules">Content Rules</h2>
+<ul><li><code>initial</code>：傳入單一大寫字母（e.g. <code>m.initial</code>）</li><li><code>hue</code>：整數 1–8，對應 <code>DEPT_HUE</code> 或成員 <code>hue</code> 欄位；超出範圍自動 mod 8</li><li><code>alt</code>：有 photo 時必填；無 photo 時 <code>initial</code> 作為 aria-label</li></ul>
+<h2 id="doc-components-avatar-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>role=&quot;img&quot;</code> 已設定</li><li><code>aria-label</code>：無 alt prop 時預設為 initial 字母</li><li>有 photo 時 <code>&lt;img&gt;</code> 需有 <code>alt</code></li></ul>
+<h2 id="doc-components-avatar-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>從 <code>MEMBERS</code> 取 <code>hue</code> 欄位傳入</td><td>硬編碼背景色 hex</td></tr><tr><td>size sm 用於卡片和行內情境</td><td>在卡片 meta row 用 md 或 lg</td></tr><tr><td>照片使用 <code>photo</code> prop</td><td>用 <code>background-image</code> 繞過 comp token</td></tr></tbody></table></div>
+<h2 id="doc-components-avatar-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Avatar/Avatar.tsx</code> 為此規格的參考實作。<code>hueIndex</code> 計算確保 1–8 範圍內循環，不超出 cat token 數量。</p>
+    </section>
+
+<section class="panel" id="doc-components-badge-md">
+      <span class="source">components/badge.md</span>
+      <h1 id="doc-components-badge-md-badge-tag-family">Badge / Tag Family</h1>
+<p>三種行內標籤元件：Chip（膠囊形，可選狀態點）、Tag（方形標籤）、DeptPill（帶部門色點的膠囊）。全部直接使用 sys token，無 comp token 層。</p>
+<h2 id="doc-components-badge-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-BA01</td><td><code>src/components/ui/Badge/Badge.tsx</code></td><td>Badge exports</td><td>Chip, Tag, DeptPill; sys tokens used directly</td></tr><tr><td>E-CO-BA02</td><td><code>src/components/ui/Badge/Badge.css</code></td><td>CSS classes</td><td>.ui-chip, .ui-tag, .ui-dept-pill; shape, color, dot</td></tr></tbody></table></div>
+<h2 id="doc-components-badge-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>行內分類標籤；display-only（無點擊）；用於卡片分類、部門標識、狀態標記</td></tr><tr><td>Anatomy</td><td>膠囊/方形容器 · 可選色點 · 標籤文字</td></tr><tr><td>Variants / states / modes</td><td>Chip（pill, 可選 dot）、Tag（square, 6px radius）、DeptPill（pill + 部門色點）</td></tr><tr><td>Token contract summary</td><td>直接使用 sys color、shape、typescale token；無 comp token 層</td></tr><tr><td>Layout / density</td><td>行內元素，高度由 line-height 決定；不固定寬度</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Kanban Card category badge（功能類似，但 kcard-cat 是 kanban card 的子槽位，Badge 是獨立元件）</td></tr></tbody></table></div>
+<h2 id="doc-components-badge-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;!-- Chip --&gt;
+&lt;span class=&quot;ui-chip [ui-chip--dot]&quot;&gt;
+  &lt;span class=&quot;ui-chip__dot&quot;&gt;&lt;/span&gt;   ← 可選
+  {label}
+&lt;/span&gt;
+
+&lt;!-- Tag --&gt;
+&lt;span class=&quot;ui-tag&quot;&gt;{label}&lt;/span&gt;
+
+&lt;!-- DeptPill --&gt;
+&lt;span class=&quot;ui-dept-pill&quot;&gt;
+  &lt;span class=&quot;ui-dept-pill__dot&quot; style=&quot;background: var(--md-sys-color-cat-{N})&quot;&gt;&lt;/span&gt;
+  {label}
+&lt;/span&gt;</code></pre>
+<h2 id="doc-components-badge-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>Chip</td><td><code>&lt;Chip&gt;</code></td><td>膠囊形（99px radius），border，可選色點</td></tr><tr><td>Chip + dot</td><td><code>&lt;Chip dot&gt;</code></td><td>同上 + 左側小色點</td></tr><tr><td>Tag</td><td><code>&lt;Tag&gt;</code></td><td>6px radius 方形，填充 surface-variant 背景</td></tr><tr><td>DeptPill</td><td><code>&lt;DeptPill hue={N}&gt;</code></td><td>膠囊形 + 部門色點（cat-N）</td></tr></tbody></table></div>
+<h2 id="doc-components-badge-md-states">States</h2>
+<p>僅顯示元件，無互動狀態。DeptPill 的 dot 顏色隨 <code>hue</code> prop 動態設定。</p>
+<h2 id="doc-components-badge-md-token-contract">Token Contract</h2>
+<p>這些元件直接引用 sys token，不透過 comp token 層（因為無需元件級複寫）。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token used</th><th>Purpose</th></tr></thead><tbody><tr><td>Chip container bg</td><td><code>--md-sys-color-surface</code></td><td>底色</td></tr><tr><td>Chip border</td><td><code>--md-sys-color-outline</code></td><td>邊框</td></tr><tr><td>Chip radius</td><td><code>--md-sys-shape-corner-full</code></td><td>膠囊圓角（99px）</td></tr><tr><td>Chip text</td><td><code>--md-sys-color-on-surface-secondary</code></td><td>文字</td></tr><tr><td>Chip text size</td><td><code>--md-sys-typescale-meta-size</code></td><td>字體大小</td></tr><tr><td>Tag bg</td><td><code>--md-sys-color-surface-variant</code></td><td>背景</td></tr><tr><td>Tag radius</td><td><code>--md-sys-shape-corner-sm</code></td><td>6px 圓角</td></tr><tr><td>Tag text</td><td><code>--md-sys-color-on-surface-secondary</code></td><td>文字</td></tr><tr><td>DeptPill dot</td><td><code>--md-sys-color-cat-{1–8}</code></td><td>部門色（inline style）</td></tr><tr><td>DeptPill text</td><td><code>--md-sys-color-on-surface-secondary</code></td><td>文字</td></tr></tbody></table></div>
+<h2 id="doc-components-badge-md-layout-rules">Layout Rules</h2>
+<ul><li>行內（<code>display: inline-flex</code>）；不佔滿整行</li><li>Chip / DeptPill padding：4px 8px（垂直/水平）</li><li>Tag padding：2px 6px</li><li>dot 大小：6px 圓形（<code>border-radius: 50%</code>）</li></ul>
+<h2 id="doc-components-badge-md-content-rules">Content Rules</h2>
+<ul><li>標籤文字保持簡短（2–6 字）</li><li>DeptPill <code>hue</code>：整數 1–8，與 Avatar <code>hue</code> 使用相同來源（<code>DEPT_HUE</code>）</li></ul>
+<h2 id="doc-components-badge-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>如 Chip 有語意（例如類別篩選），需 <code>role=&quot;status&quot;</code> 或包在 <code>&lt;ul&gt;</code> 中</li><li>DeptPill dot 為裝飾性，<code>aria-hidden=&quot;true&quot;</code></li></ul>
+<h2 id="doc-components-badge-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>Chip 用於可移除或狀態類標籤（但本身不實作移除）</td><td>混用 Chip 和 Tag 表示同一種資料</td></tr><tr><td>Tag 用於靜態分類（技術棧、類型）</td><td>對 Tag 加 hover 效果暗示可點擊</td></tr><tr><td>DeptPill 用於部門識別，hue 來自 DEPT_HUE</td><td>為 DeptPill dot 硬編碼顏色</td></tr></tbody></table></div>
+<h2 id="doc-components-badge-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Badge/Badge.tsx</code> 匯出三個元件。無 comp token 層是刻意設計——這些元件足夠簡單，直接使用 sys token 即可，引入 comp token 只會增加無謂的間接層。</p>
+    </section>
+
+<section class="panel" id="doc-components-brand-mark-md">
+      <span class="source">components/brand-mark.md</span>
+      <h1 id="doc-components-brand-mark-md-brandmark">BrandMark</h1>
+<p>品牌標誌方形圖示，作為應用程式識別符號使用。出現於側邊欄頂部（小尺寸）及登入頁（大尺寸）。漸層背景於淺色與深色模式下自動反轉。</p>
+<h2 id="doc-components-brand-mark-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-BM01</td><td><code>src/components/ui/BrandMark/BrandMark.tsx</code></td><td>BrandMark component</td><td>sm (26px/7px radius) and lg (48px/12px radius)</td></tr><tr><td>E-CO-BM02</td><td><code>src/components/ui/BrandMark/BrandMark.css</code></td><td>CSS slots</td><td>gradient bg using on-surface token; dark mode reversal</td></tr></tbody></table></div>
+<h2 id="doc-components-brand-mark-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>品牌識別標誌；display-only；常作為 SidebarItem 區域的頂部品牌元素</td></tr><tr><td>Anatomy</td><td>正方形容器 · 漸層背景 · 內部字母/圖形</td></tr><tr><td>Variants / states / modes</td><td>sm（26×26px, radius 7px）、lg（48×48px, radius 12px）；淺色/深色 mode</td></tr><tr><td>Token contract summary</td><td>size、radius from comp token；gradient 使用 --md-sys-color-on-surface</td></tr><tr><td>Layout / density</td><td>固定尺寸，不受密度 token 影響</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Avatar（Avatar 是圓形成員圖示；BrandMark 是方形品牌 logo，尺寸更大且角度不同，用途不同）</td></tr></tbody></table></div>
+<h2 id="doc-components-brand-mark-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-brand-mark ui-brand-mark--{size}&quot;&gt;
+  {children / 字母}
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-brand-mark-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>sm</td><td><code>size=&quot;sm&quot;</code>（預設）</td><td>26×26px，7px radius</td></tr><tr><td>lg</td><td><code>size=&quot;lg&quot;</code></td><td>48×48px，12px radius</td></tr></tbody></table></div>
+<h2 id="doc-components-brand-mark-md-states">States</h2>
+<p>僅顯示元件，無互動狀態。深色模式下漸層方向自動反轉（CSS <code>@media prefers-color-scheme: dark</code> 或 <code>.dark</code> class）。</p>
+<h2 id="doc-components-brand-mark-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-brand-mark-sm-size</code></td><td><code>--md-sys-size-indicator-lg</code></td><td>26px 尺寸</td><td>sm</td></tr><tr><td><code>--md-comp-brand-mark-lg-size</code></td><td>*(raw: 48px)*</td><td>48px 尺寸</td><td>lg</td></tr><tr><td><code>--md-comp-brand-mark-sm-radius</code></td><td><code>--md-sys-shape-corner-sm</code></td><td>7px 圓角</td><td>sm</td></tr><tr><td><code>--md-comp-brand-mark-lg-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>12px 圓角</td><td>lg</td></tr><tr><td><code>--md-comp-brand-mark-gradient-start</code></td><td><code>--md-sys-color-on-surface</code></td><td>漸層起始色（淺色模式）</td><td>default</td></tr><tr><td><code>--md-comp-brand-mark-gradient-end</code></td><td>*(raw: #3a3934)*</td><td>漸層結束色</td><td>default</td></tr></tbody></table></div>
+<h2 id="doc-components-brand-mark-md-layout-rules">Layout Rules</h2>
+<ul><li>固定尺寸方形，不 flex-grow</li><li>sm 出現於側邊欄頂部，lg 出現於登入/封面頁面</li><li>漸層方向：淺色模式 <code>135deg</code> from <code>on-surface</code> → <code>#3a3934</code>；深色模式反轉</li></ul>
+<h2 id="doc-components-brand-mark-md-content-rules">Content Rules</h2>
+<ul><li>通常內含應用程式首字母或 SVG logo mark</li><li>內部文字顏色使用 <code>--md-sys-color-background</code>（白或黑，取決於模式）</li></ul>
+<h2 id="doc-components-brand-mark-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>如作為純裝飾，<code>aria-hidden=&quot;true&quot;</code></li><li>如有語意意義（如登入頁 logo），需有 <code>role=&quot;img&quot;</code> 及 <code>aria-label</code></li></ul>
+<h2 id="doc-components-brand-mark-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>sm 用於側邊欄，lg 用於登入頁</td><td>在卡片或行內情境使用 lg</td></tr><tr><td>讓漸層由 CSS media query 自動切換</td><td>手動傳入深色模式 props</td></tr></tbody></table></div>
+<h2 id="doc-components-brand-mark-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/BrandMark/BrandMark.tsx</code> 為參考實作。漸層使用 CSS <code>linear-gradient(135deg, var(--md-sys-color-on-surface) 0%, #3a3934 100%)</code>，深色模式反轉起止色。</p>
+    </section>
+
+<section class="panel" id="doc-components-detail-drawer-md">
+      <span class="source">components/detail-drawer.md</span>
+      <h1 id="doc-components-detail-drawer-md-detaildrawer">DetailDrawer</h1>
+<p>從畫面右側滑入的詳情抽屜，固定 460px 寬。包含模糊遮罩、標頭（ID + 標題 + 關閉按鈕）與可滾動 body。按 Escape 或點擊遮罩關閉。</p>
+<h2 id="doc-components-detail-drawer-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-DD01</td><td><code>src/components/ui/DetailDrawer/DetailDrawer.tsx</code></td><td>DetailDrawer component</td><td>460px from right; scrim blur; Escape key close</td></tr><tr><td>E-CO-DD02</td><td><code>src/components/ui/DetailDrawer/DetailDrawer.css</code></td><td>CSS classes</td><td>transform slide; scrim rgba(10,10,8,0.32) backdrop-filter blur(2px)</td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>詳情面板；從右側滑入顯示卡片 / 任務詳細資訊；不覆蓋整個視窗</td></tr><tr><td>Anatomy</td><td>遮罩（scrim）· 抽屜容器（header + body）</td></tr><tr><td>Variants / states / modes</td><td>open vs. closed（transform 動畫）</td></tr><tr><td>Token contract summary</td><td>drawer 寬度、scrim 顏色固定；header padding、title 字體使用 sys token</td></tr><tr><td>Layout / density</td><td>固定 460px 寬；body overflow-y: auto；z-index 高於看板</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Modal（Modal 是置中浮層；DetailDrawer 是側邊滑入，通常保留背景可見，功能定位不同）</td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-drawer-scrim&quot; onClick={onClose}&gt;&lt;/div&gt;
+&lt;div class=&quot;ui-drawer [ui-drawer--open]&quot;&gt;
+  &lt;div class=&quot;ui-drawer__header&quot;&gt;
+    &lt;div class=&quot;ui-drawer__meta&quot;&gt;
+      &lt;span class=&quot;ui-drawer__id&quot;&gt;{id}&lt;/span&gt;
+      &lt;h2 class=&quot;ui-drawer__title&quot;&gt;{title}&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;ui-drawer__close&quot; onClick={onClose}&gt;✕&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;ui-drawer__body&quot;&gt;{children}&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-detail-drawer-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>closed</td><td><code>open={false}</code></td><td><code>transform: translateX(100%)</code></td></tr><tr><td>open</td><td><code>open={true}</code></td><td><code>transform: translateX(0)</code></td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>closed</td><td>預設</td><td>隱藏在畫面右側</td></tr><tr><td>open</td><td><code>open</code> prop</td><td>滑入動畫，遮罩顯示</td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-drawer-width</code></td><td>*(raw: 460px)*</td><td>抽屜寬度</td><td>all</td></tr><tr><td><code>--md-comp-drawer-bg</code></td><td><code>--md-sys-color-surface</code></td><td>抽屜背景</td><td>all</td></tr><tr><td><code>--md-comp-drawer-border</code></td><td><code>--md-sys-color-outline</code></td><td>左側邊框</td><td>all</td></tr><tr><td><code>--md-comp-drawer-header-padding-block</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>標頭垂直 padding</td><td>all</td></tr><tr><td><code>--md-comp-drawer-header-padding-inline</code></td><td><code>--md-sys-spacing-inset-lg</code></td><td>標頭水平 padding</td><td>all</td></tr><tr><td><code>--md-comp-drawer-header-border</code></td><td><code>--md-sys-color-divider</code></td><td>標頭底線</td><td>all</td></tr><tr><td><code>--md-comp-drawer-id-size</code></td><td><code>--md-sys-typescale-meta-size</code></td><td>ID 字體（12px）</td><td>all</td></tr><tr><td><code>--md-comp-drawer-id-color</code></td><td><code>--md-sys-color-on-surface-faint</code></td><td>ID 文字色</td><td>all</td></tr><tr><td><code>--md-comp-drawer-title-size</code></td><td><code>--md-sys-typescale-body-large-size</code></td><td>title 字體（18px）</td><td>all</td></tr><tr><td><code>--md-comp-drawer-title-weight</code></td><td><code>--md-sys-typescale-body-semibold-weight</code></td><td>title 字重（600）</td><td>all</td></tr><tr><td><code>--md-comp-drawer-scrim-color</code></td><td>*(raw: rgba(10,10,8,0.32))*</td><td>遮罩顏色</td><td>open</td></tr><tr><td><code>--md-comp-drawer-transition</code></td><td><code>--md-sys-motion-duration-md</code></td><td>滑入動畫</td><td>open/close</td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-layout-rules">Layout Rules</h2>
+<ul><li>抽屜固定右側（<code>position: fixed; right: 0; top: 0; bottom: 0</code>）</li><li>body <code>overflow-y: auto</code>，padding 由 body 自身決定</li><li>遮罩 <code>position: fixed; inset: 0</code>，<code>backdrop-filter: blur(2px)</code></li></ul>
+<h2 id="doc-components-detail-drawer-md-content-rules">Content Rules</h2>
+<ul><li><code>id</code>：短 ID 字串（如 <code>#K-042</code>），12px / faint 色</li><li><code>title</code>：任務或卡片名稱，18px / 600</li></ul>
+<h2 id="doc-components-detail-drawer-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>role=&quot;dialog&quot;</code> + <code>aria-modal=&quot;true&quot;</code> + <code>aria-labelledby</code> 指向 title</li><li>open 時焦點移入抽屜；close 時焦點返回觸發元素</li><li>Escape 鍵關閉（<code>keydown</code> 監聽）</li></ul>
+<h2 id="doc-components-detail-drawer-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>用 Escape 和遮罩點擊關閉</td><td>僅靠關閉按鈕，忽略鍵盤</td></tr><tr><td>body 內容 overflow-y: auto，讓長內容可滾動</td><td>讓 body 內容溢出或截斷</td></tr></tbody></table></div>
+<h2 id="doc-components-detail-drawer-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/DetailDrawer/DetailDrawer.tsx</code> 為參考實作。遮罩顏色 <code>rgba(10,10,8,0.32)</code> 帶 <code>backdrop-filter: blur(2px)</code> 以保留背景可辨識度。抽屜本身使用 <code>position: fixed</code>，不在 DOM flow 中佔位。</p>
+    </section>
+
+<section class="panel" id="doc-components-donut-center-lockup-md">
+      <span class="source">components/donut-center-lockup.md</span>
+      <h1 id="doc-components-donut-center-lockup-md-donutcenterlockup">DonutCenterLockup</h1>
+<p>絕對定位於圓環圖中心的文字排版元件，顯示大數值 + 小型全大寫說明標籤。不含圓環本身（由 Recharts 提供）。</p>
+<h2 id="doc-components-donut-center-lockup-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-DCL01</td><td><code>src/components/ui/DonutCenterLockup/DonutCenterLockup.tsx</code></td><td>DonutCenterLockup component</td><td>position: absolute; inset: 0; value 22px/600/-0.02em; label 12px/muted/uppercase/+0.08em</td></tr><tr><td>E-CO-DCL02</td><td><code>src/components/ui/DonutCenterLockup/DonutCenterLockup.css</code></td><td>CSS classes</td><td>tabular-nums on value</td></tr></tbody></table></div>
+<h2 id="doc-components-donut-center-lockup-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>圓環圖的文字中心點；絕對定位覆蓋在 SVG 容器上；display-only</td></tr><tr><td>Anatomy</td><td>值（22px/600）· 說明標籤（12px/uppercase/muted）</td></tr><tr><td>Variants / states / modes</td><td>無；單一排版</td></tr><tr><td>Token contract summary</td><td>value 使用 display scale；label 使用 meta scale + uppercase；無 comp token 層</td></tr><tr><td>Layout / density</td><td><code>position: absolute; inset: 0</code>；flex center 居中</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>KPI Card value slot（KPI Card 有完整面板殼層；DonutCenterLockup 是絕對定位的文字 overlay，純排版元件）</td></tr></tbody></table></div>
+<h2 id="doc-components-donut-center-lockup-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-donut-center&quot;&gt;
+  &lt;span class=&quot;ui-donut-center__value&quot;&gt;{value}&lt;/span&gt;
+  &lt;span class=&quot;ui-donut-center__label&quot;&gt;{label}&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-donut-center-lockup-md-variants">Variants</h2>
+<p>無 variant，固定排版。父容器（圓環圖 wrapper）需設 <code>position: relative</code>。</p>
+<h2 id="doc-components-donut-center-lockup-md-states">States</h2>
+<p>Display-only，無互動狀態。</p>
+<h2 id="doc-components-donut-center-lockup-md-token-contract">Token Contract</h2>
+<p>直接使用 sys token，無 comp token 層（元件過小，引入 comp 層無實質效益）。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token</th><th>Purpose</th></tr></thead><tbody><tr><td>value 字體大小</td><td><code>--md-sys-typescale-display-size</code>（22px）</td><td>大數值</td></tr><tr><td>value 字重</td><td><code>--md-sys-typescale-display-weight</code>（600）</td><td>數值強調</td></tr><tr><td>value 字間距</td><td><code>--md-sys-typescale-display-tracking</code>（-0.02em）</td><td>緊縮字距</td></tr><tr><td>value 顏色</td><td><code>--md-sys-color-on-surface</code></td><td>主色文字</td></tr><tr><td>label 字體大小</td><td><code>--md-sys-typescale-meta-size</code>（12px）</td><td>說明文字</td></tr><tr><td>label 顏色</td><td><code>--md-sys-color-on-surface-muted</code></td><td>淡色說明</td></tr><tr><td>label 字間距</td><td><code>--md-sys-typescale-label-tracking</code>（+0.08em）</td><td>全大寫字間距</td></tr></tbody></table></div>
+<h2 id="doc-components-donut-center-lockup-md-layout-rules">Layout Rules</h2>
+<ul><li><code>position: absolute; inset: 0</code> 疊加於父容器</li><li><code>display: flex; flex-direction: column; align-items: center; justify-content: center</code></li><li>父容器需設 <code>position: relative</code></li><li>value <code>font-variant-numeric: tabular-nums</code></li></ul>
+<h2 id="doc-components-donut-center-lockup-md-content-rules">Content Rules</h2>
+<ul><li><code>value</code>：短數字字串（如「72%」「34」）</li><li><code>label</code>：極短說明（如「完成率」「人日」），CSS <code>text-transform: uppercase</code></li></ul>
+<h2 id="doc-components-donut-center-lockup-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>整個 lockup 需有 <code>aria-label</code> 或父容器 <code>&lt;figure&gt;</code> + <code>&lt;figcaption&gt;</code> 說明圖表含義</li><li>數值和標籤均不需單獨 <code>aria-label</code>（由父容器的標題提供脈絡）</li></ul>
+<h2 id="doc-components-donut-center-lockup-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>父容器 <code>position: relative</code> 確保絕對定位正確</td><td>用 <code>margin: auto</code> 嘗試居中（會失效）</td></tr><tr><td>value 使用 tabular-nums 確保數字等寬</td><td>在 lockup 中放超過 2 行文字（會破壞圓環視覺）</td></tr></tbody></table></div>
+<h2 id="doc-components-donut-center-lockup-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/DonutCenterLockup/DonutCenterLockup.tsx</code> 為參考實作。此元件故意不含圓環 SVG，以確保與不同圖表庫的相容性。圓環由 Recharts <code>&lt;PieChart&gt;</code> 提供，DonutCenterLockup 僅負責文字層。</p>
+    </section>
+
+<section class="panel" id="doc-components-form-row-md">
+      <span class="source">components/form-row.md</span>
+      <h1 id="doc-components-form-row-md-formrow">FormRow</h1>
+<p>表單欄位的標籤 + 輸入框配對容器，以及支援 1 或 2 欄格線的 FormGrid 佈局容器。</p>
+<h2 id="doc-components-form-row-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-FR01</td><td><code>src/components/ui/FormRow/FormRow.tsx</code></td><td>FormRow + FormGrid exports</td><td>label 12px/uppercase/+0.06em + field slot</td></tr><tr><td>E-CO-FR02</td><td><code>src/components/ui/FormRow/FormRow.css</code></td><td>CSS classes</td><td>1- or 2-col grid, gap 12px</td></tr></tbody></table></div>
+<h2 id="doc-components-form-row-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>語意化表單欄位配對；確保 label + input 一致排版；FormGrid 控制多欄佈局</td></tr><tr><td>Anatomy</td><td>label（uppercase / muted）· field slot（通常為 Input）</td></tr><tr><td>Variants / states / modes</td><td>FormRow（單欄）；FormGrid（1 col / 2 col）</td></tr><tr><td>Token contract summary</td><td>label 字體、追蹤直接用 sys；gap 用 sys；無 comp token 層</td></tr><tr><td>Layout / density</td><td>FormRow 垂直堆疊；FormGrid 網格 1 or 2 欄，gap 12px</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Input（Input 是控制元件本身；FormRow 是標籤配對容器，兩者組合使用）</td></tr></tbody></table></div>
+<h2 id="doc-components-form-row-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;!-- FormRow --&gt;
+&lt;div class=&quot;ui-form-row&quot;&gt;
+  &lt;label class=&quot;ui-form-row__label&quot; htmlFor={id}&gt;{label}&lt;/label&gt;
+  &lt;div class=&quot;ui-form-row__field&quot;&gt;{children}&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- FormGrid --&gt;
+&lt;div class=&quot;ui-form-grid [ui-form-grid--2col]&quot;&gt;
+  &lt;FormRow&gt;…&lt;/FormRow&gt;
+  &lt;FormRow&gt;…&lt;/FormRow&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-form-row-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>FormRow</td><td><code>&lt;FormRow&gt;</code></td><td>垂直堆疊 label + field</td></tr><tr><td>FormGrid 1-col</td><td><code>&lt;FormGrid&gt;</code></td><td>單欄，gap 12px</td></tr><tr><td>FormGrid 2-col</td><td><code>&lt;FormGrid cols={2}&gt;</code></td><td>兩欄，gap 12px</td></tr></tbody></table></div>
+<h2 id="doc-components-form-row-md-states">States</h2>
+<p>FormRow 本身無互動狀態；錯誤狀態由 Input（<code>hasError</code>）和選用的錯誤訊息文字表達。</p>
+<h2 id="doc-components-form-row-md-token-contract">Token Contract</h2>
+<p>FormRow 直接使用 sys token，無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token</th><th>Purpose</th></tr></thead><tbody><tr><td>label 字體大小</td><td><code>--md-sys-typescale-meta-size</code>（12px）</td><td>label 縮小文字</td></tr><tr><td>label 字重</td><td><code>--md-sys-typescale-label-weight</code></td><td>label 字重</td></tr><tr><td>label 顏色</td><td><code>--md-sys-color-on-surface-muted</code></td><td>label 淡色</td></tr><tr><td>label 字間距</td><td><code>--md-sys-typescale-label-tracking</code>（+0.06em）</td><td>全大寫字間距</td></tr><tr><td>grid gap</td><td><code>--md-sys-spacing-gap-md</code>（12px）</td><td>欄位間距</td></tr><tr><td>row gap</td><td><code>--md-sys-spacing-gap-sm</code>（8px）</td><td>label 與 field 間距</td></tr></tbody></table></div>
+<h2 id="doc-components-form-row-md-layout-rules">Layout Rules</h2>
+<ul><li>FormRow label <code>text-transform: uppercase</code></li><li>FormRow <code>display: flex; flex-direction: column; gap: 4px</code></li><li>FormGrid <code>display: grid; gap: 12px</code></li><li>2-col FormGrid <code>grid-template-columns: 1fr 1fr</code></li></ul>
+<h2 id="doc-components-form-row-md-content-rules">Content Rules</h2>
+<ul><li>label 使用名詞（「部門」、「到期日」），不加冒號</li><li>錯誤訊息放在 field slot 下方（12px / error 色），由父元件或 FormRow 選用 <code>errorText</code> prop 提供</li></ul>
+<h2 id="doc-components-form-row-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>&lt;label htmlFor={id}&gt;</code> 必須與 <code>&lt;input id={id}&gt;</code> 關聯</li><li>錯誤訊息需有 <code>role=&quot;alert&quot;</code> 或 Input 的 <code>aria-describedby</code></li></ul>
+<h2 id="doc-components-form-row-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>用 FormGrid 統一多欄排版</td><td>在 Modal 或 Drawer 中自行寫 CSS grid</td></tr><tr><td>label 全大寫、略縮小</td><td>讓 label 字體與 body 文字一樣大</td></tr></tbody></table></div>
+<h2 id="doc-components-form-row-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/FormRow/FormRow.tsx</code> 匯出 <code>FormRow</code> 和 <code>FormGrid</code>。無 comp token 是刻意設計——FormRow 是純佈局容器，token 化無實質效益。</p>
+    </section>
+
+<section class="panel" id="doc-components-input-md">
+      <span class="source">components/input.md</span>
+      <h1 id="doc-components-input-md-input-select">Input / Select</h1>
+<p>單行文字輸入框與下拉選單。共用相同高度、圓角、邊框，並支援錯誤狀態。</p>
+<h2 id="doc-components-input-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-IN01</td><td><code>src/components/ui/Input/Input.tsx</code></td><td>Input component</td><td>as=&quot;input&quot; (default) and as=&quot;select&quot;; hasError state</td></tr><tr><td>E-CO-IN02</td><td><code>src/components/ui/Input/Input.css</code></td><td>CSS slots</td><td>focus border, error border, placeholder color</td></tr><tr><td>E-CO-IN03</td><td><code>tokens/tokens-comp.css</code></td><td>Input section</td><td>comp tokens already extracted</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>表單控制元件；接受文字輸入或下拉選擇；通常與 FormRow 組合使用</td></tr><tr><td>Anatomy</td><td>容器（border + radius + bg）· 文字 or select 控制</td></tr><tr><td>Variants / states / modes</td><td>input vs. select；default、focus、error、disabled</td></tr><tr><td>Token contract summary</td><td>container-color、border、radius、height from comp；focus-border、error 直接用 sys token</td></tr><tr><td>Layout / density</td><td>高度固定為 density-row（32px）；寬度由父容器撐開（100%）</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Button（同樣 32px 高，同樣 corner-md；但 Button 為行為觸發，Input 為資料輸入）</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;input class=&quot;ui-input&quot; /&gt;
+&lt;select class=&quot;ui-input ui-input--select&quot;&gt;
+  &lt;option&gt;...&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+<h2 id="doc-components-input-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>input</td><td><code>as=&quot;input&quot;</code>（預設）</td><td>文字輸入</td></tr><tr><td>select</td><td><code>as=&quot;select&quot;</code></td><td>下拉選單；右側有箭頭圖示</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>outline border</td></tr><tr><td>focus</td><td><code>:focus</code></td><td>border → <code>--md-comp-input-focus-border</code>（較深）</td></tr><tr><td>error</td><td><code>hasError={true}</code></td><td>border → <code>--md-sys-color-status-error</code></td></tr><tr><td>disabled</td><td><code>disabled</code></td><td>opacity 降低，不可互動</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-input-container-color</code></td><td><code>--md-sys-color-surface</code></td><td>背景</td><td>all</td></tr><tr><td><code>--md-comp-input-container-border</code></td><td><code>--md-sys-color-outline</code></td><td>邊框</td><td>default</td></tr><tr><td><code>--md-comp-input-container-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>圓角</td><td>all</td></tr><tr><td><code>--md-comp-input-container-height</code></td><td><code>--md-sys-density-row</code></td><td>32px 高度</td><td>all</td></tr><tr><td><code>--md-comp-input-label-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>文字顏色</td><td>all</td></tr><tr><td><code>--md-comp-input-label-size</code></td><td><code>--md-sys-typescale-body-medium-size</code></td><td>文字大小</td><td>all</td></tr><tr><td><code>--md-comp-input-placeholder-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>placeholder</td><td>default</td></tr><tr><td><code>--md-comp-input-focus-border</code></td><td><code>--md-sys-color-on-surface-secondary</code></td><td>focus 邊框</td><td>focus</td></tr><tr><td><code>--md-comp-input-padding-inline</code></td><td><code>--md-sys-spacing-inset-sm</code></td><td>水平 padding</td><td>all</td></tr><tr><td>*(direct sys)*</td><td><code>--md-sys-color-status-error</code></td><td>error 邊框</td><td>error</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-layout-rules">Layout Rules</h2>
+<ul><li>高度固定 32px（density-row），不因密度切換而改變</li><li>寬度由外部決定（通常 <code>width: 100%</code>）</li><li>Select 額外加右側 padding 以容納箭頭圖示</li></ul>
+<h2 id="doc-components-input-md-content-rules">Content Rules</h2>
+<ul><li><code>placeholder</code>：應使用說明性文字而非標籤重複（標籤由 FormRow 提供）</li><li>錯誤訊息由 FormRow 負責顯示，Input 本身只改邊框色</li></ul>
+<h2 id="doc-components-input-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>每個 Input 必須搭配 <code>&lt;label&gt;</code> 並透過 <code>htmlFor</code>/<code>id</code> 關聯</li><li>錯誤狀態需有 <code>aria-invalid=&quot;true&quot;</code> 及 <code>aria-describedby</code> 指向錯誤訊息</li></ul>
+<h2 id="doc-components-input-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>搭配 FormRow 使用，讓 label 統一管理</td><td>在 Input 內部硬編碼 label</td></tr><tr><td>用 <code>hasError</code> prop 顯示錯誤狀態</td><td>直接修改 border-color inline style</td></tr></tbody></table></div>
+<h2 id="doc-components-input-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Input/Input.tsx</code> 為參考實作。<code>as</code> prop 允許同一元件切換為 <code>&lt;select&gt;</code>，避免重複維護兩套 CSS。</p>
+    </section>
+
+<section class="panel" id="doc-components-kanban-column-md">
+      <span class="source">components/kanban-column.md</span>
+      <h1 id="doc-components-kanban-column-md-kanbancolumn">KanbanColumn</h1>
+<p>看板欄位容器，固定 296px 寬。包含標頭（色點 + 欄位名稱 + 計數 + 工具）與可拖放的卡片列表 body。支援 drag-over 狀態與空欄位狀態。</p>
+<h2 id="doc-components-kanban-column-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-KC01</td><td><code>src/components/ui/KanbanColumn/KanbanColumn.tsx</code></td><td>KanbanColumn component</td><td>296px fixed width; header + body; drag-over; empty state</td></tr><tr><td>E-CO-KC02</td><td><code>src/components/ui/KanbanColumn/KanbanColumn.css</code></td><td>CSS classes</td><td>drag-over: color-mix primary 6%; dashed border on empty</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>看板的欄位容器；接受拖放的 KanbanCard；標頭顯示欄位狀態與統計</td></tr><tr><td>Anatomy</td><td>標頭（dot + name + count + tools slot）· body（可滾動 card list）</td></tr><tr><td>Variants / states / modes</td><td>default、drag-over、empty；無 active 狀態</td></tr><tr><td>Token contract summary</td><td>無 comp token（使用 sys token 和 color-mix 直接表達）</td></tr><tr><td>Layout / density</td><td>固定 296px 寬；body 垂直可滾動；gap 8px between cards</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Panel（Panel 是通用殼層；KanbanColumn 有固定寬度、拖放語意、特定標頭結構，領域性較強）</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-kcol [ui-kcol--drag-over] [ui-kcol--empty]&quot;&gt;
+  &lt;div class=&quot;ui-kcol__header&quot;&gt;
+    &lt;span class=&quot;ui-kcol__dot&quot;&gt;&lt;/span&gt;
+    &lt;span class=&quot;ui-kcol__name&quot;&gt;{name}&lt;/span&gt;
+    &lt;span class=&quot;ui-kcol__count&quot;&gt;{count}&lt;/span&gt;
+    &lt;div class=&quot;ui-kcol__tools&quot;&gt;{tools}&lt;/div&gt;   ← slot
+  &lt;/div&gt;
+  &lt;div class=&quot;ui-kcol__body&quot;&gt;
+    {cards}   ← KanbanCard children
+    &lt;!-- empty state: dashed box with hint text --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-kanban-column-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>無特殊背景</td></tr><tr><td>drag-over</td><td>拖曳卡片至欄位上方</td><td>bg = <code>color-mix(in oklab, --md-sys-color-primary 6%, transparent)</code></td></tr><tr><td>empty</td><td>無子卡片</td><td>body 顯示虛線邊框空態提示</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>透明背景</td></tr><tr><td>drag-over</td><td><code>dragover</code> event</td><td>primary 6% tint 背景</td></tr><tr><td>empty</td><td>無 KanbanCard</td><td>body 虛線邊框</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-token-contract">Token Contract</h2>
+<p>KanbanColumn 直接使用 sys token，不設 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token / expression</th><th>Purpose</th></tr></thead><tbody><tr><td>drag-over bg</td><td><code>color-mix(in oklab, var(--md-sys-color-primary) 6%, transparent)</code></td><td>拖放目標提示</td></tr><tr><td>dot color</td><td><code>--md-sys-color-cat-{N}</code> 或狀態色</td><td>欄位狀態色點</td></tr><tr><td>name text</td><td><code>--md-sys-color-on-surface</code></td><td>欄位名稱</td></tr><tr><td>count text</td><td><code>--md-sys-color-on-surface-muted</code></td><td>卡片數量</td></tr><tr><td>body gap</td><td><code>--md-sys-spacing-gap-sm</code>（8px）</td><td>卡片間距</td></tr><tr><td>body padding</td><td><code>--md-sys-spacing-inset-sm</code>（10px）</td><td>body 內距</td></tr><tr><td>empty border</td><td><code>--md-sys-color-outline</code>（dashed）</td><td>空態虛線</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-layout-rules">Layout Rules</h2>
+<ul><li>寬度固定 <code>296px</code>，不可 flex-grow</li><li>Header 高度對齊 <code>density-row</code></li><li>Body <code>overflow-y: auto</code>，最大高度由父容器決定</li><li>卡片間距 <code>gap: 8px</code></li></ul>
+<h2 id="doc-components-kanban-column-md-content-rules">Content Rules</h2>
+<ul><li><code>name</code>：欄位狀態名稱（短字串，如「待辦」「進行中」「完成」）</li><li><code>count</code>：目前欄位卡片數，動態更新</li><li><code>tools</code> slot：通常放「新增卡片」按鈕（ghost）</li></ul>
+<h2 id="doc-components-kanban-column-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>role=&quot;region&quot;</code> 或 <code>role=&quot;list&quot;</code> 視 HTML 結構決定</li><li>拖放需搭配鍵盤替代操作（drag API 本身不支援鍵盤）</li></ul>
+<h2 id="doc-components-kanban-column-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>欄位寬度固定 296px，讓橫向滾動由父容器（看板）控制</td><td>讓 KanbanColumn 自適應寬度</td></tr><tr><td>drag-over 以 color-mix 而非 opacity 實現，避免子元件半透明</td><td>用 <code>opacity</code> 做 drag-over，導致卡片文字也變淡</td></tr></tbody></table></div>
+<h2 id="doc-components-kanban-column-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/KanbanColumn/KanbanColumn.tsx</code> 為參考實作。drag-over 背景使用 <code>color-mix(in oklab, ...)</code> 以避免 <code>opacity</code> 影響子元件可讀性。空態 <code>dashed border</code> 僅在無 children 時渲染。</p>
+    </section>
+
+<section class="panel" id="doc-components-leave-calendar-md">
+      <span class="source">components/leave-calendar.md</span>
+      <h1 id="doc-components-leave-calendar-md-leavecalendar">LeaveCalendar</h1>
+<p>月度假期日曆元件，7 欄網格，支援 today、selected、holiday、weekend、clickable 等日期狀態，及最多 4 個假期色點。</p>
+<h2 id="doc-components-leave-calendar-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-LC01</td><td><code>src/components/ui/LeaveCalendar/LeaveCalendar.tsx</code></td><td>LeaveCalendar + LeaveCalendarControlled</td><td>7-col grid; global classes: .cal-grid, .cal-hdr, .cal-day</td></tr><tr><td>E-CO-LC02</td><td>globals.css</td><td>.cal-* classes</td><td>states: weekend, clickable, today, selected, holiday; leave dots (up to 4, 4px circles); optional nav</td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>視覺化員工月假期；每日最多 4 個色點表示不同員工；可選擇日期（LeaveCalendarControlled）</td></tr><tr><td>Anatomy</td><td>導覽列（可選）· 星期標頭行 · 7 欄日期格線</td></tr><tr><td>Variants / states / modes</td><td>LeaveCalendar（非受控）、LeaveCalendarControlled（受控 selected 日期）；日期格：weekend、today、selected、holiday、clickable</td></tr><tr><td>Token contract summary</td><td>全局 .cal-* 類別直接使用 sys token；無 comp token 層</td></tr><tr><td>Layout / density</td><td><code>display: grid; grid-template-columns: repeat(7, 1fr)</code></td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>MonthPillNavigator（MonthPillNavigator 是行內月份切換器；LeaveCalendar 是完整月度格線視圖，兩者互補）</td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;cal-wrap&quot;&gt;
+  &lt;!-- 導覽列（可選）--&gt;
+  &lt;div class=&quot;cal-nav&quot;&gt;
+    &lt;MonthPillNavigator …/&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 星期標頭 --&gt;
+  &lt;div class=&quot;cal-grid cal-grid--hdr&quot;&gt;
+    &lt;div class=&quot;cal-hdr&quot;&gt;一&lt;/div&gt; … &lt;div class=&quot;cal-hdr&quot;&gt;日&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 日期格線 --&gt;
+  &lt;div class=&quot;cal-grid&quot;&gt;
+    &lt;div class=&quot;cal-day [weekend] [today] [selected] [holiday] [clickable]&quot;&gt;
+      &lt;span class=&quot;cal-day__num&quot;&gt;{day}&lt;/span&gt;
+      &lt;div class=&quot;cal-day__dots&quot;&gt;
+        &lt;span class=&quot;cal-day__dot&quot; style=&quot;background: var(--md-sys-color-cat-N)&quot;&gt;&lt;/span&gt;
+        &lt;!-- 最多 4 個 dot --&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-leave-calendar-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>LeaveCalendar</td><td><code>&lt;LeaveCalendar&gt;</code></td><td>非受控，無 selected 狀態</td></tr><tr><td>LeaveCalendarControlled</td><td><code>&lt;LeaveCalendarControlled&gt;</code></td><td>受控 <code>selectedDate</code> + <code>onSelect</code></td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Class / 條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>白底黑字</td></tr><tr><td>weekend</td><td><code>.weekend</code></td><td>文字 muted 色</td></tr><tr><td>today</td><td><code>.today</code></td><td>背景 primary（輕）或圓形標示</td></tr><tr><td>selected</td><td><code>.selected</code></td><td>primary 背景，white 文字</td></tr><tr><td>holiday</td><td><code>.holiday</code></td><td>節假日標示（紅色點或文字）</td></tr><tr><td>clickable</td><td><code>.clickable</code></td><td>cursor: pointer；hover 背景 surface-variant</td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-token-contract">Token Contract</h2>
+<p>全局 <code>.cal-*</code> 類別直接使用 sys token；無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token</th><th>Purpose</th></tr></thead><tbody><tr><td>格線背景</td><td><code>--md-sys-color-surface</code></td><td>日格底色</td></tr><tr><td>格線邊框</td><td><code>--md-sys-color-divider</code></td><td>格線分隔</td></tr><tr><td>today 標示</td><td><code>--md-sys-color-primary</code></td><td>今日強調</td></tr><tr><td>selected 背景</td><td><code>--md-sys-color-primary</code></td><td>選取日期</td></tr><tr><td>weekend 文字</td><td><code>--md-sys-color-on-surface-muted</code></td><td>週末淡化</td></tr><tr><td>dot 顏色</td><td><code>--md-sys-color-cat-{1–8}</code></td><td>員工假期色點</td></tr><tr><td>dot 大小</td><td>*(raw: 4px)*</td><td>小色點</td></tr><tr><td>hover bg</td><td><code>--md-sys-color-surface-variant</code></td><td>可點擊日期 hover</td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-layout-rules">Layout Rules</h2>
+<ul><li><code>display: grid; grid-template-columns: repeat(7, 1fr)</code></li><li>每個 <code>.cal-day</code> 固定高度（<code>aspect-ratio: 1</code> 或固定 px）</li><li>色點容器 <code>display: flex; gap: 2px</code>，最多顯示 4 個點</li><li>第一週前的空格用空白 div 佔位（CSS grid 自動流動）</li></ul>
+<h2 id="doc-components-leave-calendar-md-content-rules">Content Rules</h2>
+<ul><li>顯示當月日期，跨月日期不顯示（或顯示為 muted 色、不可點擊）</li><li>色點使用 <code>DEPT_HUE</code> 對應的 <code>cat-N</code> 顏色</li><li>超過 4 個假期的日期只顯示 4 個點，無 overflow 指示</li></ul>
+<h2 id="doc-components-leave-calendar-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>整個日曆建議 <code>role=&quot;grid&quot;</code> + <code>aria-label=&quot;2026年6月假期日曆&quot;</code></li><li>每個 <code>.cal-day</code> <code>role=&quot;gridcell&quot;</code></li><li>today：<code>aria-current=&quot;date&quot;</code>；selected：<code>aria-selected=&quot;true&quot;</code></li><li>色點 <code>aria-label=&quot;N 人請假&quot;</code> 或父元素 <code>title</code></li></ul>
+<h2 id="doc-components-leave-calendar-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>用 LeaveCalendarControlled 做日期選擇</td><td>直接操作 DOM class 切換 selected 狀態</td></tr><tr><td>最多顯示 4 個色點</td><td>無限堆疊色點導致版面破版</td></tr></tbody></table></div>
+<h2 id="doc-components-leave-calendar-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/LeaveCalendar/LeaveCalendar.tsx</code> 無附屬 CSS 檔案——日曆樣式依賴 <code>globals.css</code> 中的 <code>.cal-*</code> 全局類別。若要遷移至 CSS Module，需將這些類別提取至 <code>LeaveCalendar.css</code>。</p>
+    </section>
+
+<section class="panel" id="doc-components-member-cell-md">
+      <span class="source">components/member-cell.md</span>
+      <h1 id="doc-components-member-cell-md-membercell">MemberCell</h1>
+<p>成員資訊複合元件，結合 Avatar（sm/md）+ 名稱 + 可選次要文字，用於表格列和篩選清單中。</p>
+<h2 id="doc-components-member-cell-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-MC01</td><td><code>src/components/ui/MemberCell/MemberCell.tsx</code></td><td>MemberCell component</td><td>photo or initial avatar (sm 22px / md 28px) + name + optional sub text</td></tr><tr><td>E-CO-MC02</td><td><code>src/components/ui/MemberCell/MemberCell.css</code></td><td>CSS classes</td><td>--md-sys-color-on-surface / --md-sys-color-on-surface-muted</td></tr></tbody></table></div>
+<h2 id="doc-components-member-cell-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>成員識別複合列；通常出現在表格第一欄或篩選列表；display-only</td></tr><tr><td>Anatomy</td><td>Avatar（sm or md）· 文字欄（name + optional sub）</td></tr><tr><td>Variants / states / modes</td><td>sm avatar（22px）vs md avatar（28px）；有 / 無 sub 文字</td></tr><tr><td>Token contract summary</td><td>直接使用 sys token；無 comp token 層；Avatar 的 hue 來自成員資料</td></tr><tr><td>Layout / density</td><td><code>display: flex; align-items: center; gap: gap-sm</code>；不固定寬度</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Avatar（Avatar 是純圖示 primitive；MemberCell 是含文字的複合元件，組合 Avatar 使用）</td></tr></tbody></table></div>
+<h2 id="doc-components-member-cell-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-member-cell&quot;&gt;
+  &lt;Avatar size=&quot;sm&quot; initial={m.initial} hue={m.hue} photo={m.photo} /&gt;
+  &lt;div class=&quot;ui-member-cell__text&quot;&gt;
+    &lt;span class=&quot;ui-member-cell__name&quot;&gt;{name}&lt;/span&gt;
+    &lt;span class=&quot;ui-member-cell__sub&quot;&gt;{sub}&lt;/span&gt;   ← 可選
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-member-cell-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>sm</td><td><code>avatarSize=&quot;sm&quot;</code>（預設）</td><td>22px Avatar，適合表格行</td></tr><tr><td>md</td><td><code>avatarSize=&quot;md&quot;</code></td><td>28px Avatar，適合選取列表</td></tr><tr><td>with-sub</td><td><code>sub</code> prop 存在</td><td>顯示次要文字（部門、職位）</td></tr></tbody></table></div>
+<h2 id="doc-components-member-cell-md-states">States</h2>
+<p>Display-only，無互動狀態。父元件（表格列）可能有 hover 狀態，MemberCell 本身不變。</p>
+<h2 id="doc-components-member-cell-md-token-contract">Token Contract</h2>
+<p>直接使用 sys token，無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Sys token</th><th>Purpose</th></tr></thead><tbody><tr><td>name 顏色</td><td><code>--md-sys-color-on-surface</code></td><td>主要文字</td></tr><tr><td>name 字體</td><td><code>--md-sys-typescale-body-medium-size</code></td><td>14px</td></tr><tr><td>sub 顏色</td><td><code>--md-sys-color-on-surface-muted</code></td><td>次要文字</td></tr><tr><td>sub 字體</td><td><code>--md-sys-typescale-meta-size</code></td><td>12px</td></tr><tr><td>gap</td><td><code>--md-sys-spacing-gap-sm</code></td><td>Avatar 與文字間距</td></tr></tbody></table></div>
+<h2 id="doc-components-member-cell-md-layout-rules">Layout Rules</h2>
+<ul><li><code>display: flex; align-items: center</code></li><li><code>gap: var(--md-sys-spacing-gap-sm)</code>（8px）</li><li>文字欄 <code>display: flex; flex-direction: column; gap: 2px</code></li><li><code>overflow: hidden; white-space: nowrap; text-overflow: ellipsis</code> 防止長名稱破版</li></ul>
+<h2 id="doc-components-member-cell-md-content-rules">Content Rules</h2>
+<ul><li><code>name</code>：成員全名（中文或英文）</li><li><code>sub</code>（可選）：部門名稱或職稱</li><li><code>initial</code>：傳入成員首字母大寫</li><li><code>hue</code>：1–8，與 DEPT_HUE 對應</li></ul>
+<h2 id="doc-components-member-cell-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>整個 MemberCell 通常不需要額外 aria；由外層表格的 <code>&lt;th&gt;</code> scope 提供脈絡</li><li>Avatar 的 <code>aria-label</code> 為成員名稱（photo mode 的 <code>alt</code> prop）</li></ul>
+<h2 id="doc-components-member-cell-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td><code>avatarSize=&quot;sm&quot;</code> 用於表格行（節省垂直空間）</td><td>在緊湊表格用 md avatar（佔太多行高）</td></tr><tr><td>sub 文字限縮為部門或職位</td><td>在 sub 顯示完整 email 或長字串</td></tr></tbody></table></div>
+<h2 id="doc-components-member-cell-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/MemberCell/MemberCell.tsx</code> 為參考實作。Avatar 的 <code>hue</code> prop 從 <code>MEMBERS</code> 資料結構取得，確保跨元件色彩一致性。</p>
+    </section>
+
+<section class="panel" id="doc-components-modal-md">
+      <span class="source">components/modal.md</span>
+      <h1 id="doc-components-modal-md-modal">Modal</h1>
+<p>置中模態浮層，預設最大寬 520px（lg：640px）。含遮罩、標頭、可滾動 body 與 footer。滑上動畫 8px。</p>
+<h2 id="doc-components-modal-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-MO01</td><td><code>src/components/ui/Modal/Modal.tsx</code></td><td>Modal component</td><td>default max-width 520px, lg 640px; footer surface-variant</td></tr><tr><td>E-CO-MO02</td><td><code>src/components/ui/Modal/Modal.css</code></td><td>CSS classes</td><td>scrim rgba(10,10,8,0.36); slide-up 8px; shape corner-xl</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>強制中斷使用者操作流程；確認、表單、警告對話框</td></tr><tr><td>Anatomy</td><td>遮罩（scrim）· 容器（header + body + footer）</td></tr><tr><td>Variants / states / modes</td><td>default（520px）、lg（640px）；open / closed</td></tr><tr><td>Token contract summary</td><td>radius corner-xl；scrim rgba；footer surface-variant；動畫 slide-up 8px</td></tr><tr><td>Layout / density</td><td>置中（flex center）；max-width 限制；body overflow-y: auto</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>DetailDrawer（Drawer 從右滑入且不完全遮蓋畫面；Modal 置中且完全遮蓋，強制聚焦）</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-modal-scrim&quot;&gt;
+  &lt;div class=&quot;ui-modal [ui-modal--lg]&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot;&gt;
+    &lt;div class=&quot;ui-modal__header&quot;&gt;
+      &lt;h2 class=&quot;ui-modal__title&quot;&gt;{title}&lt;/h2&gt;
+      &lt;button class=&quot;ui-modal__close&quot;&gt;✕&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;ui-modal__body&quot;&gt;{children}&lt;/div&gt;
+    &lt;div class=&quot;ui-modal__footer&quot;&gt;{actions}&lt;/div&gt;   ← 可選
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-modal-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>default</td><td>無 size prop</td><td>max-width: 520px</td></tr><tr><td>lg</td><td><code>size=&quot;lg&quot;</code></td><td>max-width: 640px</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>closed</td><td><code>open={false}</code></td><td>隱藏（<code>display: none</code> 或 unmount）</td></tr><tr><td>open</td><td><code>open={true}</code></td><td>遮罩顯示 + 容器 slide-up 8px 動畫</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-modal-radius</code></td><td><code>--md-sys-shape-corner-xl</code></td><td>容器圓角</td><td>all</td></tr><tr><td><code>--md-comp-modal-bg</code></td><td><code>--md-sys-color-surface</code></td><td>背景</td><td>all</td></tr><tr><td><code>--md-comp-modal-border</code></td><td><code>--md-sys-color-outline</code></td><td>邊框</td><td>all</td></tr><tr><td><code>--md-comp-modal-header-padding</code></td><td><code>--md-sys-spacing-inset-lg</code></td><td>標頭 padding</td><td>all</td></tr><tr><td><code>--md-comp-modal-header-border</code></td><td><code>--md-sys-color-divider</code></td><td>標頭底線</td><td>all</td></tr><tr><td><code>--md-comp-modal-title-size</code></td><td><code>--md-sys-typescale-body-semibold-size</code></td><td>title 字體</td><td>all</td></tr><tr><td><code>--md-comp-modal-title-weight</code></td><td><code>--md-sys-typescale-body-semibold-weight</code></td><td>title 字重</td><td>all</td></tr><tr><td><code>--md-comp-modal-footer-bg</code></td><td><code>--md-sys-color-surface-variant</code></td><td>footer 背景</td><td>all</td></tr><tr><td><code>--md-comp-modal-footer-padding</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>footer padding</td><td>all</td></tr><tr><td><code>--md-comp-modal-scrim-color</code></td><td>*(raw: rgba(10,10,8,0.36))*</td><td>遮罩</td><td>open</td></tr><tr><td><code>--md-comp-modal-transition</code></td><td><code>--md-sys-motion-duration-md</code></td><td>slide-up 動畫</td><td>open</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-layout-rules">Layout Rules</h2>
+<ul><li>遮罩 <code>position: fixed; inset: 0; display: flex; align-items: center; justify-content: center</code></li><li>容器 <code>width: 100%; max-width: 520px</code>（lg: 640px）</li><li>body <code>overflow-y: auto</code>；最大高度由 <code>vh</code> 或視窗決定</li><li>footer 靠底，不隨 body 滾動</li></ul>
+<h2 id="doc-components-modal-md-content-rules">Content Rules</h2>
+<ul><li><code>title</code>：簡短的動詞短語（如「刪除任務」「新增成員」）</li><li>footer 通常放主要操作（primary）和取消（ghost）按鈕，主要操作靠右</li></ul>
+<h2 id="doc-components-modal-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>role=&quot;dialog&quot;</code> + <code>aria-modal=&quot;true&quot;</code> + <code>aria-labelledby</code> 指向 title</li><li>open 時焦點 trap 在 modal 內；close 時返回觸發元素</li><li>Escape 關閉</li></ul>
+<h2 id="doc-components-modal-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>用 Modal 進行確認或表單輸入</td><td>用 Modal 顯示大量唯讀資訊（改用 Drawer）</td></tr><tr><td>footer 的主要行動按鈕靠右</td><td>在 Modal body 放入巢狀 Modal</td></tr></tbody></table></div>
+<h2 id="doc-components-modal-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Modal/Modal.tsx</code> 為參考實作。<code>corner-xl</code> 比 Panel / Button 的 corner-md/lg 更大，製造浮層的視覺層次感。遮罩顏色 <code>rgba(10,10,8,0.36)</code> 比 DetailDrawer 略深（0.36 vs 0.32），強調強制聚焦意圖。</p>
+    </section>
+
+<section class="panel" id="doc-components-month-pill-navigator-md">
+      <span class="source">components/month-pill-navigator.md</span>
+      <h1 id="doc-components-month-pill-navigator-md-monthpillnavigator">MonthPillNavigator</h1>
+<p>行內月份選擇器，顯示當前月份並提供前 / 後切換按鈕。固定 30px 高度，以分隔邊框區分三個區段。數值使用等寬數字排版。</p>
+<h2 id="doc-components-month-pill-navigator-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-MPN01</td><td><code>src/components/ui/MonthPillNavigator/MonthPillNavigator.tsx</code></td><td>MonthPillNavigator component</td><td>prev chevron + value + next chevron; 30px height</td></tr><tr><td>E-CO-MPN02</td><td><code>src/components/ui/MonthPillNavigator/MonthPillNavigator.css</code></td><td>CSS classes</td><td>corner-md; divider borders; tabular-nums</td></tr></tbody></table></div>
+<h2 id="doc-components-month-pill-navigator-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>容量/排班視圖的月份導覽；行內複合控制；不是獨立的導覽元件</td></tr><tr><td>Anatomy</td><td>左箭頭 · 月份值 · 右箭頭；三段以垂直分隔線區分</td></tr><tr><td>Variants / states / modes</td><td>無 size variant；prev/next 按鈕有 hover/active 狀態</td></tr><tr><td>Token contract summary</td><td>corner-md；height 固定 30px；分隔色用 outline；數值 tabular-nums</td></tr><tr><td>Layout / density</td><td>行內 flex，固定 30px 高；寬度由內容決定</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Button（Button 是單獨操作觸發；MonthPillNavigator 是帶 display slot 的複合導覽控制，功能和結構不同）</td></tr></tbody></table></div>
+<h2 id="doc-components-month-pill-navigator-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-month-pill&quot;&gt;
+  &lt;button class=&quot;ui-month-pill__prev&quot;&gt;‹&lt;/button&gt;
+  &lt;span class=&quot;ui-month-pill__value&quot;&gt;{year}年{month}月&lt;/span&gt;
+  &lt;button class=&quot;ui-month-pill__next&quot;&gt;›&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-month-pill-navigator-md-variants">Variants</h2>
+<p>無獨立 variant。left/right 按鈕有 hover 狀態，value slot 無互動。</p>
+<h2 id="doc-components-month-pill-navigator-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>outline 邊框，surface 背景</td></tr><tr><td>prev/next hover</td><td><code>:hover</code> on button</td><td>surface-variant 背景</td></tr><tr><td>prev/next active</td><td><code>:active</code></td><td>press transform</td></tr></tbody></table></div>
+<h2 id="doc-components-month-pill-navigator-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-month-pill-height</code></td><td>*(raw: 30px)*</td><td>固定高度</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>整體圓角</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-bg</code></td><td><code>--md-sys-color-surface</code></td><td>背景</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-border</code></td><td><code>--md-sys-color-outline</code></td><td>外框</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-divider</code></td><td><code>--md-sys-color-outline</code></td><td>段落分隔</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-value-size</code></td><td><code>--md-sys-typescale-body-medium-size</code></td><td>月份文字大小</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-value-color</code></td><td><code>--md-sys-color-on-surface</code></td><td>月份文字色</td><td>all</td></tr><tr><td><code>--md-comp-month-pill-btn-hover-bg</code></td><td><code>--md-sys-color-surface-variant</code></td><td>箭頭 hover</td><td>hover</td></tr><tr><td><code>--md-comp-month-pill-transition</code></td><td><code>--md-sys-motion-duration-sm</code></td><td>動畫</td><td>all</td></tr></tbody></table></div>
+<h2 id="doc-components-month-pill-navigator-md-layout-rules">Layout Rules</h2>
+<ul><li>整體 <code>display: inline-flex; align-items: center</code></li><li>三段以 <code>border-right</code> / <code>border-left</code> 垂直分隔線分隔</li><li>value slot 有固定最小寬度（如 7–8 字元寬），避免切換月份時抖動</li><li><code>font-variant-numeric: tabular-nums</code> 確保數字等寬</li></ul>
+<h2 id="doc-components-month-pill-navigator-md-content-rules">Content Rules</h2>
+<ul><li>value 格式：<code>{year}年{month}月</code>（如「2026年6月」）</li><li>月份不補零（6月而非06月）</li><li>箭頭使用 chevron SVG 圖示，不使用文字 <code>&lt;</code> <code>&gt;</code></li></ul>
+<h2 id="doc-components-month-pill-navigator-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>prev/next <code>&lt;button&gt;</code> 需有 <code>aria-label=&quot;上個月&quot;</code> / <code>aria-label=&quot;下個月&quot;</code></li><li>value slot <code>aria-live=&quot;polite&quot;</code> 以通知螢幕閱讀器月份變更</li></ul>
+<h2 id="doc-components-month-pill-navigator-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>value slot 固定最小寬度，防止版面跳動</td><td>讓 pill 寬度隨月份字數增減</td></tr><tr><td>tabular-nums 確保數字等寬</td><td>使用比例數字字體（會造成數字寬度不一致）</td></tr></tbody></table></div>
+<h2 id="doc-components-month-pill-navigator-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/MonthPillNavigator/MonthPillNavigator.tsx</code> 為參考實作。元件為受控（controlled），需外部傳入 <code>value</code> 和 <code>onChange</code>。</p>
+    </section>
+
+<section class="panel" id="doc-components-panel-md">
+      <span class="source">components/panel.md</span>
+      <h1 id="doc-components-panel-md-panel">Panel</h1>
+<p>通用容器元件，提供一致的邊框、圓角與選用標頭。作為 KPI Card、表格區域、通知面板等複合元件的底層結構。</p>
+<h2 id="doc-components-panel-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-PL01</td><td><code>src/components/ui/Panel/Panel.tsx</code></td><td>Panel component</td><td>optional header (title + subtitle + actions); uses --md-comp-panel-* tokens</td></tr><tr><td>E-CO-PL02</td><td><code>src/components/ui/Panel/Panel.css</code></td><td>CSS slots</td><td>border-bottom divider on header</td></tr><tr><td>E-CO-PL03</td><td><code>tokens/tokens-comp.css</code></td><td>Panel section</td><td>comp tokens already extracted</td></tr></tbody></table></div>
+<h2 id="doc-components-panel-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>頁面區塊容器；提供一致的 surface + 邊框 + 圓角；header 可選</td></tr><tr><td>Anatomy</td><td>容器（surface bg + border）· 選用 header（title + subtitle + actions slot）· body slot</td></tr><tr><td>Variants / states / modes</td><td>with-header vs. no-header；無互動狀態</td></tr><tr><td>Token contract summary</td><td>container-color、border、radius from comp；header padding、title、sub from comp</td></tr><tr><td>Layout / density</td><td>不固定尺寸，由父容器決定；header 有固定 padding</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>KPI Card（KPI Card 是 Panel 的具體應用，有固定 padding 和 data slot；Panel 是通用殼層）</td></tr></tbody></table></div>
+<h2 id="doc-components-panel-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-panel&quot;&gt;
+  &lt;div class=&quot;ui-panel__header&quot;&gt;   ← 可選
+    &lt;div class=&quot;ui-panel__title-wrap&quot;&gt;
+      &lt;span class=&quot;ui-panel__title&quot;&gt;{title}&lt;/span&gt;
+      &lt;span class=&quot;ui-panel__sub&quot;&gt;{subtitle}&lt;/span&gt;   ← 可選
+    &lt;/div&gt;
+    &lt;div class=&quot;ui-panel__actions&quot;&gt;{actions}&lt;/div&gt;   ← slot
+  &lt;/div&gt;
+  &lt;div class=&quot;ui-panel__body&quot;&gt;{children}&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-panel-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>no-header</td><td>無 <code>title</code> prop</td><td>僅顯示 body</td></tr><tr><td>with-header</td><td>傳入 <code>title</code></td><td>顯示帶底線分隔的 header</td></tr></tbody></table></div>
+<h2 id="doc-components-panel-md-states">States</h2>
+<p>僅作為殼層，本身無互動狀態。子元件的 hover/active 狀態與 Panel 無關。</p>
+<h2 id="doc-components-panel-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-panel-container-color</code></td><td><code>--md-sys-color-surface</code></td><td>背景</td><td>all</td></tr><tr><td><code>--md-comp-panel-container-border</code></td><td><code>--md-sys-color-outline</code></td><td>邊框</td><td>all</td></tr><tr><td><code>--md-comp-panel-container-radius</code></td><td><code>--md-sys-shape-corner-lg</code></td><td>圓角</td><td>all</td></tr><tr><td><code>--md-comp-panel-header-border</code></td><td><code>--md-sys-color-divider</code></td><td>header 底線</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-padding-block</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>header 垂直 padding</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-padding-inline</code></td><td><code>--md-sys-spacing-inset-lg</code></td><td>header 水平 padding</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-title-size</code></td><td><code>--md-sys-typescale-body-semibold-size</code></td><td>title 字體大小</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-title-weight</code></td><td><code>--md-sys-typescale-body-semibold-weight</code></td><td>title 字重</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-sub-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>subtitle 顏色</td><td>with-header</td></tr><tr><td><code>--md-comp-panel-header-sub-size</code></td><td><code>--md-sys-typescale-meta-size</code></td><td>subtitle 字體</td><td>with-header</td></tr></tbody></table></div>
+<h2 id="doc-components-panel-md-layout-rules">Layout Rules</h2>
+<ul><li>寬度由父容器決定，Panel 本身不設定 width</li><li><code>border-radius</code> 一致用 corner-lg（比 Button 和 Kanban Card 更大）</li><li>Header 底線使用 <code>border-bottom: 1px solid var(--md-comp-panel-header-border)</code></li><li><code>body</code> slot 的 padding 由使用方自行決定（Panel 不強制內部 padding）</li></ul>
+<h2 id="doc-components-panel-md-content-rules">Content Rules</h2>
+<ul><li><code>title</code>：短標題字串</li><li><code>subtitle</code>（可選）：次要描述文字</li><li><code>actions</code>（可選）：右側操作區 slot（通常放 Button ghost）</li></ul>
+<h2 id="doc-components-panel-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li>Header <code>title</code> 通常設為 <code>&lt;h2&gt;</code> 或 <code>&lt;h3&gt;</code>，依頁面標題層級決定</li><li><code>actions</code> slot 中的按鈕需有 <code>aria-label</code></li></ul>
+<h2 id="doc-components-panel-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>用 Panel 作為儀表板、抽屜、通知等區塊的容器</td><td>為單一文字段落套用 Panel（過度使用）</td></tr><tr><td>body padding 由子元件或使用方自行定義</td><td>在 Panel 本身加硬編碼 padding</td></tr></tbody></table></div>
+<h2 id="doc-components-panel-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Panel/Panel.tsx</code> 為參考實作。Panel 的 <code>body</code> 無預設 padding，以確保彈性（子元件如 Table 需要 edge-to-edge 佈局）。</p>
+    </section>
+
+<section class="panel" id="doc-components-sidebar-item-md">
+      <span class="source">components/sidebar-item.md</span>
+      <h1 id="doc-components-sidebar-item-md-sidebaritem">SidebarItem</h1>
+<p>側邊欄導覽項目，包含圖示、標籤、可選計數徽章，以及群組標頭子元件。啟用狀態以 elevation-sm 陰影標示。</p>
+<h2 id="doc-components-sidebar-item-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-SI01</td><td><code>src/components/ui/SidebarItem/SidebarItem.tsx</code></td><td>SidebarItem + SidebarGroup exports</td><td>icon + label + optional tag badge; active state</td></tr><tr><td>E-CO-SI02</td><td><code>src/components/ui/SidebarItem/SidebarItem.css</code></td><td>CSS classes</td><td>active: surface bg + elevation-sm + primary icon; hover: surface-variant</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>側邊欄導覽連結；啟用狀態視覺突顯；SidebarGroup 提供區段標頭</td></tr><tr><td>Anatomy</td><td>圖示 · 標籤文字 · 可選計數 Tag · 啟用指示器（背景 + 陰影）</td></tr><tr><td>Variants / states / modes</td><td>default、active、hover；SidebarGroup（標頭 only）</td></tr><tr><td>Token contract summary</td><td>active: surface bg、elevation-sm、primary icon；hover: surface-variant；文字 rgba 漸變</td></tr><tr><td>Layout / density</td><td>固定高度（density-row），水平 padding inset-md；不換行</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Button（Button 為觸發動作；SidebarItem 為導覽路由，有 active state 和圖示 slot）</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;!-- SidebarGroup --&gt;
+&lt;div class=&quot;ui-sb-group&quot;&gt;
+  &lt;span class=&quot;ui-sb-group__label&quot;&gt;{groupLabel}&lt;/span&gt;
+  {children}
+&lt;/div&gt;
+
+&lt;!-- SidebarItem --&gt;
+&lt;a class=&quot;ui-sb-item [ui-sb-item--active]&quot; href={href}&gt;
+  &lt;span class=&quot;ui-sb-item__icon&quot;&gt;{icon}&lt;/span&gt;
+  &lt;span class=&quot;ui-sb-item__label&quot;&gt;{label}&lt;/span&gt;
+  &lt;span class=&quot;ui-sb-item__badge&quot;&gt;{count}&lt;/span&gt;   ← 可選
+&lt;/a&gt;</code></pre>
+<h2 id="doc-components-sidebar-item-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>default</td><td>非當前路由</td><td>透明背景，muted 圖示色</td></tr><tr><td>active</td><td><code>active</code> prop 或路由匹配</td><td><code>surface</code> 背景 + <code>elevation-sm</code> 陰影 + <code>primary</code> 圖示色</td></tr><tr><td>SidebarGroup</td><td><code>&lt;SidebarGroup&gt;</code></td><td>僅顯示群組標籤（無互動）</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>透明 bg，rgba(255,255,255,0.5) 文字（深色側欄）</td></tr><tr><td>hover</td><td><code>:hover</code></td><td><code>--md-sys-color-surface-variant</code> bg</td></tr><tr><td>active</td><td><code>active</code> prop</td><td><code>--md-sys-color-surface</code> bg + <code>elevation-sm</code> + primary icon</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-sidebar-item-height</code></td><td><code>--md-sys-density-row</code></td><td>項目高度</td><td>all</td></tr><tr><td><code>--md-comp-sidebar-item-padding-inline</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>水平 padding</td><td>all</td></tr><tr><td><code>--md-comp-sidebar-item-radius</code></td><td><code>--md-sys-shape-corner-md</code></td><td>圓角</td><td>all</td></tr><tr><td><code>--md-comp-sidebar-item-hover-bg</code></td><td><code>--md-sys-color-surface-variant</code></td><td>hover 背景</td><td>hover</td></tr><tr><td><code>--md-comp-sidebar-item-active-bg</code></td><td><code>--md-sys-color-surface</code></td><td>active 背景</td><td>active</td></tr><tr><td><code>--md-comp-sidebar-item-active-shadow</code></td><td><code>--md-sys-elevation-sm</code></td><td>active 陰影</td><td>active</td></tr><tr><td><code>--md-comp-sidebar-item-active-icon-color</code></td><td><code>--md-sys-color-primary</code></td><td>active 圖示色</td><td>active</td></tr><tr><td><code>--md-comp-sidebar-item-gap</code></td><td><code>--md-sys-spacing-gap-sm</code></td><td>圖示與文字間距</td><td>all</td></tr><tr><td><code>--md-comp-sidebar-group-label-size</code></td><td><code>--md-sys-typescale-meta-size</code></td><td>群組標頭字體</td><td>SidebarGroup</td></tr><tr><td><code>--md-comp-sidebar-group-label-color</code></td><td><code>--md-sys-color-on-surface-faint</code></td><td>群組標頭顏色</td><td>SidebarGroup</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-layout-rules">Layout Rules</h2>
+<ul><li>垂直堆疊，gap 由父容器（nav）決定</li><li><code>overflow: hidden; white-space: nowrap; text-overflow: ellipsis</code>——長標籤截斷</li><li>badge 靠右（<code>margin-left: auto</code>）</li></ul>
+<h2 id="doc-components-sidebar-item-md-content-rules">Content Rules</h2>
+<ul><li>標籤文字簡短（不超過 16 字）</li><li>badge 顯示數字計數（如待辦任務數）；超過 99 顯示 <code>99+</code></li><li>SidebarGroup label 全大寫，由 CSS <code>text-transform: uppercase</code> 控制</li></ul>
+<h2 id="doc-components-sidebar-item-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>&lt;a&gt;</code> 元素確保鍵盤可聚焦</li><li><code>aria-current=&quot;page&quot;</code> 標示 active 項目</li><li>圖示 <code>aria-hidden=&quot;true&quot;</code>，文字提供語意</li></ul>
+<h2 id="doc-components-sidebar-item-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>使用 <code>active</code> prop 標示當前路由</td><td>用 JS 直接操作 class 做 active 切換</td></tr><tr><td>badge 用於計數，不用於狀態文字</td><td>在 badge slot 放長字串</td></tr></tbody></table></div>
+<h2 id="doc-components-sidebar-item-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/SidebarItem/SidebarItem.tsx</code> 匯出 <code>SidebarGroup</code> 和 <code>SidebarItem</code>。側邊欄背景為黑色（<code>#0e0e10</code>），文字透明度基準為 <code>rgba(255,255,255,0.5)</code>，active 時由 <code>surface</code>（淺色）背景取代。</p>
+    </section>
+
+<section class="panel" id="doc-components-table-md">
+      <span class="source">components/table.md</span>
+      <h1 id="doc-components-table-md-table">Table</h1>
+<p>泛型資料表格元件，支援黏性標頭、可選黏性第一欄、頁尾合計列、行 highlight 與 hover 狀態。標頭背景使用 surface-variant。全面使用等寬數字排版。</p>
+<h2 id="doc-components-table-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-TB01</td><td><code>src/components/ui/Table/Table.tsx</code></td><td>Table&lt;T&gt; generic component</td><td>sticky header + optional sticky first col; footer/totals row; row highlight</td></tr><tr><td>E-CO-TB02</td><td><code>src/components/ui/Table/Table.css</code></td><td>CSS classes</td><td>header: 12px/uppercase/+0.06em/surface-variant; hover: primary 4% tint; highlight: primary 8% tint; empty state; tabular-nums</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>容量、跨表等資料密集視圖的資料表；泛型 <code>Table&lt;T&gt;</code> 接受 columns 和 data props</td></tr><tr><td>Anatomy</td><td>標頭行（surface-variant bg）· 資料行 · 可選頁尾合計行 · 空態訊息</td></tr><tr><td>Variants / states / modes</td><td>default；sticky-col（可選）；有 / 無 footer；行 highlight</td></tr><tr><td>Token contract summary</td><td>header: surface-variant；hover: primary 4%；highlight: primary 8%；全面 tabular-nums</td></tr><tr><td>Layout / density</td><td><code>display: table</code>（原生 HTML table）；無固定高度，由父容器決定；header sticky</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>Panel（Panel 是容器殼層；Table 是資料展示元件，通常放置於 Panel 的 body slot 中）</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-table-wrap&quot;&gt;
+  &lt;table class=&quot;ui-table&quot;&gt;
+    &lt;thead class=&quot;ui-table__head&quot;&gt;
+      &lt;tr&gt;
+        &lt;th class=&quot;ui-table__th [ui-table__th--sticky]&quot;&gt;{colLabel}&lt;/th&gt;
+        …
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr class=&quot;ui-table__row [ui-table__row--highlight]&quot;&gt;
+        &lt;td class=&quot;ui-table__td [ui-table__td--sticky]&quot;&gt;{value}&lt;/td&gt;
+        …
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+    &lt;tfoot class=&quot;ui-table__foot&quot;&gt;   ← 可選
+      &lt;tr&gt;
+        &lt;td class=&quot;ui-table__td&quot;&gt;{total}&lt;/td&gt;
+        …
+      &lt;/tr&gt;
+    &lt;/tfoot&gt;
+  &lt;/table&gt;
+  &lt;!-- empty state: 無資料時顯示 --&gt;
+  &lt;div class=&quot;ui-table__empty&quot;&gt;{emptyMessage}&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-table-md-variants">Variants</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>觸發條件</th><th>差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>黏性標頭，無黏性第一欄</td></tr><tr><td>sticky-col</td><td><code>stickyFirstCol={true}</code></td><td>第一欄也 sticky（適合跨表/容量表）</td></tr><tr><td>with-footer</td><td><code>footer</code> prop 存在</td><td>顯示頁尾合計列</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>default</td><td>常態</td><td>無特殊色</td></tr><tr><td>hover</td><td><code>tr:hover</code></td><td>primary 4% tint（<code>color-mix</code>）</td></tr><tr><td>highlight</td><td><code>isHighlighted={true}</code></td><td>primary 8% tint</td></tr><tr><td>empty</td><td>無 data</td><td>顯示 emptyMessage 文字</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-table-header-bg</code></td><td><code>--md-sys-color-surface-variant</code></td><td>標頭背景</td><td>all</td></tr><tr><td><code>--md-comp-table-header-size</code></td><td><code>--md-sys-typescale-meta-size</code>（12px）</td><td>標頭字體</td><td>all</td></tr><tr><td><code>--md-comp-table-header-weight</code></td><td><code>--md-sys-typescale-label-weight</code></td><td>標頭字重</td><td>all</td></tr><tr><td><code>--md-comp-table-header-tracking</code></td><td><code>--md-sys-typescale-label-tracking</code>（+0.06em）</td><td>標頭字間距</td><td>all</td></tr><tr><td><code>--md-comp-table-header-color</code></td><td><code>--md-sys-color-on-surface-muted</code></td><td>標頭文字色</td><td>all</td></tr><tr><td><code>--md-comp-table-border</code></td><td><code>--md-sys-color-divider</code></td><td>行分隔線</td><td>all</td></tr><tr><td><code>--md-comp-table-cell-padding-block</code></td><td><code>--md-sys-spacing-inset-sm</code></td><td>儲存格垂直 padding</td><td>all</td></tr><tr><td><code>--md-comp-table-cell-padding-inline</code></td><td><code>--md-sys-spacing-inset-md</code></td><td>儲存格水平 padding</td><td>all</td></tr><tr><td><code>--md-comp-table-hover-bg</code></td><td><code>color-mix(in oklab, var(--md-sys-color-primary) 4%, transparent)</code></td><td>hover 背景</td><td>hover</td></tr><tr><td><code>--md-comp-table-highlight-bg</code></td><td><code>color-mix(in oklab, var(--md-sys-color-primary) 8%, transparent)</code></td><td>highlight 背景</td><td>highlight</td></tr><tr><td><code>--md-comp-table-footer-bg</code></td><td><code>--md-sys-color-surface-variant</code></td><td>頁尾背景</td><td>with-footer</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-layout-rules">Layout Rules</h2>
+<ul><li><code>overflow: auto</code>（父容器）；table <code>min-width: max-content</code> 確保不自動截斷</li><li>標頭 <code>position: sticky; top: 0; z-index: 1</code></li><li>sticky 第一欄：<code>position: sticky; left: 0; z-index: 2</code>（需高於標頭）</li><li><code>font-variant-numeric: tabular-nums</code> 全表適用</li></ul>
+<h2 id="doc-components-table-md-content-rules">Content Rules</h2>
+<ul><li>標頭：全大寫、12px（CSS <code>text-transform: uppercase</code>）</li><li>數字儲存格：<code>text-align: right</code></li><li>文字儲存格：<code>text-align: left</code></li><li>emptyMessage：說明性文字（如「本月尚無資料」）</li></ul>
+<h2 id="doc-components-table-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>&lt;th scope=&quot;col&quot;&gt;</code> 標示欄標頭；<code>&lt;th scope=&quot;row&quot;&gt;</code> 標示列標頭</li><li>黏性第一欄通常是列標頭（<code>&lt;th scope=&quot;row&quot;&gt;</code>）</li><li><code>&lt;caption&gt;</code> 或 <code>aria-label</code> 描述表格用途</li></ul>
+<h2 id="doc-components-table-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>hover 和 highlight 使用 <code>color-mix</code> 而非 opacity，保持文字可讀性</td><td>用 <code>opacity: 0.5</code> 做 hover（影響文字可讀性）</td></tr><tr><td>全表 <code>tabular-nums</code> 確保數字對齊</td><td>在每個數字儲存格單獨設字體</td></tr><tr><td><code>stickyFirstCol</code> 用於需要橫向滾動的跨表</td><td>所有表格都啟用 sticky 第一欄（增加複雜度）</td></tr></tbody></table></div>
+<h2 id="doc-components-table-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Table/Table.tsx</code> 使用 TypeScript 泛型 <code>Table&lt;T&gt;</code>，<code>columns</code> prop 定義欄位名稱、取值函式和對齊方式。hover 和 highlight 均使用 <code>color-mix(in oklab, ...)</code> 以避免 <code>opacity</code> 導致子元素半透明問題。</p>
+    </section>
+
+<section class="panel" id="doc-components-timeline-md">
+      <span class="source">components/timeline.md</span>
+      <h1 id="doc-components-timeline-md-timeline">Timeline</h1>
+<p>活動串流元件，以垂直時間軸（點 + 連接線）呈現事件記錄。最後一項隱藏連接線。</p>
+<h2 id="doc-components-timeline-md-evidence">Evidence</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-TL01</td><td><code>src/components/ui/Timeline/Timeline.tsx</code></td><td>Timeline component</td><td>ui-timeline__row: 14px dot-wrap + content</td></tr><tr><td>E-CO-TL02</td><td><code>src/components/ui/Timeline/Timeline.css</code></td><td>CSS classes</td><td>8px dot circle; ::after pseudo vertical line; hidden on last; message 14px/secondary; time 12px/faint/tabular-nums</td></tr></tbody></table></div>
+<h2 id="doc-components-timeline-md-component-fingerprint">Component Fingerprint</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>活動歷史記錄；display-only；用於 DetailDrawer 中的事件列表</td></tr><tr><td>Anatomy</td><td>每列：dot-wrap（8px 圓點 + 垂直連接線）· 內容（訊息 + 時間）</td></tr><tr><td>Variants / states / modes</td><td>無；最後一列無連接線</td></tr><tr><td>Token contract summary</td><td>dot 使用 outline-strong；連接線使用 divider；訊息 secondary；時間 faint</td></tr><tr><td>Layout / density</td><td>grid 兩欄（dot-wrap 14px + content 1fr）；row gap 由父容器決定</td></tr><tr><td>Visual reference</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>無相似已提取元件</td></tr></tbody></table></div>
+<h2 id="doc-components-timeline-md-anatomy">Anatomy</h2>
+<pre><code data-lang="">&lt;div class=&quot;ui-timeline&quot;&gt;
+  &lt;div class=&quot;ui-timeline__row&quot;&gt;
+    &lt;div class=&quot;ui-timeline__dot-wrap&quot;&gt;
+      &lt;span class=&quot;ui-timeline__dot&quot;&gt;&lt;/span&gt;
+      &lt;!-- ::after = 垂直連接線 --&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;ui-timeline__content&quot;&gt;
+      &lt;p class=&quot;ui-timeline__message&quot;&gt;{message}&lt;/p&gt;
+      &lt;time class=&quot;ui-timeline__time&quot;&gt;{time}&lt;/time&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- 最後一列 .ui-timeline__dot-wrap::after display: none --&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-timeline-md-variants">Variants</h2>
+<p>無。<code>isLast</code> 或 <code>:last-child</code> CSS 選擇器控制是否顯示連接線。</p>
+<h2 id="doc-components-timeline-md-states">States</h2>
+<p>Display-only，無互動狀態。</p>
+<h2 id="doc-components-timeline-md-token-contract">Token Contract</h2>
+<div class="table-wrap"><table><thead><tr><th>Component token</th><th>Maps to system token</th><th>Purpose</th><th>State / mode</th></tr></thead><tbody><tr><td><code>--md-comp-timeline-dot-size</code></td><td>*(raw: 8px)*</td><td>dot 直徑</td><td>all</td></tr><tr><td><code>--md-comp-timeline-dot-color</code></td><td><code>--md-sys-color-outline-strong</code></td><td>dot 顏色</td><td>all</td></tr><tr><td><code>--md-comp-timeline-line-color</code></td><td><code>--md-sys-color-divider</code></td><td>連接線顏色</td><td>all</td></tr><tr><td><code>--md-comp-timeline-line-width</code></td><td>*(raw: 1px)*</td><td>連接線寬度</td><td>all</td></tr><tr><td><code>--md-comp-timeline-dot-wrap-width</code></td><td>*(raw: 14px)*</td><td>dot 欄寬</td><td>all</td></tr><tr><td><code>--md-comp-timeline-message-size</code></td><td><code>--md-sys-typescale-body-medium-size</code>（14px）</td><td>訊息字體</td><td>all</td></tr><tr><td><code>--md-comp-timeline-message-color</code></td><td><code>--md-sys-color-on-surface-secondary</code></td><td>訊息顏色</td><td>all</td></tr><tr><td><code>--md-comp-timeline-time-size</code></td><td><code>--md-sys-typescale-meta-size</code>（12px）</td><td>時間字體</td><td>all</td></tr><tr><td><code>--md-comp-timeline-time-color</code></td><td><code>--md-sys-color-on-surface-faint</code></td><td>時間顏色</td><td>all</td></tr><tr><td><code>--md-comp-timeline-row-gap</code></td><td><code>--md-sys-spacing-gap-md</code></td><td>列間距</td><td>all</td></tr></tbody></table></div>
+<h2 id="doc-components-timeline-md-layout-rules">Layout Rules</h2>
+<ul><li>每列：<code>display: grid; grid-template-columns: 14px 1fr; gap: 8px</code></li><li>dot-wrap <code>position: relative</code>；<code>::after</code> 為 <code>position: absolute; left: 50%; top: 8px; width: 1px; bottom: -gap</code></li><li>最後一列（<code>:last-child .dot-wrap::after</code>）<code>display: none</code></li></ul>
+<h2 id="doc-components-timeline-md-content-rules">Content Rules</h2>
+<ul><li><code>message</code>：活動描述（如「張三 修改了到期日」）</li><li><code>time</code>：相對時間（「5分鐘前」）或絕對時間（ISO），<code>tabular-nums</code></li></ul>
+<h2 id="doc-components-timeline-md-accessibility-rules">Accessibility Rules</h2>
+<ul><li><code>&lt;time datetime=&quot;{isoString}&quot;&gt;</code> 提供機器可讀時間</li><li>整個 timeline 可用 <code>role=&quot;feed&quot;</code> 或 <code>role=&quot;list&quot;</code> 包裝</li></ul>
+<h2 id="doc-components-timeline-md-do-don-t">Do / Don't</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>最後一列隱藏連接線（<code>:last-child</code> 選擇器）</td><td>手動在每列傳入 <code>isLast</code> boolean prop</td></tr><tr><td>時間使用 tabular-nums</td><td>讓時間戳記跑版</td></tr></tbody></table></div>
+<h2 id="doc-components-timeline-md-implementation-notes">Implementation Notes</h2>
+<p><code>src/components/ui/Timeline/Timeline.tsx</code> 為參考實作。連接線使用 <code>::after</code> 偽元素而非獨立 <code>&lt;div&gt;</code>，減少 DOM 節點數。dot 使用 <code>outline-strong</code> 而非 <code>primary</code>，以避免過多視覺強調。</p>
     </section>
     </main>
   </div>

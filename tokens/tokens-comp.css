@@ -171,4 +171,133 @@
   --md-comp-input-focus-border:       var(--md-sys-color-on-surface-secondary);
   --md-comp-input-padding-inline:     var(--md-sys-spacing-inset-sm);
 
+
+  /* ════════════════════════════════════════════════════════════
+     BRAND MARK  (.ui-brand-mark)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-brand-mark-sm-size:       var(--md-sys-size-indicator-lg);
+  --md-comp-brand-mark-lg-size:       48px; /* no sys token at this size */
+  --md-comp-brand-mark-sm-radius:     var(--md-sys-shape-corner-sm);
+  --md-comp-brand-mark-lg-radius:     var(--md-sys-shape-corner-md);
+  --md-comp-brand-mark-gradient-start: var(--md-sys-color-on-surface);
+  --md-comp-brand-mark-gradient-end:  #3a3934; /* brand dark earth — kept raw */
+
+
+  /* ════════════════════════════════════════════════════════════
+     SIDEBAR ITEM  (.ui-sb-item, .ui-sb-group)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-sidebar-item-height:            var(--md-sys-density-row);
+  --md-comp-sidebar-item-padding-inline:    var(--md-sys-spacing-inset-md);
+  --md-comp-sidebar-item-radius:            var(--md-sys-shape-corner-md);
+  --md-comp-sidebar-item-gap:               var(--md-sys-spacing-gap-sm);
+  --md-comp-sidebar-item-hover-bg:          var(--md-sys-color-surface-variant);
+  --md-comp-sidebar-item-active-bg:         var(--md-sys-color-surface);
+  --md-comp-sidebar-item-active-shadow:     var(--md-sys-elevation-sm);
+  --md-comp-sidebar-item-active-icon-color: var(--md-sys-color-primary);
+  --md-comp-sidebar-group-label-size:       var(--md-sys-typescale-meta-size);
+  --md-comp-sidebar-group-label-color:      var(--md-sys-color-on-surface-faint);
+
+
+  /* ════════════════════════════════════════════════════════════
+     DETAIL DRAWER  (.ui-drawer)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-drawer-width:                 460px;
+  --md-comp-drawer-bg:                    var(--md-sys-color-surface);
+  --md-comp-drawer-border:                var(--md-sys-color-outline);
+  --md-comp-drawer-header-padding-block:  var(--md-sys-spacing-inset-md);
+  --md-comp-drawer-header-padding-inline: var(--md-sys-spacing-inset-lg);
+  --md-comp-drawer-header-border:         var(--md-sys-color-divider);
+  --md-comp-drawer-id-size:               var(--md-sys-typescale-meta-size);
+  --md-comp-drawer-id-color:              var(--md-sys-color-on-surface-faint);
+  --md-comp-drawer-title-size:            var(--md-sys-typescale-body-large-size);
+  --md-comp-drawer-title-weight:          var(--md-sys-typescale-body-semibold-weight);
+  --md-comp-drawer-scrim-color:           rgba(10, 10, 8, 0.32);
+  --md-comp-drawer-transition:            var(--md-sys-motion-duration-md);
+
+
+  /* ════════════════════════════════════════════════════════════
+     MODAL  (.ui-modal)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-modal-radius:          var(--md-sys-shape-corner-xl);
+  --md-comp-modal-bg:              var(--md-sys-color-surface);
+  --md-comp-modal-border:          var(--md-sys-color-outline);
+  --md-comp-modal-header-padding:  var(--md-sys-spacing-inset-lg);
+  --md-comp-modal-header-border:   var(--md-sys-color-divider);
+  --md-comp-modal-title-size:      var(--md-sys-typescale-body-semibold-size);
+  --md-comp-modal-title-weight:    var(--md-sys-typescale-body-semibold-weight);
+  --md-comp-modal-footer-bg:       var(--md-sys-color-surface-variant);
+  --md-comp-modal-footer-padding:  var(--md-sys-spacing-inset-md);
+  --md-comp-modal-scrim-color:     rgba(10, 10, 8, 0.36);
+  --md-comp-modal-transition:      var(--md-sys-motion-duration-md);
+
+
+  /* ════════════════════════════════════════════════════════════
+     MONTH PILL NAVIGATOR  (.ui-month-pill)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-month-pill-height:      30px;
+  --md-comp-month-pill-radius:      var(--md-sys-shape-corner-md);
+  --md-comp-month-pill-bg:          var(--md-sys-color-surface);
+  --md-comp-month-pill-border:      var(--md-sys-color-outline);
+  --md-comp-month-pill-divider:     var(--md-sys-color-outline);
+  --md-comp-month-pill-value-size:  var(--md-sys-typescale-body-medium-size);
+  --md-comp-month-pill-value-color: var(--md-sys-color-on-surface);
+  --md-comp-month-pill-btn-hover-bg: var(--md-sys-color-surface-variant);
+  --md-comp-month-pill-transition:  var(--md-sys-motion-duration-sm);
+
+
+  /* ════════════════════════════════════════════════════════════
+     ARCHIVE CARD  (.ui-archive-card)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-archive-card-bg:               var(--md-sys-color-surface);
+  --md-comp-archive-card-border:           var(--md-sys-color-outline);
+  --md-comp-archive-card-radius:           var(--md-sys-shape-corner-lg);
+  --md-comp-archive-card-hover-border:     var(--md-sys-color-outline-strong);
+  --md-comp-archive-card-hover-shadow:     var(--md-sys-elevation-sm);
+  --md-comp-archive-card-month-size:       var(--md-sys-typescale-display-size);
+  --md-comp-archive-card-month-weight:     var(--md-sys-typescale-display-weight);
+  --md-comp-archive-card-month-tracking:   var(--md-sys-typescale-display-tracking);
+  --md-comp-archive-card-stat-label-size:  var(--md-sys-typescale-meta-size);
+  --md-comp-archive-card-stat-label-color: var(--md-sys-color-on-surface-muted);
+  --md-comp-archive-card-stat-value-size:  var(--md-sys-typescale-body-semibold-size);
+  --md-comp-archive-card-live-color:       var(--md-sys-color-primary);
+  --md-comp-archive-card-transition:       var(--md-sys-motion-duration-sm);
+
+
+  /* ════════════════════════════════════════════════════════════
+     TIMELINE  (.ui-timeline)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-timeline-dot-size:        8px;
+  --md-comp-timeline-dot-color:       var(--md-sys-color-outline-strong);
+  --md-comp-timeline-line-color:      var(--md-sys-color-divider);
+  --md-comp-timeline-line-width:      1px;
+  --md-comp-timeline-dot-wrap-width:  14px;
+  --md-comp-timeline-message-size:    var(--md-sys-typescale-body-medium-size);
+  --md-comp-timeline-message-color:   var(--md-sys-color-on-surface-secondary);
+  --md-comp-timeline-time-size:       var(--md-sys-typescale-meta-size);
+  --md-comp-timeline-time-color:      var(--md-sys-color-on-surface-faint);
+  --md-comp-timeline-row-gap:         var(--md-sys-spacing-gap-md);
+
+
+  /* ════════════════════════════════════════════════════════════
+     TABLE  (.ui-table)
+     ════════════════════════════════════════════════════════════ */
+
+  --md-comp-table-header-bg:           var(--md-sys-color-surface-variant);
+  --md-comp-table-header-size:         var(--md-sys-typescale-meta-size);
+  --md-comp-table-header-weight:       var(--md-sys-typescale-label-weight);
+  --md-comp-table-header-tracking:     var(--md-sys-typescale-label-tracking);
+  --md-comp-table-header-color:        var(--md-sys-color-on-surface-muted);
+  --md-comp-table-border:              var(--md-sys-color-divider);
+  --md-comp-table-cell-padding-block:  var(--md-sys-spacing-inset-sm);
+  --md-comp-table-cell-padding-inline: var(--md-sys-spacing-inset-md);
+  /* color-mix expressions are documented here; actual usage in component CSS */
+  --md-comp-table-footer-bg:           var(--md-sys-color-surface-variant);
+
 }
