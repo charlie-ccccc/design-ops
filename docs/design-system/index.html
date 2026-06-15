@@ -37,19 +37,39 @@
       height: 100vh;
       overflow: auto;
       padding: 28px 22px;
-      border-right: 1px solid var(--doc-border);
-      background: var(--doc-surface);
+      border-right: none;
+      background: #0e0e10;
+    }
+    aside .project-name {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.35);
+      margin: 0 0 10px;
+    }
+    aside .brand {
+      color: #ffffff;
+    }
+    aside .subtitle {
+      color: rgba(255,255,255,0.4);
+    }
+    aside nav a {
+      color: rgba(255,255,255,0.5);
+    }
+    aside nav a:hover {
+      color: #ffffff;
     }
     main {
       width: min(1160px, 100%);
       padding: 34px 32px 72px;
     }
     .brand {
-      font-size: 14px;
+      font-size: 22px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0;
-      margin: 0 0 4px;
+      text-transform: none;
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
     }
     .subtitle {
       color: var(--doc-muted);
@@ -258,6 +278,7 @@
 <body>
   <div class="layout">
     <aside>
+      <p class="project-name">CMoney設計部門看板</p>
       <p class="brand" data-i18n="brand">設計系統</p>
       <p class="subtitle" data-i18n="subtitle">自動產生文件</p>
       <nav>
