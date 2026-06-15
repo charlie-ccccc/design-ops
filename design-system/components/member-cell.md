@@ -21,12 +21,31 @@
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | Avatar（Avatar 是純圖示 primitive；MemberCell 是含文字的複合元件，組合 Avatar 使用）|
 
+## Props API
+
+```tsx
+type MemberCellProps = {
+  name: string;          // 顯示名稱
+  initial?: string;      // 字母頭像（無 photo 時顯示）
+  photo?: string;        // 照片 URL
+  color?: string;        // 頭像背景色（CSS 顏色字串，e.g. hsl(270 55% 55%)）
+  sub?: string;          // 次要文字（部門、職位）
+  size?: 'sm' | 'md';   // 頭像尺寸，default: 'sm'
+};
+```
+
+> **注意**：`color` 接受任意 CSS 顏色字串（由呼叫方用 `hue()` utility 轉換），而非 `hue` 整數。
+
 ## Anatomy
 
 ```
 <div class="ui-member-cell">
-  <Avatar size="sm" initial={m.initial} hue={m.hue} photo={m.photo} />
-  <div class="ui-member-cell__text">
+  <img src={photo} alt={name} class="ui-member-cell__avatar ui-member-cell__avatar--{size}" />
+  ← 或 →
+  <div class="ui-member-cell__avatar ui-member-cell__avatar--{size}" style="background: {color}">
+    {initial ?? name[0]}
+  </div>
+  <div class="ui-member-cell__info">
     <span class="ui-member-cell__name">{name}</span>
     <span class="ui-member-cell__sub">{sub}</span>   ← 可選
   </div>
@@ -37,9 +56,10 @@
 
 | Variant | 觸發條件 | 差異 |
 |---|---|---|
-| sm | `avatarSize="sm"`（預設）| 22px Avatar，適合表格行 |
-| md | `avatarSize="md"` | 28px Avatar，適合選取列表 |
-| with-sub | `sub` prop 存在 | 顯示次要文字（部門、職位）|
+| sm | `size="sm"`（預設）| 22px 頭像，適合表格行 |
+| md | `size="md"` | 28px 頭像，適合選取列表 |
+| with-sub | `sub` prop 存在 | 顯示次要文字 |
+| with-photo | `photo` prop 存在 | 用 `<img>` 取代字母頭像 |
 
 ## States
 

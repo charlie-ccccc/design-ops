@@ -14,37 +14,80 @@
 | Dimension | Description |
 |---|---|
 | Purpose / behavior / composition role | 應用程式頂部功能列；每個頁面有特定工具組合；非通用 shell，與頁面脈絡強綁定 |
-| Anatomy | 左側（頁面標題 / logo）· 工具區（搜尋 + 篩選 + 操作按鈕 + 通知 slot）|
-| Variants / states / modes | kanban 頁（成員篩選 + 搜尋 + 部門選擇 + 新增卡片）、dashboard 頁（部門篩選 + 匯出）、capacity 頁（月份 Pill）；桌面 / 行動 layout |
+| Anatomy | 漢堡選單按鈕 · 頁面標題 · 工具區（搜尋 + 篩選 + 操作按鈕）· 通知 slot |
+| Variants / states / modes | kanban（成員篩選 + 搜尋 + 部門選擇 + 新增）、dashboard（部門篩選 + 匯出）、capacity（月份 Pill）、history（無工具）、permissions（無工具）；桌面 / 行動 layout |
 | Token contract summary | 使用 globals.css `.topbar` 全局類別；與 density-row、surface、outline sys token 對應 |
 | Layout / density | `display: flex; justify-content: space-between`；高度 density-row × 1.5 或固定 48px |
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | Panel（Panel 是資料容器；AppTopbar 是應用殼層頂部，有頁面切換語意）|
+
+## Props API
+
+```tsx
+type AppTopbarPage = 'kanban' | 'dashboard' | 'capacity' | 'history' | 'permissions';
+
+interface AppTopbarProps {
+  page: AppTopbarPage;
+  onMenuToggle: () => void;        // 漢堡選單切換（行動版 sidebar）
+
+  // kanban 頁
+  members?: Member[];
+  filterMember?: string;
+  onFilterMember?: (id: string) => void;
+  filterDept?: string;
+  onFilterDept?: (dept: string) => void;
+  query?: string;
+  onQuery?: (q: string) => void;
+  onNewCard?: () => void;
+
+  // dashboard 頁
+  hasDrillFilter?: boolean;        // Drill 模式下隱藏部門篩選
+  onExport?: () => void;
+
+  // capacity 頁
+  month?: string;                  // e.g. "2026/06"
+  onMonthPrev?: () => void;
+  onMonthNext?: () => void;
+
+  // 全頁通用
+  notificationSlot?: ReactNode;    // 傳入 <NotificationPanel>
+}
+```
 
 ## Anatomy
 
 ```
 <header class="topbar">
   <div class="tb-left">
-    <span class="tb-title">{pageTitle}</span>
+    <button class="sb-hamburger">{menu icon}</button>
+    <div class="tb-title">{PAGE_TITLE[page]}</div>
+    <!-- capacity: month pill（桌面）-->
+  </div>
+  <div class="tb-tools tb-desktop-only">
+    <!-- kanban: member avatar filter + 搜尋 + 部門 select -->
+    <!-- dashboard (非 drill): 部門 select -->
   </div>
   <div class="tb-tools">
-    <!-- kanban: 成員篩選 Avatar row + 搜尋 Input + 部門 Select + 新增按鈕 -->
-    <!-- dashboard: 部門 Select + 匯出 Button -->
-    <!-- capacity: MonthPillNavigator -->
-    <div class="tb-notification-slot">{notification}</div>   ← 可選
+    <!-- kanban: 新增按鈕（桌面） / Plus icon（行動）-->
+    <!-- dashboard: 匯出按鈕 -->
+    {notificationSlot}
   </div>
 </header>
+<!-- kanban 行動版 filter bar -->
+<!-- capacity 行動版 month picker -->
 ```
 
 ## Variants
 
 | Variant | 觸發條件 | 工具組合 |
 |---|---|---|
-| kanban | `page="kanban"` | 成員篩選列 + 搜尋框 + 部門選單 + 「新增卡片」按鈕 |
-| dashboard | `page="dashboard"` | 部門選單 + 「匯出」按鈕 |
-| capacity | `page="capacity"` | MonthPillNavigator |
-| mobile | `viewport < 640px` | 搜尋框 + 篩選選單（折疊）|
+| kanban | `page="kanban"` | 成員頭像篩選 + 搜尋框 + 部門選單 + 「新需求單」按鈕 |
+| dashboard | `page="dashboard"` | 部門選單（非 drill）+ 「匯出」按鈕 |
+| dashboard (drill) | `page="dashboard"` + `hasDrillFilter` | 無部門選單（drill 模式固定單位）|
+| capacity | `page="capacity"` | 左側內嵌 month pill（桌面）/ 獨立 bar（行動）|
+| history | `page="history"` | 無工具 |
+| permissions | `page="permissions"` | 無工具 |
+| mobile | `viewport < .tb-desktop-only` | kanban: 搜尋 + 成員/部門 select bar |
 
 ## States
 

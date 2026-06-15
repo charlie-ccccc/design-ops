@@ -300,6 +300,8 @@
           <a href="#doc-components-sidebar-item-md" data-i18n-template="component" data-i18n-name="Sidebar Item">元件：Sidebar Item</a>
           <a href="#doc-components-table-md" data-i18n-template="component" data-i18n-name="Table">元件：Table</a>
           <a href="#doc-components-timeline-md" data-i18n-template="component" data-i18n-name="Timeline">元件：Timeline</a>
+          <a href="#doc-components-notification-panel-md" data-i18n-template="component" data-i18n-name="Notification Panel">元件：Notification Panel</a>
+          <a href="#doc-components-date-picker-md" data-i18n-template="component" data-i18n-name="Date Picker">元件：Date Picker</a>
       </nav>
     </aside>
     <main>
@@ -2752,6 +2754,139 @@
 <div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>最後一列隱藏連接線（<code>:last-child</code> 選擇器）</td><td>手動在每列傳入 <code>isLast</code> boolean prop</td></tr><tr><td>時間使用 tabular-nums</td><td>讓時間戳記跑版</td></tr></tbody></table></div>
 <h2 id="doc-components-timeline-md-implementation-notes">實作注意事項</h2>
 <p><code>src/components/ui/Timeline/Timeline.tsx</code> 為參考實作。連接線使用 <code>::after</code> 偽元素而非獨立 <code>&lt;div&gt;</code>，減少 DOM 節點數。dot 使用 <code>outline-strong</code> 而非 <code>primary</code>，以避免過多視覺強調。</p>
+    </section>
+<section class="panel" id="doc-components-notification-panel-md">
+      <span class="source">components/notification-panel.md</span>
+      <h1 id="doc-components-notification-panel-md-notificationpanel">NotificationPanel</h1>
+<p>鈴鐺按鈕 + 下拉通知列表的複合元件。含未讀計數徽章、通知列（圖示 + 訊息 + 時間 + 刪除）、全部已讀操作、點擊外部關閉。</p>
+<h2 id="doc-components-notification-panel-md-evidence">依據</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-NP01</td><td><code>src/components/ui/notification-panel.tsx</code></td><td>NotificationPanel component</td><td>Bell icon trigger + dropdown list; unread badge; type icons</td></tr><tr><td>E-CO-NP02</td><td><code>src/components/ui/notification-panel.stories.tsx</code></td><td>Stories</td><td>WithUnread / AllRead / Empty / SingleUnread states</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-component-fingerprint">元件指紋</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>接收並展示應用程式通知；點擊鈴鐺開關下拉；點擊通知開啟對應卡片；可刪除或標記已讀</td></tr><tr><td>Anatomy</td><td>鈴鐺按鈕（含未讀徽章）· 下拉容器（header + 滾動列表 + 空態）</td></tr><tr><td>Variants / states / modes</td><td>open / closed；有未讀 / 全已讀 / 空</td></tr><tr><td>Token contract summary</td><td>直接使用 CSS 變數（<code>--accent</code>、<code>--surface</code>、<code>--border</code>、<code>--muted</code>）；無 comp token 層</td></tr><tr><td>Layout / density</td><td>下拉固定 320px 寬；最大高度 420px；overflow-y: auto</td></tr><tr><td>視覺參考</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>DetailDrawer（Drawer 是全高側邊面板；NotificationPanel 是工具列觸發的小型下拉，結構不同）</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-props-api">Props API</h2>
+<pre><code data-lang="tsx">interface Props {
+  notifications: AppNotification[];
+  onMarkRead: (id: string) =&gt; void;
+  onMarkAllRead: (notifs: AppNotification[]) =&gt; void;
+  onOpenCard: (cardId: string) =&gt; void;
+  onDelete: (id: string) =&gt; void;
+}
+
+type AppNotification = {
+  id: string;
+  uid: string;
+  type: &#39;mention&#39; | &#39;assigned&#39; | &#39;comment&#39; | &#39;due&#39;;
+  cardId: string;
+  cardTitle: string;
+  from: string;
+  message: string;
+  read: boolean;
+  createdAt: number;   // timestamp ms
+};</code></pre>
+<h2 id="doc-components-notification-panel-md-anatomy">元件結構</h2>
+<pre><code data-lang="">&lt;div ref={panelRef}&gt;
+  &lt;button class=&quot;btn btn-ghost notif-btn&quot;&gt;
+    &lt;Bell /&gt;
+    &lt;span class=&quot;unread-badge&quot;&gt;{unread &gt; 9 ? &#39;9+&#39; : unread}&lt;/span&gt;   ← 有未讀才顯示
+  &lt;/button&gt;
+
+  &lt;!-- open 時顯示 --&gt;
+  &lt;div class=&quot;notif-dropdown&quot;&gt;
+    &lt;div class=&quot;notif-header&quot;&gt;
+      &lt;span&gt;通知&lt;/span&gt;
+      &lt;button&gt;全部已讀&lt;/button&gt;   ← 有未讀才顯示
+    &lt;/div&gt;
+    &lt;div class=&quot;notif-list&quot;&gt;
+      &lt;div class=&quot;notif-row&quot;&gt;
+        &lt;div class=&quot;notif-type-icon&quot;&gt;{TYPE_ICON[type]}&lt;/div&gt;
+        &lt;div class=&quot;notif-body&quot;&gt;
+          &lt;div class=&quot;notif-message&quot;&gt;{message}&lt;/div&gt;
+          &lt;div class=&quot;notif-time&quot;&gt;{timeAgo(createdAt)}&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;notif-unread-dot&quot; /&gt;   ← 未讀才顯示
+        &lt;button class=&quot;notif-delete-btn&quot;&gt;&lt;X /&gt;&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;notif-empty&quot;&gt;沒有通知&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-notification-panel-md-notification-types">通知類型</h2>
+<div class="table-wrap"><table><thead><tr><th>type</th><th>圖示</th><th>顏色</th></tr></thead><tbody><tr><td><code>mention</code></td><td>AtSign</td><td><code>--accent</code>（primary）</td></tr><tr><td><code>assigned</code></td><td>UserCheck</td><td><code>#22c55e</code>（綠）</td></tr><tr><td><code>comment</code></td><td>MessageSquare</td><td><code>#f59e0b</code>（橙）</td></tr><tr><td><code>due</code></td><td>Clock</td><td><code>#ef4444</code>（紅）</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-states">狀態</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>closed</td><td>預設</td><td>只顯示鈴鐺按鈕</td></tr><tr><td>open</td><td>點擊鈴鐺</td><td>下拉出現（<code>position: absolute</code>）</td></tr><tr><td>unread row</td><td><code>n.read === false</code></td><td><code>--accent-soft</code> 背景</td></tr><tr><td>read row</td><td><code>n.read === true</code></td><td>透明背景</td></tr><tr><td>hovered row</td><td><code>:hover</code></td><td><code>--surface-2</code> 背景</td></tr><tr><td>empty</td><td><code>notifications.length === 0</code></td><td>顯示「沒有通知」空態</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-token-contract">Token 合約</h2>
+<p>NotificationPanel 使用應用程式全局 CSS 變數，無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>CSS 變數</th><th>Purpose</th></tr></thead><tbody><tr><td>下拉背景</td><td><code>var(--surface)</code></td><td>面板底色</td></tr><tr><td>邊框</td><td><code>var(--border)</code></td><td>面板外框 + 列分隔</td></tr><tr><td>未讀背景</td><td><code>var(--accent-soft)</code></td><td>未讀通知底色</td></tr><tr><td>未讀徽章</td><td><code>var(--st-block)</code></td><td>計數徽章色</td></tr><tr><td>主色</td><td><code>var(--accent)</code></td><td>mention 圖示、全部已讀按鈕、未讀圓點</td></tr><tr><td>文字</td><td><code>var(--ink)</code></td><td>通知訊息</td></tr><tr><td>次要文字</td><td><code>var(--muted)</code></td><td>時間、刪除按鈕</td></tr><tr><td>hover 背景</td><td><code>var(--surface-2)</code></td><td>hover 列</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-layout-rules">版面規則</h2>
+<ul><li>下拉 <code>position: absolute; right: 0; top: calc(100% + 6px); z-index: 200</code></li><li>固定寬 320px；最大高 420px；header 固定不滾動，list <code>overflow-y: auto</code></li><li>點擊面板外部關閉（<code>document mousedown</code> listener）</li></ul>
+<h2 id="doc-components-notification-panel-md-accessibility-rules">無障礙規則</h2>
+<ul><li>鈴鐺按鈕 <code>title="通知"</code> 提供 tooltip</li><li>未讀徽章以絕對定位疊加，需 <code>aria-label</code> 或 <code>aria-live</code> 通知螢幕閱讀器</li><li>刪除按鈕 <code>title="刪除通知"</code></li></ul>
+<h2 id="doc-components-notification-panel-md-do-don-t">應做 / 不應做</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>通過 <code>notificationSlot</code> prop 傳入 AppTopbar</td><td>直接在 AppTopbar 內實作通知邏輯</td></tr><tr><td><code>onMarkRead</code> 在點擊通知時同時觸發</td><td>只在「已讀」按鈕才更新狀態</td></tr></tbody></table></div>
+<h2 id="doc-components-notification-panel-md-implementation-notes">實作注意事項</h2>
+<p><code>src/components/ui/notification-panel.tsx</code> 為參考實作。元件內部管理 <code>open</code> 狀態（非受控）；通知資料（<code>notifications</code>）由外部管理。<code>timeAgo()</code> 工具函式將 timestamp 轉換為相對時間字串。</p>
+    </section>
+<section class="panel" id="doc-components-date-picker-md">
+      <span class="source">components/date-picker.md</span>
+      <h1 id="doc-components-date-picker-md-datepicker">DatePicker</h1>
+<p>日期選擇器，由一個觸發按鈕（樣式同 Input）和 <code>position: fixed</code> 的月曆彈出視窗組成。支援清除、跳至今天、disabled 狀態。</p>
+<h2 id="doc-components-date-picker-md-evidence">依據</h2>
+<div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Region</th><th>Notes</th></tr></thead><tbody><tr><td>E-CO-DP01</td><td><code>src/components/ui/date-picker.tsx</code></td><td>DatePicker component</td><td>value/onChange controlled; popup fixed-positioned calendar; clear + today footer</td></tr><tr><td>E-CO-DP02</td><td><code>src/components/ui/date-picker.stories.tsx</code></td><td>Stories</td><td>Default / WithValue / Disabled / InFormRow states</td></tr></tbody></table></div>
+<h2 id="doc-components-date-picker-md-component-fingerprint">元件指紋</h2>
+<div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Description</th></tr></thead><tbody><tr><td>Purpose / behavior / composition role</td><td>受控日期輸入元件；觸發按鈕 + 月曆彈出視窗；通常與 FormRow 搭配</td></tr><tr><td>Anatomy</td><td>觸發按鈕（.input 樣式）· 彈出月曆（月導覽 + 星期標頭 + 日期格線 + footer）</td></tr><tr><td>Variants / states / modes</td><td>無選取、已選取、disabled；today 標示；selected 標示</td></tr><tr><td>Token contract summary</td><td>觸發按鈕使用 <code>.input</code> 全局類別；彈出視窗使用 CSS 變數直接定義；無 comp token 層</td></tr><tr><td>Layout / density</td><td>觸發按鈕 100% 寬；彈出視窗固定 280px、<code>position: fixed</code>（防止 overflow 截斷）</td></tr><tr><td>視覺參考</td><td>schematic fallback - source preview unavailable</td></tr><tr><td>Similar components reviewed</td><td>MonthPillNavigator（MonthPillNavigator 是工具列行內月份切換；DatePicker 是完整彈出月曆，用於表單輸入）</td></tr></tbody></table></div>
+<h2 id="doc-components-date-picker-md-props-api">Props API</h2>
+<pre><code data-lang="tsx">interface DatePickerProps {
+  value: string;                    // &quot;YYYY-MM-DD&quot; 或 &quot;&quot;（無選取）
+  onChange: (val: string) =&gt; void;  // 選取或清除時呼叫；清除傳 &quot;&quot;
+  disabled?: boolean;
+  placeholder?: string;             // 預設 &quot;選擇日期&quot;
+}</code></pre>
+<h2 id="doc-components-date-picker-md-anatomy">元件結構</h2>
+<pre><code data-lang="">&lt;!-- 觸發按鈕 --&gt;
+&lt;button ref={btnRef} class=&quot;input&quot; disabled={disabled} onClick={openPicker}&gt;
+  {displayValue || placeholder}
+&lt;/button&gt;
+
+&lt;!-- 彈出視窗（position: fixed）--&gt;
+&lt;div ref={popupRef} style=&quot;position: fixed; top: {y}; left: {x}; width: 280px; z-index: 9000&quot;&gt;
+  &lt;!-- 月份導覽 --&gt;
+  &lt;div class=&quot;dp-nav&quot;&gt;
+    &lt;button onClick={prevMonth}&gt;‹&lt;/button&gt;
+    &lt;span&gt;{viewYear}年 {viewMonth+1}月&lt;/span&gt;
+    &lt;button onClick={nextMonth}&gt;›&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 星期標頭 (日一二三四五六) --&gt;
+  &lt;div class=&quot;dp-weekdays&quot;&gt;{WEEKDAYS}&lt;/div&gt;
+
+  &lt;!-- 日期格線 7 欄 --&gt;
+  &lt;div class=&quot;dp-grid&quot;&gt;
+    &lt;button class=&quot;dp-day [dp-day--selected] [dp-day--today]&quot; onClick={() =&gt; selectDay(day)}&gt;
+      {day}
+    &lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Footer --&gt;
+  &lt;div class=&quot;dp-footer&quot;&gt;
+    &lt;button onClick={clear}&gt;清除&lt;/button&gt;
+    &lt;button onClick={goToday}&gt;今天&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="doc-components-date-picker-md-states">狀態</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>觸發條件</th><th>視覺差異</th></tr></thead><tbody><tr><td>empty</td><td><code>value === ""</code></td><td>顯示 placeholder（muted 色）</td></tr><tr><td>with-value</td><td><code>value</code> 有效日期</td><td>顯示 <code>YYYY/MM/DD</code> 格式</td></tr><tr><td>disabled</td><td><code>disabled={true}</code></td><td>觸發按鈕 disabled；cursor: default</td></tr><tr><td>popup open</td><td>點擊觸發按鈕</td><td>月曆彈出（fixed 定位）</td></tr><tr><td>today</td><td>格線中今日</td><td><code>outline: 1.5px solid --accent</code>；accent 色文字</td></tr><tr><td>selected</td><td><code>ds === value</code></td><td><code>--accent</code> 背景；白字</td></tr><tr><td>day hover</td><td><code>:hover</code>（未選取）</td><td><code>--surface-2</code> 背景</td></tr></tbody></table></div>
+<h2 id="doc-components-date-picker-md-token-contract">Token 合約</h2>
+<p>DatePicker 使用應用程式全局 CSS 變數，無 comp token 層。</p>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>CSS 變數</th><th>Purpose</th></tr></thead><tbody><tr><td>觸發按鈕樣式</td><td><code>.input</code> 全局類別</td><td>對齊 Input 元件外觀</td></tr><tr><td>彈出背景</td><td><code>var(--surface)</code></td><td>月曆底色</td></tr><tr><td>彈出邊框</td><td><code>var(--border)</code></td><td>月曆外框</td></tr><tr><td>選取日背景</td><td><code>var(--accent)</code></td><td>selected state</td></tr><tr><td>today 標示</td><td><code>var(--accent)</code></td><td>outline + 文字色</td></tr><tr><td>hover 背景</td><td><code>var(--surface-2)</code></td><td>日期 hover</td></tr><tr><td>文字</td><td><code>var(--ink)</code></td><td>日期數字</td></tr><tr><td>次要文字</td><td><code>var(--muted)</code></td><td>星期標頭、footer 按鈕</td></tr><tr><td>footer 分隔</td><td><code>var(--divider)</code></td><td>footer 上方線</td></tr></tbody></table></div>
+<h2 id="doc-components-date-picker-md-layout-rules">版面規則</h2>
+<ul><li>觸發按鈕使用 <code>.input</code> class，寬度由外部容器決定（通常 100%）</li><li>彈出視窗 <code>position: fixed</code>；左邊界不超出視窗（<code>Math.min(rect.left, window.innerWidth - 292)</code>）</li><li>日期格線 <code>display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px</code></li><li>月首空白用 <code>null</code> 佔位（flex 無法自動對齊，改用 CSS grid 空格）</li></ul>
+<h2 id="doc-components-date-picker-md-content-rules">內容規則</h2>
+<ul><li><code>value</code> 格式固定 <code>YYYY-MM-DD</code>；顯示格式為 <code>YYYY/MM/DD</code></li><li>星期順序：日、一、二、三、四、五、六（週日為第一欄）</li><li>footer 「今天」跳至今日並選取；「清除」呼叫 <code>onChange("")</code></li></ul>
+<h2 id="doc-components-date-picker-md-accessibility-rules">無障礙規則</h2>
+<ul><li>觸發按鈕為 <code>&lt;button type="button"&gt;</code> 確保可聚焦</li><li>彈出視窗應有 <code>role="dialog"</code> + <code>aria-label="選擇日期"</code></li><li>選取日 <code>aria-selected="true"</code>；今日 <code>aria-current="date"</code></li><li>點擊彈出視窗外部自動關閉（<code>mousedown</code> listener）</li></ul>
+<h2 id="doc-components-date-picker-md-do-don-t">應做 / 不應做</h2>
+<div class="table-wrap"><table><thead><tr><th>應做</th><th>不應做</th></tr></thead><tbody><tr><td>搭配 FormRow 使用，讓 label 統一管理</td><td>在 DatePicker 內部放 label</td></tr><tr><td>傳入 <code>""</code> 代表清除（受控）</td><td>自行操作 DOM 清除輸入值</td></tr><tr><td>彈出視窗用 <code>position: fixed</code> 防止 overflow 截斷</td><td>用 <code>absolute</code> 容易被父容器 overflow 截掉</td></tr></tbody></table></div>
+<h2 id="doc-components-date-picker-md-implementation-notes">實作注意事項</h2>
+<p><code>src/components/ui/date-picker.tsx</code> 為參考實作。彈出視窗使用 <code>position: fixed</code> 並在 <code>openPicker()</code> 時計算 <code>top/left</code>，以避免被 overflow-hidden 的父容器截斷。星期從週日（0）開始排列，符合中文介面慣例。</p>
     </section>
     </main>
   </div>

@@ -21,19 +21,31 @@
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | Button（Button 是單獨操作觸發；MonthPillNavigator 是帶 display slot 的複合導覽控制，功能和結構不同）|
 
+## Props API
+
+```tsx
+type MonthPillNavigatorProps = {
+  value: string;           // 顯示文字，e.g. "2026年6月"
+  onPrev?: () => void;     // 點擊前一月
+  onNext?: () => void;     // 點擊後一月
+  disablePrev?: boolean;   // 禁用前一月按鈕（最早月份時）
+  disableNext?: boolean;   // 禁用後一月按鈕（當月時）
+};
+```
+
 ## Anatomy
 
 ```
 <div class="ui-month-pill">
-  <button class="ui-month-pill__prev">‹</button>
-  <span class="ui-month-pill__value">{year}年{month}月</span>
-  <button class="ui-month-pill__next">›</button>
+  <button class="ui-month-pill__prev" disabled={disablePrev}>‹</button>
+  <span class="ui-month-pill__value">{value}</span>
+  <button class="ui-month-pill__next" disabled={disableNext}>›</button>
 </div>
 ```
 
 ## Variants
 
-無獨立 variant。left/right 按鈕有 hover 狀態，value slot 無互動。
+無獨立 variant。prev/next 按鈕有 hover 狀態和 `disabled` 狀態，value slot 無互動。
 
 ## States
 
@@ -42,6 +54,8 @@
 | default | 常態 | outline 邊框，surface 背景 |
 | prev/next hover | `:hover` on button | surface-variant 背景 |
 | prev/next active | `:active` | press transform |
+| prev disabled | `disablePrev={true}` | opacity 降低，不可點擊 |
+| next disabled | `disableNext={true}` | opacity 降低，不可點擊 |
 
 ## Token Contract
 

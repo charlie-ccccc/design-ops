@@ -24,12 +24,25 @@ Triggers an action. Three variants cover the full emphasis range: default (neutr
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | None — first button extraction |
 
+## Props API
+
+```tsx
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'default' | 'primary' | 'ghost';   // default: 'default'
+  icon?: boolean;                               // icon-only mode: 32px square, no padding
+  leadingIcon?: ReactNode;                      // icon before label
+  trailingIcon?: ReactNode;                     // icon after label
+  children?: ReactNode;
+};
+```
+
 ## Anatomy
 
 1. **container** — bordered surface, height from density token
-2. **leading-icon** (optional) — 14–16px lucide icon, inherits label color
-3. **label** — 14px/500 body-medium
-4. **trailing-icon** (optional) — same as leading-icon
+2. **leading-icon** (optional) — `leadingIcon` prop; 14–16px lucide icon, inherits label color
+3. **label** — `children` — 14px/500 body-medium
+4. **trailing-icon** (optional) — `trailingIcon` prop; same as leading-icon
+5. **icon-only mode** — `icon={true}`; no label; 32px square, no padding-inline
 
 ## Variants
 
@@ -38,7 +51,7 @@ Triggers an action. Three variants cover the full emphasis range: default (neutr
 | **default** | `--md-sys-color-surface` | `--md-sys-color-outline` | `--md-sys-color-on-surface` | bg → `surface-variant` |
 | **primary** | `--md-sys-color-on-surface` | `--md-sys-color-on-surface` | `--md-sys-color-background` | bg → `on-surface-secondary` |
 | **ghost** | `transparent` | `transparent` | `--md-sys-color-on-surface-secondary` | bg → `surface-variant` |
-| **icon-only** | same as default/primary/ghost | same | — | width 32px, no padding |
+| **icon-only** | 同 variant 色 | 同 variant | — | `icon={true}` 觸發；width 32px；padding 0 |
 
 ## States
 

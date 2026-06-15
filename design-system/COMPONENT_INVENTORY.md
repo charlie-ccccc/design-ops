@@ -34,6 +34,8 @@ No similarity conflicts detected during initial extraction. All extracted compon
 | AppTopbar | `components/app-topbar.md` | P1 | **extracted** | color, typescale, density | not applicable | Multi-page tool variants (kanban/dashboard/capacity); global .topbar classes; no comp layer |
 | MemberCell | `components/member-cell.md` | P1 | **extracted** | color, typescale | not applicable (display-only) | Avatar + name + optional sub; direct sys token use; no comp layer |
 | Table | `components/table.md` | P2 | **extracted** | color, typescale | not applicable | Generic Table<T>; sticky header + optional sticky first col; footer; tabular-nums |
+| NotificationPanel | `components/notification-panel.md` | P2 | **extracted** | color | not applicable | Bell trigger + dropdown; 4 notification types; unread badge; mark-read / delete |
+| DatePicker | `components/date-picker.md` | P2 | **extracted** | color | disabled | Controlled date input; fixed-position popup calendar; clear + today footer |
 
 ## Planned
 
@@ -49,4 +51,3 @@ No similarity conflicts detected during initial extraction. All extracted compon
 | Rich Text Editor (TipTap) | Third-party; `.ProseMirror` classes are library-owned; design-system governs prose-content colors only |
 | Chart SVGs (CircleChart, BarsChart) | Recharts library; design-system governs legend colors and donut-center lockup only |
 | Google Auth button | Third-party OAuth; governed by Google Brand Guidelines |
-| Notification Panel | Planned after drawer spec is complete |

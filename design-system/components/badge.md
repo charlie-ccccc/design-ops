@@ -21,12 +21,31 @@
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | Kanban Card category badge（功能類似，但 kcard-cat 是 kanban card 的子槽位，Badge 是獨立元件）|
 
+## Props API
+
+```tsx
+// Chip
+type ChipProps = HTMLAttributes<HTMLSpanElement> & {
+  dotColor?: string;   // CSS 顏色字串，e.g. "var(--md-sys-color-cat-1)"；有值才顯示色點
+  children: ReactNode;
+};
+
+// Tag
+type TagProps = HTMLAttributes<HTMLSpanElement> & { children: ReactNode };
+
+// DeptPill
+type DeptPillProps = HTMLAttributes<HTMLSpanElement> & {
+  hue?: number;        // 1–8；決定色點 + 邊框顏色
+  children: ReactNode;
+};
+```
+
 ## Anatomy
 
 ```
 <!-- Chip -->
-<span class="ui-chip [ui-chip--dot]">
-  <span class="ui-chip__dot"></span>   ← 可選
+<span class="ui-chip">
+  <span class="ui-chip__dot" style="background: {dotColor}"></span>   ← 有 dotColor 才渲染
   {label}
 </span>
 
@@ -34,7 +53,7 @@
 <span class="ui-tag">{label}</span>
 
 <!-- DeptPill -->
-<span class="ui-dept-pill">
+<span class="ui-dept-pill" style="border-color: var(--md-sys-color-cat-{N})">
   <span class="ui-dept-pill__dot" style="background: var(--md-sys-color-cat-{N})"></span>
   {label}
 </span>
@@ -44,10 +63,10 @@
 
 | Variant | 觸發條件 | 差異 |
 |---|---|---|
-| Chip | `<Chip>` | 膠囊形（99px radius），border，可選色點 |
-| Chip + dot | `<Chip dot>` | 同上 + 左側小色點 |
+| Chip | `<Chip>` | 膠囊形（99px radius），border |
+| Chip + dot | `<Chip dotColor="var(--md-sys-color-cat-N)">` | 同上 + 左側小色點（顏色由呼叫方傳入）|
 | Tag | `<Tag>` | 6px radius 方形，填充 surface-variant 背景 |
-| DeptPill | `<DeptPill hue={N}>` | 膠囊形 + 部門色點（cat-N）|
+| DeptPill | `<DeptPill hue={N}>` | 膠囊形 + 色點 + 對應 hue 顏色邊框；無 hue 時無色點無彩色邊框 |
 
 ## States
 

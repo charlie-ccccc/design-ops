@@ -21,27 +21,57 @@
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | 無相似已提取元件 |
 
+## Props API
+
+```tsx
+type TimelineEntry = {
+  id: string;
+  message: string;
+  time?: string;
+  dot?: string;   // 自訂色點顏色（CSS 顏色字串），預設使用 outline-strong
+};
+
+// 陣列模式（自動渲染）
+type TimelineProps = HTMLAttributes<HTMLDivElement> & {
+  entries: TimelineEntry[];
+};
+
+// 單項模式（富文字 / 自訂內容）
+type TimelineItemProps = HTMLAttributes<HTMLDivElement> & {
+  time?: string;
+  dot?: string;
+  children: ReactNode;   // 富文字內容
+};
+```
+
+## Exports
+
+- `Timeline` — 接受 `entries` 陣列，自動渲染每列
+- `TimelineItem` — 單項元件，children 可放富文字（`<strong>` 等）
+
 ## Anatomy
 
 ```
 <div class="ui-timeline">
-  <div class="ui-timeline__row">
+  <div class="ui-timeline__row" data-last="">   ← 最後一列加 data-last
     <div class="ui-timeline__dot-wrap">
-      <span class="ui-timeline__dot"></span>
-      <!-- ::after = 垂直連接線 -->
+      <div class="ui-timeline__dot" style="background: {dot}"></div>   ← dot 可選，無則用 CSS 預設色
+      <!-- ::after = 垂直連接線，data-last 時隱藏 -->
     </div>
     <div class="ui-timeline__content">
-      <p class="ui-timeline__message">{message}</p>
-      <time class="ui-timeline__time">{time}</time>
+      <div class="ui-timeline__msg">{message / children}</div>
+      <div class="ui-timeline__time">{time}</div>   ← 可選
     </div>
   </div>
-  <!-- 最後一列 .ui-timeline__dot-wrap::after display: none -->
 </div>
 ```
 
+> CSS class 是 `ui-timeline__msg`（非 `ui-timeline__message`）。
+
 ## Variants
 
-無。`isLast` 或 `:last-child` CSS 選擇器控制是否顯示連接線。
+- **陣列模式**：`<Timeline entries={[...]} />`，自動決定最後一列
+- **組合模式**：`<div class="ui-timeline"><TimelineItem>...</TimelineItem></div>`，適合富文字
 
 ## States
 
@@ -52,7 +82,7 @@ Display-only，無互動狀態。
 | Component token | Maps to system token | Purpose | State / mode |
 |---|---|---|---|
 | `--md-comp-timeline-dot-size` | *(raw: 8px)* | dot 直徑 | all |
-| `--md-comp-timeline-dot-color` | `--md-sys-color-outline-strong` | dot 顏色 | all |
+| `--md-comp-timeline-dot-color` | `--md-sys-color-outline-strong` | dot 預設顏色（可被 `dot` prop inline style 覆蓋）| all |
 | `--md-comp-timeline-line-color` | `--md-sys-color-divider` | 連接線顏色 | all |
 | `--md-comp-timeline-line-width` | *(raw: 1px)* | 連接線寬度 | all |
 | `--md-comp-timeline-dot-wrap-width` | *(raw: 14px)* | dot 欄寬 | all |

@@ -21,23 +21,44 @@
 | Visual reference | schematic fallback - source preview unavailable |
 | Similar components reviewed | Panel（Panel 是殼層；ArchiveCard 是帶固定欄位結構的資料展示列表項）|
 
+## Props API
+
+```tsx
+type ArchiveStat = {
+  label: string;
+  value: string | number;
+  sub?: string;   // 單位，e.g. "張"、"h"
+};
+
+type ArchiveCardProps = HTMLAttributes<HTMLDivElement> & {
+  month: string;           // 月份字串，e.g. "06月"
+  stats: ArchiveStat[];    // 統計陣列（通常 3–4 項）
+  onView?: () => void;     // 查看按鈕點擊（無此 prop 則不顯示按鈕）
+  isLive?: boolean;        // 顯示「本月」live badge
+  onClick?: () => void;    // 整張卡片可點擊
+};
+```
+
 ## Anatomy
 
 ```
-<div class="ui-archive-card [ui-archive-card--live]">
+<div class="ui-archive-card [ui-archive-card--clickable]">
   <div class="ui-archive-card__month">
-    <span class="ui-archive-card__live-badge">直播中</span>   ← 可選
-    <span class="ui-archive-card__month-label">{month}</span>
+    {month}
+    <span class="ui-archive-card__live-badge">本月</span>   ← isLive 時顯示
   </div>
   <div class="ui-archive-card__stats">
     <div class="ui-archive-card__stat">
-      <span class="ui-archive-card__stat-label">{label}</span>
-      <span class="ui-archive-card__stat-value">{value}</span>
+      <div class="ui-archive-card__stat-label">{label}</div>
+      <div class="ui-archive-card__stat-value">
+        {value}
+        <span class="ui-archive-card__stat-sub">{sub}</span>   ← 可選
+      </div>
     </div>
-    <!-- 重複 4 次 -->
+    <!-- 重複 N 次 -->
   </div>
-  <div class="ui-archive-card__action">
-    <button class="btn">{label}</button>
+  <div class="ui-archive-card__action">   ← 有 onView 才渲染
+    <Button variant="ghost" trailingIcon={<ChevronRight>}>查看</Button>
   </div>
 </div>
 ```
@@ -85,7 +106,7 @@
 
 - `month`：年月字串（「2026年5月」）
 - stats：最多 4 項；label + value 兩行
-- live badge：「直播中」文字，primary 色，無邊框 pill
+- live badge：「**本月**」文字，primary 色，無邊框 pill
 
 ## Accessibility Rules
 
