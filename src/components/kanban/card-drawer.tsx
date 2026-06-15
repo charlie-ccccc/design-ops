@@ -49,14 +49,14 @@ type AnyUser = { id: string; name: string; initial: string; hue: number; photo?:
 function toAnyUser(m: typeof MEMBERS[0]): AnyUser { return { id: m.id, name: m.name, initial: m.initial, hue: m.hue, photo: m.photo, sub: m.cat }; }
 function siteToAnyUser(u: SiteUser): AnyUser { return { id: u.id, name: u.name, initial: u.initial, hue: u.hue, photo: u.photo, sub: u.dept }; }
 
-function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —' }: {
-  value: string; onChange: (name: string, id: string) => void; users: AnyUser[]; placeholder?: string;
+function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —', fallbackUser }: {
+  value: string; onChange: (name: string, id: string) => void; users: AnyUser[]; placeholder?: string; fallbackUser?: AnyUser | null;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const btnRef = useRef<HTMLButtonElement>(null);
-  const selected = users.find(u => u.name === value) ?? null;
+  const selected = users.find(u => u.name === value) ?? fallbackUser ?? null;
   const filtered = q.trim() ? users.filter(u => u.name.includes(q) || (u.sub ?? '').includes(q)) : users;
   function openPicker() {
     if (btnRef.current) {
@@ -104,8 +104,6 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
             {selected.photo ? <img src={selected.photo} alt={selected.name} className="av av-sm" style={{ objectFit: 'cover' }} /> : <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>}
             <span style={{ fontWeight: 500 }}>{selected.name}</span>
           </>
-        ) : value ? (
-          <span style={{ fontWeight: 500 }}>{value}</span>
         ) : <span style={{ color: 'var(--md-sys-color-on-surface-muted)' }}>{placeholder}</span>}
         <span style={{ marginLeft: 4, color: 'var(--md-sys-color-on-surface-muted)', fontSize: 12 }}>▾</span>
       </button>
@@ -531,7 +529,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                 {readOnly ? (
                   ownerUser ? <MemberCell photo={ownerUser.photo} name={ownerUser.name} initial={ownerUser.initial} color={hue(ownerUser.hue)} /> : <span style={{ fontSize: 14, color: 'var(--md-sys-color-on-surface-muted)' }}>—</span>
                 ) : (
-                  <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS}
+                  <MemberPicker value={ownerUser?.name ?? ''} users={DESIGNER_USERS} fallbackUser={ownerUser}
                     onChange={(name, id) => {
                       const stamp = nowStamp();
                       const msg = id ? `指派「${name}」為受託人` : '移除受託人';
@@ -818,7 +816,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                     </div>
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--md-sys-color-on-surface-muted)', display: 'block', marginBottom: 4 }}>受託人</label>
-                      <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS}
+                      <MemberPicker value={cloneDraft.ownerName} users={DESIGNER_USERS} fallbackUser={ownerUser}
                         onChange={(name, id) => setCloneDraft(d => ({ ...d, ownerName: name, ownerId: id }))} />
                     </div>
                   </div>
