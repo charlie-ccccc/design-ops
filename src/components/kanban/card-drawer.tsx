@@ -104,6 +104,8 @@ function MemberPicker({ value, onChange, users, placeholder = '— 未指定 —
             {selected.photo ? <img src={selected.photo} alt={selected.name} className="av av-sm" style={{ objectFit: 'cover' }} /> : <div className="av av-sm" style={{ background: hue(selected.hue) }}>{selected.initial}</div>}
             <span style={{ fontWeight: 500 }}>{selected.name}</span>
           </>
+        ) : value ? (
+          <span style={{ fontWeight: 500 }}>{value}</span>
         ) : <span style={{ color: 'var(--md-sys-color-on-surface-muted)' }}>{placeholder}</span>}
         <span style={{ marginLeft: 4, color: 'var(--md-sys-color-on-surface-muted)', fontSize: 12 }}>▾</span>
       </button>
@@ -206,7 +208,12 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
   }, [card]);
 
   const c = displayCard;
-  const ownerUser = c ? (DESIGNER_USERS.find(u => u.id === c.owner) ?? (MEMBER_BY_ID[c.owner] ? { id: c.owner, name: MEMBER_BY_ID[c.owner].name, initial: MEMBER_BY_ID[c.owner].initial, hue: MEMBER_BY_ID[c.owner].hue } : null)) : null;
+  const ownerSiteUser = propSiteUsers?.find(u => u.uid === c?.owner);
+  const ownerUser = c ? (
+    DESIGNER_USERS.find(u => u.id === c.owner) ??
+    (ownerSiteUser ? { id: c.owner, name: ownerSiteUser.name, initial: ownerSiteUser.initial ?? ownerSiteUser.name[0], hue: ownerSiteUser.hue ?? 1, photo: ownerSiteUser.photo } : null) ??
+    (MEMBER_BY_ID[c.owner] ? { id: c.owner, name: MEMBER_BY_ID[c.owner].name, initial: MEMBER_BY_ID[c.owner].initial, hue: MEMBER_BY_ID[c.owner].hue } : null)
+  ) : null;
   const owner = c ? MEMBER_BY_ID[c.owner] : null;
   const timeLogs: TimeLog[] = c?.timeLogs ?? [];
   const comments: Comment[] = c?.comments ?? [];

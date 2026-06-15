@@ -61,9 +61,10 @@ export default function App() {
     [siteUsers],
   );
 
+  // All siteUsers (not just 成員) so former members' cards still resolve their owner
   const memberById = useMemo(() =>
-    Object.fromEntries(members.map(m => [m.id, m])),
-    [members],
+    Object.fromEntries(siteUsers.map(u => [u.uid, toMember(u)])),
+    [siteUsers],
   );
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
