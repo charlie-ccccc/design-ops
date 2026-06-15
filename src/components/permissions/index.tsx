@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Info, Palette } from 'lucide-react';
+import { Plus, X, Info, Palette, Trash2 } from 'lucide-react';
 import type { AppUser, Role, DesignCat } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
@@ -31,6 +31,7 @@ interface PermissionsProps {
   users: AppUser[];
   currentUser: AppUser;
   onUpdateUser: (uid: string, patch: Partial<AppUser>) => void;
+  onDeleteUser?: (uid: string) => void;
   depts: string[];
   onUpdateDepts: (depts: string[]) => void;
   deptColors: Record<string, string>;
@@ -39,10 +40,11 @@ interface PermissionsProps {
   onTabChange: (t: 'users' | 'depts') => void;
 }
 
-export default function Permissions({ users, currentUser, onUpdateUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors, tab, onTabChange: setTab }: PermissionsProps) {
+export default function Permissions({ users, currentUser, onUpdateUser, onDeleteUser, depts, onUpdateDepts, deptColors, onUpdateDeptColors, tab, onTabChange: setTab }: PermissionsProps) {
   const [newDept, setNewDept] = useState('');
   const [infoOpen, setInfoOpen] = useState(false);
   const [pickerDept, setPickerDept] = useState<string | null>(null);
+  const [confirmDeleteUid, setConfirmDeleteUid] = useState<string | null>(null);
 
   const isAdmin = currentUser.roles.includes('Admin');
   const rank = (u: AppUser) => u.roles.includes('Admin') ? 0 : u.roles.includes('成員') ? 1 : 2;
@@ -158,6 +160,27 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
         <span style={{ color: 'var(--md-sys-color-on-surface-muted)', fontSize: 13 }}>—</span>
       ),
     },
+    ...(isAdmin && onDeleteUser ? [{
+      key: 'delete',
+      header: '',
+      align: 'right' as const,
+      render: (u: AppUser) => u.uid === currentUser.uid ? null : (
+        <button
+          onClick={() => setConfirmDeleteUid(u.uid)}
+          title="刪除使用者"
+          style={{
+            appearance: 'none', border: 'none', background: 'none', cursor: 'pointer',
+            padding: 4, borderRadius: 4, color: 'var(--md-sys-color-on-surface-muted)',
+            display: 'flex', alignItems: 'center',
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#ef4444')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--md-sys-color-on-surface-muted)')}
+        >
+          <Trash2 size={14} />
+        </button>
+      ),
+    }] : []),
   ];
 
   return (
@@ -272,6 +295,40 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
             僅 @cmoney.com.tw 帳號可透過 Google 登入
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        open={confirmDeleteUid !== null}
+        onClose={() => setConfirmDeleteUid(null)}
+        title="確認刪除使用者"
+      >
+        {(() => {
+          const target = users.find(u => u.uid === confirmDeleteUid);
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ fontSize: 14, lineHeight: 1.6 }}>
+                確定要刪除 <strong>{target?.name}</strong>（{target?.email}）？
+                <br />
+                <span style={{ color: 'var(--md-sys-color-on-surface-muted)', fontSize: 13 }}>
+                  刪除後該使用者將無法登入，此操作無法復原。
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <Button onClick={() => setConfirmDeleteUid(null)}>取消</Button>
+                <Button
+                  variant="primary"
+                  style={{ background: '#ef4444', borderColor: '#ef4444' }}
+                  onClick={() => {
+                    if (confirmDeleteUid) onDeleteUser?.(confirmDeleteUid);
+                    setConfirmDeleteUid(null);
+                  }}
+                >
+                  確認刪除
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );
