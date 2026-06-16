@@ -36,9 +36,8 @@ export const KanbanColumn = forwardRef<HTMLDivElement, KanbanColumnProps>(functi
         {tools && <div className="ui-kcol__tools">{tools}</div>}
       </div>
       <div className={['ui-kcol__body', isOver && 'ui-kcol__body--over'].filter(Boolean).join(' ')}>
-        {isEmpty ? (
-          <div className="ui-kcol__empty">尚無任務</div>
-        ) : children}
+        {isEmpty && <div className="ui-kcol__empty">尚無任務</div>}
+        {children}
       </div>
     </div>
   );
