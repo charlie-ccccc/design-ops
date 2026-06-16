@@ -662,7 +662,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={!isArchivedCard && (isMember || showAdmin)} readOnly={isArchivedCard} currentUserName={user.name} currentUserUid={user.uid} siteUsers={siteUsers} members={members} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={!isArchivedCard && (isMember || showAdmin)} readOnly={isArchivedCard} currentUserName={user.name} currentUserUid={user.uid} siteUsers={siteUsers} members={members} depts={depts} />
       <NewCardModal
         open={newCardOpen}
         onClose={() => setNewCardOpen(false)}

@@ -24,6 +24,7 @@ interface CardDrawerProps {
   currentUserUid?: string;
   siteUsers?: AppUser[];
   members?: Member[];
+  depts?: string[];
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -140,7 +141,7 @@ function roundToHalfHour(): string {
 const EMPTY_LOG = { date: '', time: '', hours: 0, note: '' };
 type BottomTab = 'activity' | 'comments' | 'timelogs';
 
-export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, currentUserUid, siteUsers: propSiteUsers, members: propMembers }: CardDrawerProps) {
+export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone, readOnly, canEdit = true, currentUserName, currentUserUid, siteUsers: propSiteUsers, members: propMembers, depts: propDepts }: CardDrawerProps) {
   const DESIGNER_USERS = propMembers
     ? propMembers.map(m => ({ id: m.id, name: m.name, initial: m.initial, hue: m.hue, photo: m.photo, sub: m.cat } as AnyUser))
     : STATIC_DESIGNER_USERS;
@@ -465,7 +466,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                 <dd>
                   {readOnly ? (DEPT_SHORT[c.dept] || c.dept) : (
                     <Input as="select" value={c.dept} onChange={e => onUpdate(c.id, { dept: (e.target as HTMLSelectElement).value })}>
-                      {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+                      {(propDepts ?? DEPTS).map(d => <option key={d} value={d}>{d}</option>)}
                     </Input>
                   )}
                 </dd>
