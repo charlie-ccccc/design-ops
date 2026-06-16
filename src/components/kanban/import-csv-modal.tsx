@@ -25,17 +25,30 @@ const COL_MAP: Record<string, string> = {
   'est': 'est', 'actual': 'actual', 'requesterName': 'requesterName', 'ownerName': 'ownerName',
 };
 
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
+function parseCSV(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
   let cur = '';
   let inQ = false;
-  for (const ch of line) {
-    if (ch === '"') { inQ = !inQ; }
-    else if (ch === ',' && !inQ) { result.push(cur); cur = ''; }
-    else { cur += ch; }
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQ && text[i + 1] === '"') { cur += '"'; i++; }
+      else { inQ = !inQ; }
+    } else if (ch === ',' && !inQ) {
+      row.push(cur); cur = '';
+    } else if ((ch === '\r' || ch === '\n') && !inQ) {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cur); cur = '';
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      row = [];
+    } else {
+      cur += ch;
+    }
   }
-  result.push(cur);
-  return result;
+  row.push(cur);
+  if (row.length > 1 || row[0] !== '') rows.push(row);
+  return rows;
 }
 
 function parseFullDate(raw: string): { month: string; due: string } | null {
@@ -102,16 +115,13 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = (ev.target?.result as string ?? '').replace(/^﻿/, '');
-      const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) { setRawRows([]); return; }
-      const rawHeaders = parseCSVLine(lines[0]).map(h => h.trim());
+      const allRows = parseCSV(text);
+      if (allRows.length < 2) { setRawRows([]); return; }
+      const rawHeaders = allRows[0].map(h => h.trim());
       const mappedHeaders = rawHeaders.map(h => COL_MAP[h.toLowerCase()] ?? COL_MAP[h] ?? h);
-      const dataRows = lines.slice(1)
-        .filter(l => l.trim() && !l.trim().startsWith('#'))
-        .map(line => {
-          const vals = parseCSVLine(line);
-          return Object.fromEntries(mappedHeaders.map((h, j) => [h, vals[j]?.trim() ?? '']));
-        });
+      const dataRows = allRows.slice(1).map(vals =>
+        Object.fromEntries(mappedHeaders.map((h, j) => [h, vals[j]?.trim() ?? '']))
+      );
       setRawRows(dataRows);
       setFileName(file.name);
       setImported(0);
