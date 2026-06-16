@@ -78,6 +78,7 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
   const [batchCat, setBatchCat] = useState<Cat>('UIUX');
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(0);
+  const [fileName, setFileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   function reset() {
@@ -86,6 +87,7 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
     setBatchCat('UIUX');
     setImporting(false);
     setImported(0);
+    setFileName('');
     if (fileRef.current) fileRef.current.value = '';
   }
 
@@ -121,6 +123,7 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
           return Object.fromEntries(mappedHeaders.map((h, j) => [h, vals[j]?.trim() ?? '']));
         });
       setRawRows(dataRows);
+      setFileName(file.name);
       setImported(0);
     };
     reader.readAsText(file, 'UTF-8');
@@ -204,8 +207,12 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ fontSize: 13 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ display: 'none' }} />
+            <Button variant="ghost" onClick={() => fileRef.current?.click()}>選擇 CSV 檔案</Button>
+            {fileName && (
+              <span style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)' }}>{fileName}</span>
+            )}
           </div>
           <p style={{ margin: 0, fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', lineHeight: 1.6 }}>
             支援 Google Sheets Jira 匯出格式，欄位自動對應。所有卡片匯入後狀態為「待審核」。
