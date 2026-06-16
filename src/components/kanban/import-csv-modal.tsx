@@ -147,7 +147,6 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
       if (!parsed_date) { errs.push(`第 ${rowNum} 行「${title}」：截止日期無法辨識（${row.dateRaw || '空白'}），略過`); return; }
 
       const dept = row.dept || batchDept;
-      if (!dept) { errs.push(`第 ${rowNum} 行「${title}」：缺少發起單位，請填入下方批次預設值`); return; }
 
       const execUnit = row.execUnit ?? '';
       const cat: Cat = execUnit.includes('平面視覺') ? '平面視覺'
