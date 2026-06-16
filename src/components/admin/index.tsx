@@ -69,10 +69,22 @@ function dateRangeLabel(date: string, endDate?: string) {
 }
 
 // ── CSV Import ─────────────────────────────────────────────────
-const TEMPLATE_HEADERS = ['title', 'dept', 'cat', 'status', 'prio', 'due', 'est', 'actual', 'desc', 'requesterName', 'ownerName'];
 const VALID_STATUS: CardStatus[] = ['belog', 'todo', 'designing', 'reviewing', 'done', 'pending'];
 const VALID_PRIO: Priority[]     = ['urgent', 'high', 'normal', 'low', 'lowest'];
 const VALID_CAT: Cat[]           = ['UIUX', '平面視覺'];
+
+// Jira 中文欄位名稱 → 我們的欄位名稱
+const COL_MAP: Record<string, string> = {
+  '摘要': 'title', 'summary': 'title',
+  '截止日期': 'dateRaw', 'due date': 'dateRaw', 'due': 'dateRaw',
+  '受托人': 'ownerName', '受讓人': 'ownerName', 'assignee': 'ownerName',
+  '回報者': 'requesterName', '報告人': 'requesterName', 'reporter': 'requesterName',
+  '優先順序': 'jiraprio', 'priority': 'jiraprio', 'prio': 'jiraprio',
+  '描述': 'desc', 'description': 'desc',
+  // 我們自己範本的欄位直接 pass-through
+  'title': 'title', 'dept': 'dept', 'cat': 'cat', 'status': 'status',
+  'est': 'est', 'actual': 'actual', 'requesterName': 'requesterName', 'ownerName': 'ownerName',
+};
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
@@ -87,21 +99,52 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
+// 解析 Jira 日期 "2026/6/24" 或 "2026-06-24" → { month: "2026/06", due: "06/24" }
+function parseFullDate(raw: string): { month: string; due: string } | null {
+  const pad = (n: string) => n.padStart(2, '0');
+  const slash = raw.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  if (slash) return { month: `${slash[1]}/${pad(slash[2])}`, due: `${pad(slash[2])}/${pad(slash[3])}` };
+  const dash = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dash) return { month: `${dash[1]}/${dash[2]}`, due: `${dash[2]}/${dash[3]}` };
+  return null;
+}
+
+function mapPriority(raw: string): Priority {
+  const p = raw.trim();
+  if (['最高', 'highest'].includes(p)) return 'urgent';
+  if (['高', 'high'].includes(p)) return 'high';
+  if (['一般', '中', 'medium', 'normal', 'mid'].includes(p)) return 'normal';
+  if (['低', 'low'].includes(p)) return 'low';
+  if (['最低', 'lowest'].includes(p)) return 'lowest';
+  return VALID_PRIO.includes(p as Priority) ? p as Priority : 'normal';
+}
+
+// 模糊比對：「王映蒂Annie_Wei」→ 系統裡的「王映蒂」
+function findOwner(name: string, users: AppUser[]): AppUser | null {
+  if (!name) return null;
+  return users.find(u => u.name === name)
+    ?? users.find(u => name.includes(u.name) || u.name.includes(name))
+    ?? null;
+}
+
 function ImportPanel({ allCards, siteUsers, onImportCards }: {
   allCards: Card[];
   siteUsers: AppUser[];
   onImportCards: (cards: Card[]) => Promise<void>;
 }) {
-  const [preview, setPreview] = useState<Card[]>([]);
+  const [rawRows, setRawRows] = useState<Record<string, string>[]>([]);
+  const [batchDept, setBatchDept] = useState('');
+  const [batchCat, setBatchCat] = useState<Cat>('UIUX');
+  const [batchStatus, setBatchStatus] = useState<CardStatus>('belog');
   const [rowErrors, setRowErrors] = useState<string[]>([]);
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function downloadTemplate() {
-    const example = ['設計新版首頁', '行銷', 'UIUX', 'todo', 'normal', '2025/06', '8', '0', '需求說明', '委託人姓名', '受託人姓名'];
-    const jiraHint = ['# Jira對應: Summary', 'Component', 'IssueType→cat', 'Status→映射', 'Priority→映射', 'DueDate→YYYY/MM', 'StoryPoints', '', 'Description', 'Reporter', 'Assignee'];
-    const csv = '﻿' + TEMPLATE_HEADERS.join(',') + '\n' + example.join(',') + '\n' + jiraHint.join(',');
+    const headers = 'title,dept,cat,status,prio,due,est,actual,desc,requesterName,ownerName';
+    const example = '設計新版首頁,行銷,UIUX,todo,normal,2026/06/24,8,0,需求說明,委託人姓名,受託人姓名';
+    const csv = '﻿' + headers + '\n' + example;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'card-import-template.csv'; a.click();
@@ -115,106 +158,156 @@ function ImportPanel({ allCards, siteUsers, onImportCards }: {
     reader.onload = (ev) => {
       const text = (ev.target?.result as string ?? '').replace(/^﻿/, '');
       const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) { setRowErrors(['CSV 格式錯誤或無資料']); setPreview([]); return; }
-      const headers = parseCSVLine(lines[0]).map(h => h.trim());
-      const dataRows = lines.slice(1).filter(l => l.trim() && !l.trim().startsWith('#'));
-      const errs: string[] = [];
-      let maxN = allCards.reduce((m, c) => { const n = parseInt(c.id.replace('DESIGN-', ''), 10); return isNaN(n) ? m : Math.max(m, n); }, 0);
-      const now = new Date();
-      const pad = (n: number) => String(n).padStart(2, '0');
-      const createdAt = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      const parsed: Card[] = [];
-      dataRows.forEach((line, i) => {
-        const rowNum = i + 2;
-        const vals = parseCSVLine(line);
-        const row: Record<string, string> = Object.fromEntries(headers.map((h, j) => [h, vals[j]?.trim() ?? '']));
-        if (!row.title) { errs.push(`第 ${rowNum} 行：title 必填`); return; }
-        if (!row.due || !/^\d{4}\/\d{2}$/.test(row.due)) { errs.push(`第 ${rowNum} 行：due 必填且格式須為 YYYY/MM（例：2025/06）`); return; }
-        if (!row.dept) { errs.push(`第 ${rowNum} 行：dept 必填`); return; }
-        const cat = VALID_CAT.includes(row.cat as Cat) ? row.cat as Cat : 'UIUX';
-        const status = VALID_STATUS.includes(row.status as CardStatus) ? row.status as CardStatus : 'belog';
-        const prio = VALID_PRIO.includes(row.prio as Priority) ? row.prio as Priority : 'normal';
-        const ownerUser = siteUsers.find(u => u.name === row.ownerName);
-        if (row.ownerName && !ownerUser) errs.push(`第 ${rowNum} 行：受託人「${row.ownerName}」在系統中找不到，將留空`);
-        maxN += 1;
-        parsed.push({
-          id: formatId(maxN),
-          month: row.due,
-          title: row.title,
-          dept: row.dept,
-          cat,
-          owner: ownerUser?.uid ?? '',
-          est: parseFloat(row.est) || 0,
-          actual: parseFloat(row.actual) || 0,
-          requesterName: row.requesterName || '',
-          status,
-          prio,
-          due: row.due,
-          desc: row.desc || '',
-          attach: 0,
-          activity: [{ who: '系統', msg: '透過 CSV 匯入', t: createdAt }],
-          createdAt,
+      if (lines.length < 2) { setRowErrors(['CSV 格式錯誤或無資料']); setRawRows([]); return; }
+      const rawHeaders = parseCSVLine(lines[0]).map(h => h.trim());
+      const mappedHeaders = rawHeaders.map(h => COL_MAP[h.toLowerCase()] ?? COL_MAP[h] ?? h);
+      const dataRows = lines.slice(1)
+        .filter(l => l.trim() && !l.trim().startsWith('#'))
+        .map(line => {
+          const vals = parseCSVLine(line);
+          return Object.fromEntries(mappedHeaders.map((h, j) => [h, vals[j]?.trim() ?? '']));
         });
-      });
-      setRowErrors(errs);
-      setPreview(parsed);
+      setRawRows(dataRows);
+      setRowErrors([]);
       setImported(0);
     };
     reader.readAsText(file, 'UTF-8');
   }
 
+  // 每次 rawRows 或批次設定改變都重新計算 preview
+  const { preview, errors } = useMemo(() => {
+    if (rawRows.length === 0) return { preview: [] as Card[], errors: [] as string[] };
+    const errs: string[] = [];
+    let maxN = allCards.reduce((m, c) => { const n = parseInt(c.id.replace('DESIGN-', ''), 10); return isNaN(n) ? m : Math.max(m, n); }, 0);
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const createdAt = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const parsed: Card[] = [];
+
+    rawRows.forEach((row, i) => {
+      const rowNum = i + 2;
+      const title = row.title;
+      if (!title) { errs.push(`第 ${rowNum} 行：標題（摘要）為空，略過`); return; }
+
+      const dateStr = row.dateRaw ?? '';
+      const parsed_date = parseFullDate(dateStr);
+      if (!parsed_date) { errs.push(`第 ${rowNum} 行「${title}」：截止日期格式無法辨識（${dateStr || '空白'}），略過`); return; }
+
+      const dept = row.dept || batchDept;
+      if (!dept) { errs.push(`第 ${rowNum} 行「${title}」：缺少 dept，請在下方填入批次預設值`); return; }
+
+      const cat = VALID_CAT.includes(row.cat as Cat) ? row.cat as Cat : batchCat;
+      const status = VALID_STATUS.includes(row.status as CardStatus) ? row.status as CardStatus : batchStatus;
+      const prio = row.jiraprio ? mapPriority(row.jiraprio) : (VALID_PRIO.includes(row.prio as Priority) ? row.prio as Priority : 'normal');
+
+      const ownerUser = findOwner(row.ownerName ?? '', siteUsers);
+      if (row.ownerName && !ownerUser) errs.push(`第 ${rowNum} 行「${title}」：受託人「${row.ownerName}」比對不到系統用戶，將留空`);
+
+      maxN += 1;
+      parsed.push({
+        id: formatId(maxN),
+        month: parsed_date.month,
+        title,
+        dept,
+        cat,
+        owner: ownerUser?.uid ?? '',
+        est: parseFloat(row.est ?? '') || 0,
+        actual: parseFloat(row.actual ?? '') || 0,
+        requesterName: row.requesterName || '',
+        status,
+        prio,
+        due: parsed_date.due,
+        desc: row.desc || '',
+        attach: 0,
+        activity: [{ who: '系統', msg: '透過 CSV 匯入', t: createdAt }],
+        createdAt,
+      });
+    });
+    return { preview: parsed, errors: errs };
+  }, [rawRows, batchDept, batchCat, batchStatus, siteUsers, allCards]);
+
   async function handleImport() {
     setImporting(true);
-    setImported(0);
     await onImportCards(preview);
     setImported(preview.length);
     setImporting(false);
-    setPreview([]);
+    setRawRows([]);
     setRowErrors([]);
     if (fileRef.current) fileRef.current.value = '';
   }
 
   const previewColumns = [
     { key: 'id', header: 'ID', minWidth: '90px', render: (c: Card) => <span style={{ fontSize: 12, fontFamily: 'var(--font-mono,monospace)', color: 'var(--md-sys-color-on-surface-secondary)' }}>{c.id}</span> },
-    { key: 'title', header: '標題', align: 'left' as const, minWidth: '180px' },
+    { key: 'title', header: '標題', align: 'left' as const, minWidth: '200px' },
     { key: 'dept', header: '發起單位', align: 'left' as const },
     { key: 'cat', header: '類別' },
     { key: 'status', header: '狀態' },
-    { key: 'due', header: '月份' },
-    { key: 'est', header: '預估(h)' },
-    { key: 'owner', header: '受託人', align: 'left' as const, render: (c: Card) => siteUsers.find(u => u.uid === c.owner)?.name ?? (c.owner ? <span style={{ color: 'var(--st-block)' }}>⚠ 找不到</span> : '—') },
+    { key: 'month', header: '月份' },
+    { key: 'due', header: '截止日' },
+    { key: 'owner', header: '受託人', align: 'left' as const, render: (c: Card) => siteUsers.find(u => u.uid === c.owner)?.name ?? (c.owner ? <span style={{ color: 'var(--st-block)' }}>⚠</span> : '—') },
+    { key: 'prio', header: '優先' },
   ] as TableColumn<Card>[];
 
   return (
-    <div style={{ padding: '24px' }}>
-      {/* Step 1 */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Step 1 — 下載 CSV 範本</div>
-        <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginBottom: 12, lineHeight: 1.6 }}>
-          填入任務資料後上傳。若從 Jira 匯出，需先對照第三行的欄位說明，將 Jira 欄位對應到範本格式。<br />
-          <code style={{ fontSize: 12, fontFamily: 'var(--font-mono,monospace)' }}>cat</code>：UIUX 或 平面視覺
-          <code style={{ fontSize: 12, fontFamily: 'var(--font-mono,monospace)' }}>status</code>：belog / todo / designing / reviewing / done / pending
-          <code style={{ fontSize: 12, fontFamily: 'var(--font-mono,monospace)' }}>prio</code>：urgent / high / normal / low / lowest
+    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+      {/* 下載範本 */}
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>下載範本（選用）</div>
+        <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginBottom: 10, lineHeight: 1.6 }}>
+          若從 Google Sheets Jira 匯出，直接上傳即可，不需要改欄位名稱。<br />
+          欄位 <code style={{ fontFamily: 'var(--font-mono,monospace)' }}>摘要、截止日期、受托人、回報者、優先順序、描述</code> 會自動對應。
         </div>
         <Button variant="ghost" leadingIcon={<Download size={13} />} onClick={downloadTemplate}>下載 CSV 範本</Button>
       </div>
 
-      {/* Step 2 */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Step 2 — 上傳填好的 CSV</div>
-        <input ref={fileRef} type="file" accept=".csv" onChange={handleFile}
-               style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface)' }} />
+      {/* 上傳 */}
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>上傳 CSV</div>
+        <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ fontSize: 13 }} />
       </div>
 
-      {/* Errors */}
-      {rowErrors.length > 0 && (
-        <div style={{ marginBottom: 16, padding: '12px 16px', background: 'color-mix(in oklab, var(--st-block) 10%, transparent)', borderRadius: 8, border: '1px solid color-mix(in oklab, var(--st-block) 25%, transparent)' }}>
-          <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--st-block)', fontSize: 13 }}>⚠ {rowErrors.length} 個問題</div>
-          {rowErrors.map((e, i) => <div key={i} style={{ fontSize: 13, color: 'var(--st-block)', lineHeight: 1.8 }}>{e}</div>)}
+      {/* 批次預設值（上傳後顯示） */}
+      {rawRows.length > 0 && (
+        <div style={{ padding: '16px', background: 'var(--md-sys-color-surface-variant)', borderRadius: 10, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, width: '100%', marginBottom: -8 }}>批次預設值（Jira 沒有的欄位，統一套用）</div>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', marginBottom: 4 }}>發起單位 dept <span style={{ color: 'var(--st-block)' }}>*必填</span></div>
+            <Input style={{ width: 140 }} value={batchDept} onChange={e => setBatchDept((e.target as HTMLInputElement).value)} placeholder="例：行銷" />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', marginBottom: 4 }}>類別 cat</div>
+            <Input as="select" style={{ width: 120 }} value={batchCat} onChange={e => setBatchCat((e.target as HTMLSelectElement).value as Cat)}>
+              <option value="UIUX">UIUX</option>
+              <option value="平面視覺">平面視覺</option>
+            </Input>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', marginBottom: 4 }}>預設狀態</div>
+            <Input as="select" style={{ width: 130 }} value={batchStatus} onChange={e => setBatchStatus((e.target as HTMLSelectElement).value as CardStatus)}>
+              <option value="belog">需求審核完成</option>
+              <option value="todo">待辦</option>
+              <option value="designing">設計中</option>
+              <option value="reviewing">驗收</option>
+              <option value="done">完成</option>
+              <option value="pending">Pending</option>
+            </Input>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)' }}>
+            已讀入 {rawRows.length} 列 → 可匯入 {preview.length} 筆
+          </div>
         </div>
       )}
 
-      {/* Preview */}
+      {/* 錯誤 */}
+      {errors.length > 0 && (
+        <div style={{ padding: '12px 16px', background: 'color-mix(in oklab, var(--st-block) 10%, transparent)', borderRadius: 8, border: '1px solid color-mix(in oklab, var(--st-block) 25%, transparent)' }}>
+          <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--st-block)', fontSize: 13 }}>⚠ {errors.length} 個問題</div>
+          {errors.map((e, i) => <div key={i} style={{ fontSize: 13, color: 'var(--st-block)', lineHeight: 1.8 }}>{e}</div>)}
+        </div>
+      )}
+
+      {/* 預覽 + 匯入 */}
       {preview.length > 0 && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
@@ -229,7 +322,7 @@ function ImportPanel({ allCards, siteUsers, onImportCards }: {
       )}
 
       {imported > 0 && !importing && (
-        <div style={{ marginTop: 16, padding: '12px 16px', background: 'color-mix(in oklab, var(--st-done) 12%, transparent)', borderRadius: 8, border: '1px solid color-mix(in oklab, var(--st-done) 30%, transparent)', fontSize: 14 }}>
+        <div style={{ padding: '12px 16px', background: 'color-mix(in oklab, var(--st-done) 12%, transparent)', borderRadius: 8, border: '1px solid color-mix(in oklab, var(--st-done) 30%, transparent)', fontSize: 14 }}>
           ✓ 已成功匯入 {imported} 筆卡片
         </div>
       )}
