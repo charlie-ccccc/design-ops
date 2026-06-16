@@ -29,6 +29,7 @@ export interface AppTopbarProps {
   query?: string;
   onQuery?: (q: string) => void;
   onNewCard?: () => void;
+  onImportCsv?: () => void;
 
   // Dashboard
   hasDrillFilter?: boolean;
@@ -54,6 +55,7 @@ export function AppTopbar({
   query = '',
   onQuery,
   onNewCard,
+  onImportCsv,
   hasDrillFilter,
   onExport,
   month,
@@ -150,6 +152,11 @@ export function AppTopbar({
         <div className="tb-tools">
           {page === 'kanban' && (
             <>
+              {onImportCsv && (
+                <button className="btn tb-desktop-only" onClick={onImportCsv}>
+                  匯入 CSV
+                </button>
+              )}
               <button className="btn btn-primary tb-desktop-only" onClick={onNewCard}>
                 <Plus size={14} /> 新需求單
               </button>

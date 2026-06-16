@@ -45,3 +45,4 @@ openspec/.vector-search.db*
 *storybook.log
 storybook-static
 .gstack/
+.storybook/vendor/**/node_modules

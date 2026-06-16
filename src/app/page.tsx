@@ -18,6 +18,7 @@ import { useFirestoreSettings } from '@/hooks/use-firestore-settings';
 import KanbanBoard from '@/components/kanban/board';
 import CardDrawer from '@/components/kanban/card-drawer';
 import NewCardModal from '@/components/kanban/new-card-modal';
+import { ImportCsvModal } from '@/components/kanban/import-csv-modal';
 import Dashboard, { type DashFilter } from '@/components/dashboard/index';
 import Admin from '@/components/admin/index';
 import History from '@/components/history/index';
@@ -76,10 +77,10 @@ export default function App() {
     }
     return 'kanban';
   });
-  const [adminTab, setAdminTab] = useState<'capacity' | 'members' | 'leave' | 'import'>(() => {
+  const [adminTab, setAdminTab] = useState<'capacity' | 'members' | 'leave'>(() => {
     if (typeof window !== 'undefined') {
       const t = new URLSearchParams(window.location.search).get('tab');
-      if (t === 'members' || t === 'leave' || t === 'import') return t;
+      if (t === 'members' || t === 'leave') return t;
     }
     return 'capacity';
   });
@@ -106,6 +107,7 @@ export default function App() {
   }, [members, siteUsers, allMemberDays, month]);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [newCardOpen, setNewCardOpen] = useState(false);
+  const [importCsvOpen, setImportCsvOpen] = useState(false);
   const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
   const [query, setQuery] = useState('');
   const [filterMember, setFilterMember] = useState(() =>
@@ -577,6 +579,7 @@ export default function App() {
           query={query}
           onQuery={setQuery}
           onNewCard={() => { setNewCardDefaultStatus('belog'); setNewCardOpen(true); }}
+          onImportCsv={showAdmin ? () => setImportCsvOpen(true) : undefined}
           hasDrillFilter={!!dashFilter}
           onExport={() => {}}
           month={month}
@@ -638,12 +641,6 @@ export default function App() {
               tab={adminTab}
               onTabChange={setAdminTab}
               deptColors={deptColors}
-              siteUsers={siteUsers}
-              onImportCards={async (newCards) => {
-                for (const card of newCards) {
-                  await addCard(card);
-                }
-              }}
             />
           )}
           {page === 'history' && (
@@ -675,6 +672,15 @@ export default function App() {
         siteUsers={siteUsers}
         members={members}
         depts={depts}
+      />
+      <ImportCsvModal
+        open={importCsvOpen}
+        onClose={() => setImportCsvOpen(false)}
+        allCards={cards}
+        siteUsers={siteUsers}
+        onImportCards={async (newCards) => {
+          for (const card of newCards) await addCard(card);
+        }}
       />
 
     </div>

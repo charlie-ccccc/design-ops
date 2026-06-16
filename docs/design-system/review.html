@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Design System Review Queue</title>
+  <title>設計系統審查佇列</title>
   <style>
     :root {
       color-scheme: light;
@@ -214,409 +214,409 @@
 <body>
   <div class="layout">
     <aside>
-      <p class="brand">Review Queue</p>
-      <p class="subtitle">Generated 2026-06-10T08:37:41.298Z</p>
+      <p class="brand">審查佇列</p>
+      <p class="subtitle">產生時間 2026-06-10T08:37:41.298Z</p>
       <nav>
-        <a href="#overview">Overview</a>
-        <a href="index.html">Full Documentation</a>
-        <a href="#source-duplicates">Duplicate Sources</a>
-        <a href="#color-scale">Color Scale Issues</a>
-        <a href="#near-colors">Near Color Tokens</a>
-        <a href="#near-numbers">Near Number Tokens</a>
-        <a href="#components">Similar Components</a>
+        <a href="#overview">總覽</a>
+        <a href="index.html">完整文件</a>
+        <a href="#source-duplicates">重複來源</a>
+        <a href="#color-scale">色階問題</a>
+        <a href="#near-colors">相近顏色 Token</a>
+        <a href="#near-numbers">相近數值 Token</a>
+        <a href="#components">相似元件</a>
       </nav>
     </aside>
     <main>
       <section class="hero" id="overview">
-        <h1>Design System Review Queue</h1>
+        <h1>設計系統審查佇列</h1>
         <p>這份文件彙整萃取時需要設計或開發者審查的候選項目：重複來源、相近 token、色階問題，以及外觀或功能相近的 component。</p>
       </section>
 
       <div class="summary" aria-label="Review summary">
-        <div class="metric"><strong>0</strong><span>Needs review</span></div>
-        <div class="metric"><strong>0</strong><span>Duplicate sources</span></div>
-        <div class="metric"><strong>0</strong><span>Color scale issues</span></div>
-        <div class="metric"><strong>7</strong><span>Near color pairs</span></div>
-        <div class="metric"><strong>58</strong><span>Near number pairs</span></div>
-        <div class="metric"><strong>2</strong><span>Component rows</span></div>
+        <div class="metric"><strong>0</strong><span>待審查</span></div>
+        <div class="metric"><strong>0</strong><span>重複來源</span></div>
+        <div class="metric"><strong>0</strong><span>色階問題</span></div>
+        <div class="metric"><strong>7</strong><span>相近顏色組</span></div>
+        <div class="metric"><strong>58</strong><span>相近數值組</span></div>
+        <div class="metric"><strong>2</strong><span>元件筆數</span></div>
       </div>
 
       <section id="source-duplicates">
-        <h2>Duplicate Sources</h2>
-        <p class="section-lead">Rows come from <code>DESIGN_EVIDENCE_MAP.md</code>. Exact or likely duplicate screenshots, Figma nodes, and rendered states should be resolved before they count as separate evidence.</p>
-        <p class="empty">No duplicate source review rows found.</p>
+        <h2>重複來源</h2>
+        <p class="section-lead">列表來自 <code>DESIGN_EVIDENCE_MAP.md</code>。完全相同或可能重複的截圖、Figma 節點及已渲染狀態，應在視為獨立依據前先行處理。</p>
+        <p class="empty">找不到重複來源審查項目。</p>
       </section>
 
       <section id="color-scale">
-        <h2>Color Scale Issues</h2>
-        <p class="section-lead">Reference color steps should run from 100 lightest to 0 darkest.</p>
-        <p class="empty">No color scale ordering issues found.</p>
+        <h2>色階問題</h2>
+        <p class="section-lead">參考色階應由 100（最淺）遞減至 0（最深）。</p>
+        <p class="empty">找不到色階排列問題。</p>
       </section>
 
       <section id="near-colors">
-        <h2>Near Color Tokens</h2>
-        <p class="section-lead">Pairs with deltaE at or below 3 are listed for merge or keep-distinct review.</p>
+        <h2>相近顏色 Token</h2>
+        <p class="section-lead">deltaE 值在 3 以下的配對列於此，供合併或保持獨立的審查。</p>
         <div class="table-wrap"><table>
-    <thead><tr><th>Token A</th><th>Token B</th><th>deltaE</th><th>Status</th></tr></thead>
+    <thead><tr><th>Token A</th><th>Token B</th><th>deltaE</th><th>狀態</th></tr></thead>
     <tbody><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#FFFFFF"></span><code>--md-ref-color-warm-100: #FFFFFF</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#FAFAF7"></span><code>--md-ref-color-warm-97: #FAFAF7</code></span></td>
   <td><code>2.36</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#FAFAF7"></span><code>--md-ref-color-warm-97: #FAFAF7</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#F7F6F2"></span><code>--md-ref-color-warm-95: #F7F6F2</code></span></td>
   <td><code>1.48</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#FAFAF7"></span><code>--md-ref-color-warm-97: #FAFAF7</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#F4F3EE"></span><code>--md-ref-color-warm-93: #F4F3EE</code></span></td>
   <td><code>2.64</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#F7F6F2"></span><code>--md-ref-color-warm-95: #F7F6F2</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#F4F3EE"></span><code>--md-ref-color-warm-93: #F4F3EE</code></span></td>
   <td><code>1.19</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#F4F3EE"></span><code>--md-ref-color-warm-93: #F4F3EE</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#EDEDE9"></span><code>--md-ref-color-dark-93: #EDEDE9</code></span></td>
   <td><code>2.23</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#C7C5BF"></span><code>--md-ref-color-warm-75: #C7C5BF</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#C9C8C3"></span><code>--md-ref-color-dark-79: #C9C8C3</code></span></td>
   <td><code>1.22</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><span class="swatch-pair"><span class="swatch" style="background:#18181B"></span><code>--md-ref-color-dark-11: #18181B</code></span></td>
   <td><span class="swatch-pair"><span class="swatch" style="background:#161618"></span><code>--md-ref-color-dark-9: #161618</code></span></td>
   <td><code>1.30</code></td>
-  <td><span class="status documented">Documented</span></td>
+  <td><span class="status documented">已記錄</span></td>
 </tr></tbody>
   </table></div>
       </section>
 
       <section id="near-numbers">
-        <h2>Near Number Tokens</h2>
-        <p class="section-lead">Spacing, type, radius, opacity, and motion values in the same family are listed when numerically close.</p>
+        <h2>相近數值 Token</h2>
+        <p class="section-lead">同族群的間距、字型、圓角、透明度及動態數值，若數值接近則列於此。</p>
         <div class="table-wrap"><table>
-    <thead><tr><th>Token A</th><th>Token B</th><th>Difference</th><th>Status</th></tr></thead>
+    <thead><tr><th>Token A</th><th>Token B</th><th>差異</th><th>狀態</th></tr></thead>
     <tbody><tr>
   <td><code>--md-ref-size-4</code><br>4px</td>
   <td><code>--md-ref-size-6</code><br>6px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-6</code><br>6px</td>
   <td><code>--md-ref-size-8</code><br>8px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-8</code><br>8px</td>
   <td><code>--md-ref-size-10</code><br>10px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-10</code><br>10px</td>
   <td><code>--md-ref-size-11</code><br>11px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-10</code><br>10px</td>
   <td><code>--md-ref-size-12</code><br>12px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-11</code><br>11px</td>
   <td><code>--md-ref-size-12</code><br>12px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-11</code><br>11px</td>
   <td><code>--md-ref-size-13</code><br>13px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-12</code><br>12px</td>
   <td><code>--md-ref-size-13</code><br>13px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-12</code><br>12px</td>
   <td><code>--md-ref-size-14</code><br>14px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-13</code><br>13px</td>
   <td><code>--md-ref-size-14</code><br>14px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-13</code><br>13px</td>
   <td><code>--md-ref-size-15</code><br>15px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-14</code><br>14px</td>
   <td><code>--md-ref-size-15</code><br>15px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-14</code><br>14px</td>
   <td><code>--md-ref-size-16</code><br>16px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-15</code><br>15px</td>
   <td><code>--md-ref-size-16</code><br>16px</td>
-  <td><code>1</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-16</code><br>16px</td>
   <td><code>--md-ref-size-18</code><br>18px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-18</code><br>18px</td>
   <td><code>--md-ref-size-20</code><br>20px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-20</code><br>20px</td>
   <td><code>--md-ref-size-22</code><br>22px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-size-22</code><br>22px</td>
   <td><code>--md-ref-size-24</code><br>24px</td>
-  <td><code>2</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>2</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
-  <td><code>0.16</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.16</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
-  <td><code>0.24</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.24</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
-  <td><code>0.27</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.27</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
-  <td><code>0.32</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.32</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
-  <td><code>0.40</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.40</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.96</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.96</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>1.28</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.28</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-020</code><br>-0.02em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.60</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.60</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
-  <td><code>0.08</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.08</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
-  <td><code>0.11</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.11</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
-  <td><code>0.16</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.16</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
-  <td><code>0.24</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.24</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.80</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.80</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>1.12</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.12</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-010</code><br>-0.01em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.44</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.44</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
-  <td><code>0.03</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.03</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
-  <td><code>0.08</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.08</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
-  <td><code>0.16</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.16</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.72</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.72</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>1.04</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.04</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-005</code><br>-0.005em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.36</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.36</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
-  <td><code>0.05</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.05</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
-  <td><code>0.13</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.13</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.69</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.69</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>1.01</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.01</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-neg-003</code><br>-0.003em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.33</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.33</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
-  <td><code>0.08</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.08</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.64</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.64</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>0.96</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.96</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-000</code><br>0em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.28</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.28</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
-  <td><code>0.56</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.56</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>0.88</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.88</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-005</code><br>0.005em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>1.20</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>1.20</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
-  <td><code>0.32</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.32</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-040</code><br>0.04em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>0.64</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.64</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-tracking-060</code><br>0.06em</td>
   <td><code>--md-ref-tracking-080</code><br>0.08em</td>
-  <td><code>0.32</code> length</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.32</code> 長度</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-opacity-06</code><br>0.06</td>
   <td><code>--md-ref-opacity-dark-05</code><br>0.05</td>
-  <td><code>0.01</code> number</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.01</code> 數值</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-opacity-06</code><br>0.06</td>
   <td><code>--md-ref-opacity-dark-07</code><br>0.07</td>
-  <td><code>0.01</code> number</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.01</code> 數值</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-opacity-08</code><br>0.08</td>
   <td><code>--md-ref-opacity-dark-07</code><br>0.07</td>
-  <td><code>0.01</code> number</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.01</code> 數值</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr><tr>
   <td><code>--md-ref-opacity-16</code><br>0.16</td>
   <td><code>--md-ref-opacity-dark-14</code><br>0.14</td>
-  <td><code>0.02</code> number</td>
-  <td><span class="status documented">Documented</span></td>
+  <td><code>0.02</code> 數值</td>
+  <td><span class="status documented">已記錄</span></td>
 </tr></tbody>
   </table></div>
       </section>
 
       <section id="components">
-        <h2>Similar Components</h2>
-        <p class="section-lead">Rows come from <code>COMPONENT_INVENTORY.md</code> and should link source-based previews or screenshot crops when available.</p>
+        <h2>相似元件</h2>
+        <p class="section-lead">列表來自 <code>COMPONENT_INVENTORY.md</code>，有條件時應連結來源預覽或截圖裁切。</p>
         <div class="table-wrap"><table>
-    <thead><tr><th>Candidate</th><th>Similar existing</th><th>Visual reference</th><th>Reason</th><th>Suggested action</th><th>Developer decision</th><th>Rationale</th></tr></thead>
+    <thead><tr><th>候選元件</th><th>相似現有元件</th><th>視覺參考</th><th>原因</th><th>建議動作</th><th>開發者決策</th><th>說明</th></tr></thead>
     <tbody><tr>
   <td>KPI Card</td>
   <td>Donut center lockup</td>
-  <td><a href="assets/component-review/kpi-vs-donut.svg">assets/component-review/kpi-vs-donut.svg</a> — schematic fallback, source preview unavailable (no Figma source or screenshot crop accessible)</td>
-  <td>Both show large numeric + muted caption</td>
-  <td>keep distinct</td>
-  <td>keep distinct<br><span class="status documented">Documented</span></td>
-  <td>KPI Card is a full surface panel with border; donut lockup is absolutely positioned inside SVG canvas — different anatomy, role, layout</td>
+  <td><a href="assets/component-review/kpi-vs-donut.svg">assets/component-review/kpi-vs-donut.svg</a> — 示意圖備用（無可存取的 Figma 來源或截圖裁切）</td>
+  <td>兩者都顯示大型數字 + 淡色說明</td>
+  <td>保持獨立</td>
+  <td>保持獨立<br><span class="status documented">已記錄</span></td>
+  <td>KPI Card 是具有框線的完整表面面板；donut lockup 以絕對定位嵌入 SVG 畫布內——結構、角色與版面均不同</td>
 </tr><tr>
   <td>Button (default)</td>
   <td>Month Pill prev/next buttons</td>
-  <td><a href="assets/component-review/button-vs-month-pill.svg">assets/component-review/button-vs-month-pill.svg</a> — schematic fallback, source preview unavailable (no Figma source or screenshot crop accessible)</td>
-  <td>Both are bordered controls 32px tall</td>
-  <td>keep distinct</td>
-  <td>keep distinct<br><span class="status documented">Documented</span></td>
-  <td>Month pill is a composite navigation control with a value display slot; button is a standalone action trigger with no embedded display state</td>
+  <td><a href="assets/component-review/button-vs-month-pill.svg">assets/component-review/button-vs-month-pill.svg</a> — 示意圖備用（無可存取的 Figma 來源或截圖裁切）</td>
+  <td>兩者都是高度 32px 的有框控制項</td>
+  <td>保持獨立</td>
+  <td>保持獨立<br><span class="status documented">已記錄</span></td>
+  <td>Month pill 是含有數值顯示槽的複合導航控制項；button 是獨立的操作觸發器，不含嵌入的顯示狀態</td>
 </tr></tbody>
   </table></div>
       </section>
