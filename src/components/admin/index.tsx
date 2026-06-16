@@ -81,6 +81,8 @@ const COL_MAP: Record<string, string> = {
   '回報者': 'requesterName', '報告人': 'requesterName', 'reporter': 'requesterName',
   '優先順序': 'jiraprio', 'priority': 'jiraprio', 'prio': 'jiraprio',
   '描述': 'desc', 'description': 'desc',
+  '需求發起單位': 'dept',
+  '需求執行單位': 'execUnit',
   // 我們自己範本的欄位直接 pass-through
   'title': 'title', 'dept': 'dept', 'cat': 'cat', 'status': 'status',
   'est': 'est', 'actual': 'actual', 'requesterName': 'requesterName', 'ownerName': 'ownerName',
@@ -196,8 +198,12 @@ function ImportPanel({ allCards, siteUsers, onImportCards }: {
       const dept = row.dept || batchDept;
       if (!dept) { errs.push(`第 ${rowNum} 行「${title}」：缺少 dept，請在下方填入批次預設值`); return; }
 
-      const cat = VALID_CAT.includes(row.cat as Cat) ? row.cat as Cat : batchCat;
-      const status = VALID_STATUS.includes(row.status as CardStatus) ? row.status as CardStatus : batchStatus;
+      const execUnit = row.execUnit ?? '';
+      const cat: Cat = execUnit.includes('平面視覺') ? '平面視覺'
+        : execUnit.includes('UIUX') ? 'UIUX'
+        : VALID_CAT.includes(row.cat as Cat) ? row.cat as Cat
+        : batchCat;
+      const status: CardStatus = 'belog';
       const prio = row.jiraprio ? mapPriority(row.jiraprio) : (VALID_PRIO.includes(row.prio as Priority) ? row.prio as Priority : 'normal');
 
       const ownerUser = findOwner(row.ownerName ?? '', siteUsers);
