@@ -70,10 +70,16 @@ function mapPriority(raw: string): Priority {
   return VALID_PRIO.includes(p as Priority) ? p as Priority : 'normal';
 }
 
+function chineseChars(s: string) {
+  return s.replace(/[^一-鿿]/g, '');
+}
+
 function findOwner(name: string, users: AppUser[]): AppUser | null {
   if (!name) return null;
+  const cn = chineseChars(name);
   return users.find(u => u.name === name)
     ?? users.find(u => name.includes(u.name) || u.name.includes(name))
+    ?? (cn ? users.find(u => chineseChars(u.name) === cn) : null)
     ?? null;
 }
 
