@@ -96,17 +96,7 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
     onClose();
   }
 
-  function downloadTemplate() {
-    const headers = 'title,dept,cat,prio,due,est,actual,desc,requesterName,ownerName';
-    const example = '設計新版首頁,行銷,UIUX,normal,2026/06/24,8,0,需求說明,委託人姓名,受託人姓名';
-    const csv = '﻿' + headers + '\n' + example;
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'card-import-template.csv'; a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -215,11 +205,11 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
             )}
           </div>
           <p style={{ margin: 0, fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', lineHeight: 1.6 }}>
-            支援 Google Sheets Jira 匯出格式，欄位自動對應。所有卡片匯入後狀態為「待審核」。
-            {' '}
-            <button onClick={downloadTemplate} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: 'var(--md-sys-color-primary)', fontFamily: 'inherit', textDecoration: 'underline' }}>
-              下載 CSV 範本
-            </button>
+            從{' '}
+            <a href="https://docs.google.com/spreadsheets/d/1vIrjarmRDNQG-E3TlEYlEHPIsoBxz0otwK-2q9eS2q0/edit?gid=0#gid=0" target="_blank" rel="noreferrer" style={{ color: 'var(--md-sys-color-primary)' }}>
+              Google Sheets
+            </a>
+            {' '}匯出 CSV 後上傳，欄位自動對應，匯入後狀態為「待審核」。
           </p>
         </div>
 
