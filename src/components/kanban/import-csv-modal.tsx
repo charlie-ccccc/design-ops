@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useMemo, useRef } from 'react';
-import { Download } from 'lucide-react';
 import type { Card, Cat, CardStatus, Priority } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 import { formatId } from '@/lib/utils';
@@ -205,16 +204,16 @@ export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCar
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         <div>
-          <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', lineHeight: 1.6 }}>
-            支援 Google Sheets Jira 匯出格式，欄位 <code>摘要、截止日期、受托人、回報者、優先順序、描述、需求發起單位、需求執行單位</code> 會自動對應。<br />
-            所有卡片匯入後狀態為「待審核」。
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ fontSize: 13 }} />
+          </div>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--md-sys-color-on-surface-muted)', lineHeight: 1.6 }}>
+            支援 Google Sheets Jira 匯出格式，欄位自動對應。所有卡片匯入後狀態為「待審核」。
+            {' '}
+            <button onClick={downloadTemplate} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12, color: 'var(--md-sys-color-primary)', fontFamily: 'inherit', textDecoration: 'underline' }}>
+              下載 CSV 範本
+            </button>
           </p>
-          <Button variant="ghost" leadingIcon={<Download size={13} />} onClick={downloadTemplate}>下載 CSV 範本</Button>
-        </div>
-
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>上傳 CSV 檔</div>
-          <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ fontSize: 13 }} />
         </div>
 
         {rawRows.length > 0 && (
