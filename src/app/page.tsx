@@ -108,14 +108,27 @@ export default function App() {
   const [newCardOpen, setNewCardOpen] = useState(false);
   const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
   const [query, setQuery] = useState('');
-  const [filterMember, setFilterMember] = useState('');
-  const [filterDept, setFilterDept] = useState('');
+  const [filterMember, setFilterMember] = useState(() =>
+    typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('member') ?? '') : ''
+  );
+  const [filterDept, setFilterDept] = useState(() =>
+    typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('kdept') ?? '') : ''
+  );
   const memberDays = allMemberDays[month] ?? {};
   const memberRatios = allMemberRatios[month] ?? {};
   const setMemberDays = useCallback((d: Record<string, number>) => updateMemberDays(month, d), [updateMemberDays, month]);
   const setMemberRatios = useCallback((r: Record<string, number>) => updateMemberRatios(month, r), [updateMemberRatios, month]);
   const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>(DEFAULT_HOLIDAYS);
-  const [previewCard, setPreviewCard] = useState<Card | null>(null);
+  const [historyMonth, setHistoryMonth] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('month') : null
+  );
+  const [historyFilter, setHistoryFilter] = useState<{ owner: string; dept: string; cat: string }>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      return { owner: p.get('howner') ?? '', dept: p.get('hdept') ?? '', cat: p.get('hcat') ?? '' };
+    }
+    return { owner: '', dept: '', cat: '' };
+  });
   const [dashFilter, setDashFilter] = useState<DashFilter | null>(null);
 
   // Tweaks
@@ -324,7 +337,7 @@ export default function App() {
     if (dept || owner) setDashFilter({ dept, owner });
   }, []);
 
-  // Sync page + card + dashFilter to URL
+  // Sync page + card + all filters to URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (page === 'kanban') { params.delete('page'); } else { params.set('page', page); }
@@ -334,11 +347,20 @@ export default function App() {
     if (page === 'capacity' && adminTab !== 'capacity') { params.set('tab', adminTab); }
     else if (page === 'permissions' && permTab !== 'users') { params.set('tab', permTab); }
     else { params.delete('tab'); }
+    if (page === 'kanban' && filterMember) { params.set('member', filterMember); } else { params.delete('member'); }
+    if (page === 'kanban' && filterDept)   { params.set('kdept',  filterDept);   } else { params.delete('kdept'); }
+    if (page === 'history' && historyMonth) { params.set('month', historyMonth); } else { params.delete('month'); }
+    if (page === 'history' && historyMonth && historyFilter.owner) { params.set('howner', historyFilter.owner); } else { params.delete('howner'); }
+    if (page === 'history' && historyMonth && historyFilter.dept)  { params.set('hdept',  historyFilter.dept);  } else { params.delete('hdept'); }
+    if (page === 'history' && historyMonth && historyFilter.cat)   { params.set('hcat',   historyFilter.cat);   } else { params.delete('hcat'); }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [page, openCardId, dashFilter, adminTab]);
+  }, [page, openCardId, dashFilter, adminTab, permTab, filterMember, filterDept, historyMonth, historyFilter]);
 
-  const openCard = cards.find(c => c.id === openCardId) ?? null;
+  const openCard = cards.find(c => c.id === openCardId)
+    ?? historyMonths.flatMap(h => h.cardList).find(c => c.id === openCardId)
+    ?? null;
+  const isArchivedCard = openCardId ? !cards.some(c => c.id === openCardId) : false;
 
   const onMove = useCallback((cardId: string, newStatus: string) => {
     const card = cards.find(c => c.id === cardId);
@@ -623,8 +645,12 @@ export default function App() {
               archives={historyMonths}
               currentSnapshot={currentSnapshot}
               currentCards={cards}
-              onOpenCard={card => setPreviewCard(card)}
+              onOpenCard={card => setOpenCardId(card.id)}
               siteUsers={siteUsers}
+              selectedMonth={historyMonth}
+              onSelectMonth={setHistoryMonth}
+              historyFilter={historyFilter}
+              onHistoryFilterChange={setHistoryFilter}
             />
           )}
           {page === 'permissions' && showAdmin && (
@@ -633,8 +659,7 @@ export default function App() {
         </div>
       </main>
 
-      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={isMember || showAdmin} currentUserName={user.name} currentUserUid={user.uid} siteUsers={siteUsers} members={members} />
-      <CardDrawer card={previewCard} onClose={() => setPreviewCard(null)} onUpdate={() => {}} readOnly siteUsers={siteUsers} members={members} />
+      <CardDrawer card={openCard} onClose={() => setOpenCardId(null)} onUpdate={onUpdate} onDelete={onDelete} onClone={onClone} canEdit={!isArchivedCard && (isMember || showAdmin)} readOnly={isArchivedCard} currentUserName={user.name} currentUserUid={user.uid} siteUsers={siteUsers} members={members} />
       <NewCardModal
         open={newCardOpen}
         onClose={() => setNewCardOpen(false)}

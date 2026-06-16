@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Link } from 'lucide-react';
 import type { HistoryMonth, Card, Cat } from '@/lib/types';
 import type { AppUser } from '@/contexts/auth-context';
 import { DEPT_SHORT, DEPT_HUE, MEMBER_BY_ID, STATUSES } from '@/lib/data';
@@ -27,6 +27,10 @@ interface HistoryProps {
   currentCards: Card[];
   onOpenCard: (card: Card) => void;
   siteUsers: AppUser[];
+  selectedMonth: string | null;
+  onSelectMonth: (month: string | null) => void;
+  historyFilter: { owner: string; dept: string; cat: string };
+  onHistoryFilterChange: (f: { owner: string; dept: string; cat: string }) => void;
 }
 
 // ── Card table ───────────────────────────────────────────────────
@@ -96,20 +100,21 @@ function makeCardColumns(onOpenCard: (card: Card) => void, siteUsers: AppUser[])
 }
 
 // ── Month detail view ────────────────────────────────────────────
-function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
+function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers, filterOwner, filterDept, filterCat, onFilterChange }: {
   archive: HistoryMonth;
   isLive?: boolean;
   onBack: () => void;
   onOpenCard: (card: Card) => void;
   siteUsers: AppUser[];
+  filterOwner: string;
+  filterDept: string;
+  filterCat: Cat | '';
+  onFilterChange: (owner: string, dept: string, cat: Cat | '') => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const [year, mon] = archive.month.split('/');
   const doneCount = archive.cardList.filter(c => c.status === 'done').length;
   const pendingCount = archive.cardList.filter(c => c.status === 'pending').length;
-
-  const [filterOwner, setFilterOwner] = useState('');
-  const [filterDept, setFilterDept] = useState('');
-  const [filterCat, setFilterCat] = useState<Cat | ''>('');
 
   const ownerIds = useMemo(() =>
     [...new Set(archive.cardList.map(c => c.owner).filter(Boolean))], [archive]);
@@ -125,6 +130,13 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
 
   const hasFilter = filterOwner || filterDept || filterCat;
   const columns = useMemo(() => makeCardColumns(onOpenCard, siteUsers), [onOpenCard, siteUsers]);
+
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  }
 
   return (
     <div className="history">
@@ -147,6 +159,9 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
           </span>
         )}
         <Tag>{archive.cardList.length} 張</Tag>
+        <span style={{ flex: 1 }} />
+        {copied && <span style={{ fontSize: 12, color: 'var(--md-sys-color-primary)', fontWeight: 500 }}>已複製 ✓</span>}
+        <Button variant="ghost" leadingIcon={<Link size={13} />} onClick={copyLink}>複製連結</Button>
       </div>
 
       <div className="history-detail-meta">
@@ -164,7 +179,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
       </div>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterOwner} onChange={e => setFilterOwner((e.target as HTMLSelectElement).value)}>
+        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterOwner} onChange={e => onFilterChange((e.target as HTMLSelectElement).value, filterDept, filterCat)}>
           <option value="">全部受託人</option>
           {ownerIds.map(id => (
             <option key={id} value={id}>
@@ -172,17 +187,17 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
             </option>
           ))}
         </Input>
-        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterDept} onChange={e => setFilterDept((e.target as HTMLSelectElement).value)}>
+        <Input as="select" style={{ minWidth: 110, width: 'auto' }} value={filterDept} onChange={e => onFilterChange(filterOwner, (e.target as HTMLSelectElement).value, filterCat)}>
           <option value="">全部發起單位</option>
           {depts.map(d => <option key={d} value={d}>{DEPT_SHORT[d] || d}</option>)}
         </Input>
-        <Input as="select" style={{ minWidth: 100, width: 'auto' }} value={filterCat} onChange={e => setFilterCat((e.target as HTMLSelectElement).value as Cat | '')}>
+        <Input as="select" style={{ minWidth: 100, width: 'auto' }} value={filterCat} onChange={e => onFilterChange(filterOwner, filterDept, (e.target as HTMLSelectElement).value as Cat | '')}>
           <option value="">全部類別</option>
           <option value="UIUX">UIUX</option>
           <option value="平面視覺">平面視覺</option>
         </Input>
         {hasFilter && (
-          <Button variant="ghost" onClick={() => { setFilterOwner(''); setFilterDept(''); setFilterCat(''); }}>
+          <Button variant="ghost" onClick={() => onFilterChange('', '', '')}>
             清除篩選
           </Button>
         )}
@@ -207,9 +222,7 @@ function HistoryDetail({ archive, isLive, onBack, onOpenCard, siteUsers }: {
 }
 
 // ── Main export ──────────────────────────────────────────────────
-export default function History({ archives, currentSnapshot, currentCards, onOpenCard, siteUsers }: HistoryProps) {
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-
+export default function History({ archives, currentSnapshot, currentCards, onOpenCard, siteUsers, selectedMonth, onSelectMonth, historyFilter, onHistoryFilterChange }: HistoryProps) {
   const LIVE_MONTH = currentSnapshot.month;
 
   const liveArchive = useMemo((): HistoryMonth => {
@@ -240,9 +253,13 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
         <HistoryDetail
           archive={selectedArchive}
           isLive={selectedMonth === LIVE_MONTH}
-          onBack={() => setSelectedMonth(null)}
+          onBack={() => { onSelectMonth(null); onHistoryFilterChange({ owner: '', dept: '', cat: '' }); }}
           onOpenCard={onOpenCard}
           siteUsers={siteUsers}
+          filterOwner={historyFilter.owner}
+          filterDept={historyFilter.dept}
+          filterCat={historyFilter.cat as import('@/lib/types').Cat | ''}
+          onFilterChange={(owner, dept, cat) => onHistoryFilterChange({ owner, dept, cat })}
         />
       </div>
     );
@@ -277,8 +294,8 @@ export default function History({ archives, currentSnapshot, currentCards, onOpe
                   { label: '原始預估', value: arch.totalEst, sub: 'h' },
                   { label: '實際消耗', value: arch.totalActual, sub: 'h' },
                 ]}
-                onView={() => setSelectedMonth(arch.month)}
-                onClick={() => setSelectedMonth(arch.month)}
+                onView={() => onSelectMonth(arch.month)}
+                onClick={() => onSelectMonth(arch.month)}
               />
             ))}
           </div>
