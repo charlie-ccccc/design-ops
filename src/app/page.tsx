@@ -678,6 +678,7 @@ export default function App() {
         onClose={() => setImportCsvOpen(false)}
         allCards={cards}
         siteUsers={siteUsers}
+        depts={depts}
         onImportCards={async (newCards) => {
           for (const card of newCards) await addCard(card);
         }}

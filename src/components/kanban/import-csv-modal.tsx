@@ -74,6 +74,11 @@ function chineseChars(s: string) {
   return s.replace(/[^一-鿿]/g, '');
 }
 
+function findDept(raw: string, depts: string[]): string {
+  if (!raw || depts.includes(raw)) return raw;
+  return depts.find(d => raw.includes(d) || d.includes(raw)) ?? raw;
+}
+
 function findOwner(name: string, users: AppUser[]): AppUser | null {
   if (!name) return null;
   const cn = chineseChars(name);
@@ -88,10 +93,11 @@ interface ImportCsvModalProps {
   onClose: () => void;
   allCards: Card[];
   siteUsers: AppUser[];
+  depts: string[];
   onImportCards: (cards: Card[]) => Promise<void>;
 }
 
-export function ImportCsvModal({ open, onClose, allCards, siteUsers, onImportCards }: ImportCsvModalProps) {
+export function ImportCsvModal({ open, onClose, allCards, siteUsers, depts, onImportCards }: ImportCsvModalProps) {
   const [rawRows, setRawRows] = useState<Record<string, string>[]>([]);
   const [batchDept, setBatchDept] = useState('');
   const [batchCat, setBatchCat] = useState<Cat>('UIUX');
@@ -152,7 +158,7 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
       const parsed_date = parseFullDate(row.dateRaw ?? '');
       if (!parsed_date) { errs.push(`第 ${rowNum} 行「${title}」：截止日期無法辨識（${row.dateRaw || '空白'}），略過`); return; }
 
-      const dept = row.dept || batchDept;
+      const dept = findDept(row.dept || batchDept, depts);
 
       const execUnit = row.execUnit ?? '';
       const cat: Cat = execUnit.includes('平面視覺') ? '平面視覺'
@@ -185,7 +191,7 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
       });
     });
     return { preview: parsed, errors: errs };
-  }, [rawRows, batchDept, batchCat, siteUsers, allCards]);
+  }, [rawRows, batchDept, batchCat, siteUsers, depts, allCards]);
 
   async function handleImport() {
     setImporting(true);
