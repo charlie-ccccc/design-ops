@@ -76,10 +76,10 @@ export default function App() {
     }
     return 'kanban';
   });
-  const [adminTab, setAdminTab] = useState<'capacity' | 'members' | 'leave'>(() => {
+  const [adminTab, setAdminTab] = useState<'capacity' | 'members' | 'leave' | 'import'>(() => {
     if (typeof window !== 'undefined') {
       const t = new URLSearchParams(window.location.search).get('tab');
-      if (t === 'members' || t === 'leave') return t;
+      if (t === 'members' || t === 'leave' || t === 'import') return t;
     }
     return 'capacity';
   });
@@ -638,6 +638,12 @@ export default function App() {
               tab={adminTab}
               onTabChange={setAdminTab}
               deptColors={deptColors}
+              siteUsers={siteUsers}
+              onImportCards={async (newCards) => {
+                for (const card of newCards) {
+                  await addCard(card);
+                }
+              }}
             />
           )}
           {page === 'history' && (
