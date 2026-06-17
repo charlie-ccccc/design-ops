@@ -282,6 +282,7 @@ export default function App() {
     let changed = false;
     cards.forEach(c => {
       if (c.owner !== user.uid || !c.due || sentToday[c.id]) return;
+      if (['done', 'pending'].includes(c.status)) return;
       const [mm, dd] = c.due.split('/').map(Number);
       const [yr] = c.month.split('/').map(Number);
       const dueMs = new Date(yr, mm - 1, dd).getTime();
