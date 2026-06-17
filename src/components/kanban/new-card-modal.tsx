@@ -107,6 +107,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
       open={open}
       onClose={onClose}
       title="新增需求單"
+      disableBackdropClose
       size="lg"
       footer={
         <>

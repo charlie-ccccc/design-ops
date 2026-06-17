@@ -13,6 +13,7 @@ type ModalProps = {
   children?: ReactNode;
   footer?: ReactNode;
   className?: string;
+  disableBackdropClose?: boolean;
 };
 
 export function Modal({
@@ -23,6 +24,7 @@ export function Modal({
   children,
   footer,
   className,
+  disableBackdropClose = false,
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,7 @@ export function Modal({
   return (
     <div
       className={['ui-modal-scrim', open && 'ui-modal-scrim--open'].filter(Boolean).join(' ')}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (!disableBackdropClose && e.target === e.currentTarget) onClose(); }}
       aria-modal="true"
       role="dialog"
       aria-label={title}

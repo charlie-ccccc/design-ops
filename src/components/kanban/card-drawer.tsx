@@ -849,7 +849,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
             {/* Time log modal */}
             {logModal && (
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit' }}
-                onClick={e => e.target === e.currentTarget && setLogModal(false)}>
+>
                 <div style={{ background: 'var(--md-sys-color-surface)', borderRadius: 12, padding: '20px 24px', width: 340, boxShadow: '0 12px 40px rgba(0,0,0,.2)', maxHeight: 'calc(100% - 40px)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>記錄工時</span>
