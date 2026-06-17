@@ -81,22 +81,40 @@ function fromDateInput(val: string): string {
   return val.slice(5).replace('-', '/');
 }
 
+const DRAFT_KEY = 'new-card-draft';
+
 export default function NewCardModal({ open, onClose, onCreate, defaultStatus, currentUser, siteUsers, members, depts }: NewCardModalProps) {
   const [form, setForm] = useState(() => makeDefaultForm(currentUser));
   const [openCount, setOpenCount] = useState(0);
 
   useEffect(() => {
-    if (open) { setForm(makeDefaultForm(currentUser)); setOpenCount(c => c + 1); }
+    if (!open) return;
+    setOpenCount(c => c + 1);
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (saved) {
+      try { setForm(JSON.parse(saved)); return; } catch {}
+    }
+    setForm(makeDefaultForm(currentUser));
   }, [open, currentUser]);
+
+  useEffect(() => {
+    if (open) localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+  }, [form, open]);
 
   function set<K extends keyof ReturnType<typeof makeDefaultForm>>(key: K, val: ReturnType<typeof makeDefaultForm>[K]) {
     setForm(f => ({ ...f, [key]: val }));
+  }
+
+  function handleClose() {
+    localStorage.removeItem(DRAFT_KEY);
+    onClose();
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim() || !form.dept || !form.cat || !form.prio) return;
     onCreate({ ...form, cat: form.cat as Cat, prio: form.prio as Priority, requesterName: form.requesterName, status: defaultStatus });
+    localStorage.removeItem(DRAFT_KEY);
     onClose();
   }
 
@@ -105,13 +123,13 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title="新增需求單"
       disableBackdropClose
       size="lg"
       footer={
         <>
-          <Button variant="ghost" type="button" onClick={onClose}>取消</Button>
+          <Button variant="ghost" type="button" onClick={handleClose}>取消</Button>
           <Button variant="primary" type="submit" form="new-card-form" disabled={!canSubmit}>建立需求單</Button>
         </>
       }
