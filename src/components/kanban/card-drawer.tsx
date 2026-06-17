@@ -11,6 +11,7 @@ import { createNotification } from '@/lib/notifications';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { MemberCell } from '@/components/ui/MemberCell/MemberCell';
+import { LinkPreview } from '@/components/ui/LinkPreview';
 
 interface CardDrawerProps {
   card: Card | null;
@@ -28,12 +29,28 @@ interface CardDrawerProps {
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
+function extractUrls(html: string): string[] {
+  return [...new Set(Array.from(html.matchAll(/https?:\/\/[^\s"'<>]+/g), m => m[0]))];
+}
+function HtmlLinkPreviews({ html }: { html: string }) {
+  const urls = extractUrls(html);
+  if (!urls.length) return null;
+  return <>{urls.map(u => <LinkPreview key={u} url={u} />)}</>;
+}
 function renderWithLinks(text: string) {
-  return text.split(URL_RE).map((part, i) =>
-    URL_RE.test(part)
-      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--md-sys-color-primary)', wordBreak: 'break-all' }}>{part}</a>
-      : part
-  );
+  const parts = text.split(URL_RE);
+  const result: React.ReactNode[] = [];
+  parts.forEach((part, i) => {
+    if (URL_RE.test(part)) {
+      result.push(
+        <a key={`a${i}`} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--md-sys-color-primary)', wordBreak: 'break-all' }}>{part}</a>,
+        <LinkPreview key={`p${i}`} url={part} />,
+      );
+    } else {
+      result.push(part);
+    }
+  });
+  return result;
 }
 
 function toDateInput(mmdd: string, cardMonth: string): string {
@@ -519,7 +536,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                   <RichTextEditor value={draftDesc} onChange={setDraftDesc} minHeight={200} />
                 ) : (
                   c.desc
-                    ? <div className="prose-content" dangerouslySetInnerHTML={{ __html: c.desc }} />
+                    ? <><div className="prose-content" dangerouslySetInnerHTML={{ __html: c.desc }} /><HtmlLinkPreviews html={c.desc} /></>
                     : <p style={{ fontSize: 14, color: 'var(--md-sys-color-on-surface-muted)', margin: 0 }}>尚無說明</p>
                 )}
               </div>
@@ -757,7 +774,7 @@ export default function CardDrawer({ card, onClose, onUpdate, onDelete, onClone,
                             <span style={{ marginLeft: 8, color: 'var(--md-sys-color-primary)' }}>紀錄 {l.hours}H</span>
                           </div>
                           {l.note && (
-                            <div className="prose-content" dangerouslySetInnerHTML={{ __html: l.note }} />
+                            <><div className="prose-content" dangerouslySetInnerHTML={{ __html: l.note }} /><HtmlLinkPreviews html={l.note} /></>
                           )}
                           {(!readOnly && canEdit) && (
                             <div style={{ display: 'flex', gap: 10, marginTop: 8, marginLeft: -8 }}>
