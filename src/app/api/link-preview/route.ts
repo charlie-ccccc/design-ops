@@ -11,6 +11,12 @@ function extractMeta(html: string, property: string): string | undefined {
   );
 }
 
+function googleDrivePreview(url: string): { image: string; title?: string } | null {
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (!m) return null;
+  return { image: `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400` };
+}
+
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url');
   if (!url) return NextResponse.json({ error: 'missing url' }, { status: 400 });
@@ -18,6 +24,12 @@ export async function GET(req: NextRequest) {
   const cached = cache.get(url);
   if (cached && Date.now() - cached.ts < TTL) {
     return NextResponse.json({ image: cached.image, title: cached.title });
+  }
+
+  const driveResult = googleDrivePreview(url);
+  if (driveResult) {
+    cache.set(url, { ...driveResult, ts: Date.now() });
+    return NextResponse.json(driveResult);
   }
 
   try {
