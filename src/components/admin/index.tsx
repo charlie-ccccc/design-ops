@@ -350,7 +350,7 @@ export default function Admin({
                   <div style={{ font: `600 64px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
                     {filteredPct}%
                   </div>
-                  <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 14, color: 'var(--md-sys-color-on-surface-muted)', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                     {catLabel}量能使用率
                     <InfoTooltip content={`本月承接 ÷ 可用工時 × 100%\n= ${filteredLoad}h ÷ ${filteredMonthHours}h × 100%`} />
                   </div>

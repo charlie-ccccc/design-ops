@@ -298,7 +298,7 @@ select.input { padding-right: 26px; background-image: url("data:image/svg+xml;ut
 .cap-pct.ok { color: var(--ink-2); }
 .cap-side { display: flex; flex-direction: column; gap: 14px; }
 .cap-summary { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-.dept-bar-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--divider); }
+.dept-bar-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed var(--divider); }
 .dept-bar-row:last-child { border-bottom: 0; }
 .dept-bar-row .name { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dept-bar-row .bar { grid-column: span 2; height: 4px; border-radius: 99px; background: var(--surface-2); position: relative; overflow: hidden; }
