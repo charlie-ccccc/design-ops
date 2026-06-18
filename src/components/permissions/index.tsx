@@ -92,7 +92,7 @@ export default function Permissions({ users, currentUser, onUpdateUser, depts, o
     if (!u) return;
     const has = u.roles.includes(role);
     const next: Role[] = has ? u.roles.filter(r => r !== role) : [...u.roles, role];
-    onUpdateUser(uid, { roles: next, cat: next.includes('成員') ? u.cat : undefined });
+    onUpdateUser(uid, { roles: next });
   }
 
   function setUserCat(uid: string, cat: DesignCat) {
