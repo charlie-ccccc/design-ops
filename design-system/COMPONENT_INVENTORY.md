@@ -35,6 +35,7 @@ No similarity conflicts detected during initial extraction. All extracted compon
 | MemberCell | `components/member-cell.md` | P1 | **extracted** | color, typescale | not applicable (display-only) | Avatar + name + optional sub; direct sys token use; no comp layer |
 | Table | `components/table.md` | P2 | **extracted** | color, typescale | not applicable | Generic Table<T>; sticky header + optional sticky first col; footer; tabular-nums |
 | NotificationPanel | `components/notification-panel.md` | P2 | **extracted** | color | not applicable | Bell trigger + dropdown; 4 notification types; unread badge; mark-read / delete |
+| InfoTooltip | `components/tooltip.md` | P2 | **extracted** | color, typescale | not applicable | Portal + position:fixed；hover（桌面）/ click（手機）雙觸發；top / bottom 方向；箭頭指示 |
 | DatePicker | `components/date-picker.md` | P2 | **extracted** | color | disabled | Controlled date input; fixed-position popup calendar; clear + today footer |
 
 ## Planned
