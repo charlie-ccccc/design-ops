@@ -163,7 +163,7 @@ export default function NewCardModal({ open, onClose, onCreate, defaultStatus, c
                   const uid = (e.target as HTMLSelectElement).value;
                   const u = siteUsers.find(x => x.uid === uid);
                   set('requester', uid);
-                  set('requesterName', u?.name ?? '');
+                  set('requesterName', u?.name ?? currentUser.name ?? '');
                 }}>
                 <option value="">未指定</option>
                 {siteUsers.map(u => <option key={u.uid} value={u.uid}>{u.name}</option>)}
