@@ -8,17 +8,39 @@ interface InfoTooltipProps {
   position?: 'top' | 'bottom';
 }
 
+interface BubbleState {
+  triggerX: number;   // trigger center X in viewport
+  bubbleLeft: number; // clamped bubble left edge
+  y: number;
+}
+
+const BUBBLE_MAX_W = 240;
+const ARROW_MIN_OFFSET = 14; // min px from bubble edge to arrow center
+
 export function InfoTooltip({ content, position = 'top' }: InfoTooltipProps) {
-  const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
+  const [state, setState] = useState<BubbleState | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
   const show = useCallback(() => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
-    setCoords({ x: r.left + r.width / 2, y: position === 'top' ? r.top : r.bottom });
-  }, [position]);
+    const triggerX = r.left + r.width / 2;
+    const estimatedW = Math.min(BUBBLE_MAX_W, content.length * 7 + 24);
+    const raw = triggerX - estimatedW / 2;
+    const bubbleLeft = Math.max(8, Math.min(raw, window.innerWidth - estimatedW - 8));
+    setState({
+      triggerX,
+      bubbleLeft,
+      y: position === 'top' ? r.top : r.bottom,
+    });
+  }, [position, content]);
 
-  const hide = useCallback(() => setCoords(null), []);
+  const hide = useCallback(() => setState(null), []);
+
+  // arrow offset: where the trigger center falls within the bubble
+  const arrowOffset = state
+    ? Math.max(ARROW_MIN_OFFSET, Math.min(state.triggerX - state.bubbleLeft, BUBBLE_MAX_W - ARROW_MIN_OFFSET))
+    : 0;
 
   return (
     <span
@@ -26,16 +48,18 @@ export function InfoTooltip({ content, position = 'top' }: InfoTooltipProps) {
       className="ui-tooltip-wrap"
       onMouseEnter={show}
       onMouseLeave={hide}
-      onClick={e => { e.stopPropagation(); coords ? hide() : show(); }}
+      onClick={e => { e.stopPropagation(); state ? hide() : show(); }}
     >
       <span className="ui-tooltip-trigger" aria-label="說明">!</span>
-      {coords && createPortal(
+      {state && createPortal(
         <span
           className={`ui-tooltip-bubble ui-tooltip-bubble--${position}`}
-          style={position === 'top'
-            ? { left: coords.x, top: coords.y - 8, transform: 'translateX(-50%) translateY(-100%)' }
-            : { left: coords.x, top: coords.y + 8, transform: 'translateX(-50%)' }
-          }
+          style={{
+            left: state.bubbleLeft,
+            top: position === 'top' ? state.y - 8 : state.y + 8,
+            transform: position === 'top' ? 'translateY(-100%)' : undefined,
+            ['--arrow-offset' as string]: `${arrowOffset}px`,
+          }}
         >
           {content}
         </span>,
