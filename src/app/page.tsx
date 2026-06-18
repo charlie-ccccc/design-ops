@@ -436,7 +436,7 @@ export default function App() {
     const createdAt = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     const nc: Card = {
       ...data,
-      requester: data.requesterName || undefined,
+      ...(data.requesterName ? { requester: data.requesterName } : {}),
       id: formatId(maxN + 1),
       month: CURRENT_MONTH,
       est: 0,
