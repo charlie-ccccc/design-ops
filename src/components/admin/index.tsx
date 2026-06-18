@@ -93,7 +93,7 @@ function capClass(pct: number) { return pct > 100 ? 'over' : pct > 85 ? 'warn' :
 
 type MemberRow = {
   m: Member; days: number; ratio: number;
-  lv: number; monthHours: number; load: number; pct: number;
+  lv: number; monthHours: number; load: number; actual: number; pct: number; efficiency: number;
 };
 
 export default function Admin({
@@ -134,8 +134,10 @@ export default function Admin({
     const lv = leaveByMember[m.id] || 0;
     const monthHours = Math.max(0, Math.round(days * 8 * ratio) - lv);
     const load = sum(cards.filter(c => c.owner === m.id).map(c => c.est));
-    const pct = monthHours > 0 ? Math.round((load / monthHours) * 100) : 0;
-    return { m, days, ratio, lv, monthHours, load, pct };
+    const actual = sum(cards.filter(c => c.owner === m.id).map(c => c.actual ?? 0));
+    const pct = monthHours > 0 ? Math.round((load / monthHours) * 100) : (load > 0 ? 999 : 0);
+    const efficiency = load > 0 ? Math.round((actual / load) * 100) : 0;
+    return { m, days, ratio, lv, monthHours, load, actual, pct, efficiency };
   }), [memberDays, memberRatios, leaveByMember, cards, defaultWorkDays]);
 
   const filteredRows  = catFilter === 'all' ? memberRows : memberRows.filter(r => r.m.cat === catFilter);
@@ -146,14 +148,20 @@ export default function Admin({
   const filteredPct   = filteredMonthHours > 0 ? Math.round((filteredLoad / filteredMonthHours) * 100) : 0;
 
   const deptMap: Record<string, number> = {};
-  for (const c of filteredCards) deptMap[c.dept] = (deptMap[c.dept] || 0) + c.est;
+  const deptActualMap: Record<string, number> = {};
+  for (const c of filteredCards) {
+    deptMap[c.dept] = (deptMap[c.dept] || 0) + c.est;
+    deptActualMap[c.dept] = (deptActualMap[c.dept] || 0) + (c.actual ?? 0);
+  }
   const deptLoads = Object.entries(deptMap).sort((a, b) => b[1] - a[1]);
   const maxDeptLoad = Math.max(...deptLoads.map(d => d[1]), 1);
 
   const totalMonthHours = sum(memberRows.map(r => r.monthHours));
   const totalLoad       = sum(memberRows.map(r => r.load));
+  const totalActual     = sum(memberRows.map(r => r.actual));
   const totalLeaveHours = sum(memberRows.map(r => r.lv));
   const totalPct        = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
+  const totalEfficiency = totalLoad > 0 ? Math.round((totalActual / totalLoad) * 100) : 0;
 
   const visibleLeave = (selectedDate
     ? leaveInMonth.filter(l => {
@@ -253,19 +261,39 @@ export default function Admin({
       footer: totalLoad,
     },
     {
+      key: 'actual', header: '實際(h)',
+      render: ({ actual }) => actual,
+      footer: totalActual,
+    },
+    {
       key: 'pct', header: '量能%',
-      render: ({ pct }) => (
-        <div className="cap-bar">
-          <div className="track"><span style={{ width: `${Math.min(pct, 100)}%`, background: capColor(pct) }} /></div>
-          <span className={`cap-pct ${capClass(pct)}`}>{pct}%</span>
-        </div>
-      ),
+      render: ({ pct, monthHours, load }) => {
+        if (monthHours === 0 && load > 0) return <span style={{ color: 'var(--st-block)', fontWeight: 600 }}>—</span>;
+        return (
+          <div className="cap-bar">
+            <div className="track"><span style={{ width: `${Math.min(pct, 100)}%`, background: capColor(pct) }} /></div>
+            <span className={`cap-pct ${capClass(pct)}`}>{pct}%</span>
+          </div>
+        );
+      },
       footer: (
         <div className="cap-bar">
           <div className="track"><span style={{ width: `${Math.min(totalPct, 100)}%`, background: capColor(totalPct) }} /></div>
           <span className={`cap-pct ${capClass(totalPct)}`}>{totalPct}%</span>
         </div>
       ),
+    },
+    {
+      key: 'efficiency', header: '效率%',
+      render: ({ efficiency, load }) => {
+        if (load === 0) return <span style={{ color: 'var(--md-sys-color-on-surface-muted)' }}>—</span>;
+        return (
+          <span style={{ fontWeight: 600, color: efficiency > 100 ? 'var(--st-block)' : 'var(--st-done)' }}>
+            {efficiency}%
+          </span>
+        );
+      },
+      footer: <span style={{ fontWeight: 600, color: totalEfficiency > 100 ? 'var(--st-block)' : 'var(--st-done)' }}>{totalLoad > 0 ? `${totalEfficiency}%` : '—'}</span>,
     },
   ];
 
@@ -368,6 +396,7 @@ export default function Admin({
                   <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)' }}>無資料</div>
                 ) : deptLoads.map(([dept, load]) => {
                   const pct = (load / maxDeptLoad) * 100;
+                  const actual = deptActualMap[dept] ?? 0;
                   const color = deptColors[dept] ?? hue(DEPT_HUE[dept] || 1);
                   return (
                     <div key={dept} className="dept-bar-row">
@@ -375,7 +404,10 @@ export default function Admin({
                         <span className="chip-dot" style={{ background: color, display: 'inline-block', marginRight: 6 }} />
                         {DEPT_SHORT[dept] || dept}
                       </div>
-                      <div className="v">{load}h</div>
+                      <div className="v">
+                        {load}h
+                        {actual > 0 && <span style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-muted)', marginLeft: 4 }}>/ {actual}h</span>}
+                      </div>
                       <div className="bar"><span style={{ width: `${pct}%`, background: color }} /></div>
                     </div>
                   );
