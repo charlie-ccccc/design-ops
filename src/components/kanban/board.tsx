@@ -4,6 +4,7 @@ import {
   DndContext,
   DragOverlay,
   closestCorners,
+  pointerWithin,
   MouseSensor,
   TouchSensor,
   useSensor,
@@ -12,7 +13,15 @@ import {
   type DragStartEvent,
   type DragEndEvent,
   type DragOverEvent,
+  type CollisionDetection,
 } from '@dnd-kit/core';
+
+// Prefer pointer-within for empty columns; fall back to closestCorners for card sorting
+const collisionDetection: CollisionDetection = (args) => {
+  const pointer = pointerWithin(args);
+  if (pointer.length > 0) return pointer;
+  return closestCorners(args);
+};
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -208,7 +217,7 @@ export default function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
