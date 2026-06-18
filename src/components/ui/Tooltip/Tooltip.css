@@ -1,0 +1,83 @@
+.ui-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ui-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.12s, color 0.12s;
+  user-select: none;
+}
+
+.ui-tooltip-trigger:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.ui-tooltip-bubble {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: pre-line;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: max-content;
+  max-width: 240px;
+  z-index: 999;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s;
+}
+
+.ui-tooltip-bubble--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ui-tooltip-bubble--top {
+  bottom: calc(100% + 8px);
+}
+
+.ui-tooltip-bubble--bottom {
+  top: calc(100% + 8px);
+}
+
+.ui-tooltip-bubble--top::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+}
+
+.ui-tooltip-bubble--bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--ink);
+}

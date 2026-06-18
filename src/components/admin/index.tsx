@@ -13,6 +13,7 @@ import { Table } from '@/components/ui/Table/Table';
 import type { TableColumn } from '@/components/ui/Table/Table';
 import { LeaveCalendar } from '@/components/ui/LeaveCalendar/LeaveCalendar';
 import type { LeaveCalendarDot } from '@/components/ui/LeaveCalendar/LeaveCalendar';
+import { InfoTooltip } from '@/components/ui/Tooltip/Tooltip';
 import { MemberCell } from '@/components/ui/MemberCell/MemberCell';
 
 type CatFilter = 'all' | Cat;
@@ -93,7 +94,7 @@ function capClass(pct: number) { return pct > 100 ? 'over' : pct > 85 ? 'warn' :
 
 type MemberRow = {
   m: Member; days: number; ratio: number;
-  lv: number; monthHours: number; load: number; actual: number; pct: number; efficiency: number;
+  lv: number; monthHours: number; load: number; actual: number; pct: number;
 };
 
 export default function Admin({
@@ -136,8 +137,7 @@ export default function Admin({
     const load = sum(cards.filter(c => c.owner === m.id).map(c => c.est));
     const actual = sum(cards.filter(c => c.owner === m.id).map(c => c.actual ?? 0));
     const pct = monthHours > 0 ? Math.round((load / monthHours) * 100) : (load > 0 ? 999 : 0);
-    const efficiency = load > 0 ? Math.round((actual / load) * 100) : 0;
-    return { m, days, ratio, lv, monthHours, load, actual, pct, efficiency };
+    return { m, days, ratio, lv, monthHours, load, actual, pct };
   }), [memberDays, memberRatios, leaveByMember, cards, defaultWorkDays]);
 
   const filteredRows  = catFilter === 'all' ? memberRows : memberRows.filter(r => r.m.cat === catFilter);
@@ -161,7 +161,6 @@ export default function Admin({
   const totalActual     = sum(memberRows.map(r => r.actual));
   const totalLeaveHours = sum(memberRows.map(r => r.lv));
   const totalPct        = totalMonthHours > 0 ? Math.round((totalLoad / totalMonthHours) * 100) : 0;
-  const totalEfficiency = totalLoad > 0 ? Math.round((totalActual / totalLoad) * 100) : 0;
 
   const visibleLeave = (selectedDate
     ? leaveInMonth.filter(l => {
@@ -251,7 +250,7 @@ export default function Admin({
       footer: totalLeaveHours,
     },
     {
-      key: 'monthHours', header: '月工時',
+      key: 'monthHours', header: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>月工時 <InfoTooltip content={'工作天 × 8 × 工時比例 − 請假'} position="bottom" /></span>,
       render: ({ monthHours }) => <span style={{ fontWeight: 600 }}>{monthHours}</span>,
       footer: <span style={{ fontWeight: 600 }}>{totalMonthHours}</span>,
     },
@@ -266,7 +265,7 @@ export default function Admin({
       footer: totalActual,
     },
     {
-      key: 'pct', header: '量能%',
+      key: 'pct', header: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>量能% <InfoTooltip content={'承接(h) ÷ 月工時 × 100%'} position="bottom" /></span>,
       render: ({ pct, monthHours, load }) => {
         if (monthHours === 0 && load > 0) return <span style={{ color: 'var(--st-block)', fontWeight: 600 }}>—</span>;
         return (
@@ -282,18 +281,6 @@ export default function Admin({
           <span className={`cap-pct ${capClass(totalPct)}`}>{totalPct}%</span>
         </div>
       ),
-    },
-    {
-      key: 'efficiency', header: '效率%',
-      render: ({ efficiency, load }) => {
-        if (load === 0) return <span style={{ color: 'var(--md-sys-color-on-surface-muted)' }}>—</span>;
-        return (
-          <span style={{ fontWeight: 600, color: efficiency > 100 ? 'var(--st-block)' : 'var(--st-done)' }}>
-            {efficiency}%
-          </span>
-        );
-      },
-      footer: <span style={{ fontWeight: 600, color: totalEfficiency > 100 ? 'var(--st-block)' : 'var(--st-done)' }}>{totalLoad > 0 ? `${totalEfficiency}%` : '—'}</span>,
     },
   ];
 
@@ -337,11 +324,6 @@ export default function Admin({
 
           <span className="admin-tab-spacer" style={{ flex: 1 }} />
 
-          {tab === 'members' && (
-            <span className="cap-formula-hint" style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginRight: 16 }}>
-              工作天 × 8 × 工時比例 − 請假
-            </span>
-          )}
           {tab === 'leave' && selectedDate && (
             <Button variant="ghost" style={{ fontSize: 13, padding: '2px 8px', gap: 4, marginRight: 16 }}
                     onClick={() => setSelectedDate(null)}>
@@ -368,7 +350,10 @@ export default function Admin({
                   <div style={{ font: `600 64px/1 var(--font-mono), monospace`, letterSpacing: '-0.03em', color: capColor(filteredPct) }}>
                     {filteredPct}%
                   </div>
-                  <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginTop: 8 }}>{catLabel}量能使用率</div>
+                  <div style={{ fontSize: 13, color: 'var(--md-sys-color-on-surface-muted)', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                    {catLabel}量能使用率
+                    <InfoTooltip content={`本月承接 ÷ 可用工時 × 100%\n= ${filteredLoad}h ÷ ${filteredMonthHours}h × 100%`} />
+                  </div>
                   <div style={{ height: 6, borderRadius: 99, background: 'var(--md-sys-color-surface-variant)', overflow: 'hidden', marginTop: 12 }}>
                     <div style={{ width: `${Math.min(filteredPct, 100)}%`, height: '100%', borderRadius: 99, background: capColor(filteredPct), transition: 'width 0.3s ease' }} />
                   </div>
