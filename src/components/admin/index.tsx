@@ -267,7 +267,12 @@ export default function Admin({
     {
       key: 'pct', header: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>量能% <InfoTooltip content={'承接(h) ÷ 月工時 × 100%'} position="bottom" /></span>,
       render: ({ pct, monthHours, load }) => {
-        if (monthHours === 0 && load > 0) return <span style={{ color: 'var(--st-block)', fontWeight: 600 }}>—</span>;
+        if (monthHours === 0 && load > 0) return (
+          <div className="cap-bar">
+            <div className="track"><span style={{ width: '100%', background: 'var(--st-block)' }} /></div>
+            <span className="cap-pct over">超載</span>
+          </div>
+        );
         return (
           <div className="cap-bar">
             <div className="track"><span style={{ width: `${Math.min(pct, 100)}%`, background: capColor(pct) }} /></div>
