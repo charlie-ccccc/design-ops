@@ -110,9 +110,13 @@ export default function App() {
   const [importCsvOpen, setImportCsvOpen] = useState(false);
   const [newCardDefaultStatus, setNewCardDefaultStatus] = useState<CardStatus>('belog');
   const [query, setQuery] = useState('');
-  const [filterMember, setFilterMember] = useState(() =>
-    typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('member') ?? '') : ''
-  );
+  const [filterMembers, setFilterMembers] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const v = new URLSearchParams(window.location.search).get('member') ?? '';
+    return v ? v.split(',') : [];
+  });
+  const toggleFilterMember = (id: string) =>
+    setFilterMembers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const [filterDept, setFilterDept] = useState(() =>
     typeof window !== 'undefined' ? (new URLSearchParams(window.location.search).get('kdept') ?? '') : ''
   );
@@ -350,7 +354,7 @@ export default function App() {
     if (page === 'capacity' && adminTab !== 'capacity') { params.set('tab', adminTab); }
     else if (page === 'permissions' && permTab !== 'users') { params.set('tab', permTab); }
     else { params.delete('tab'); }
-    if (page === 'kanban' && filterMember) { params.set('member', filterMember); } else { params.delete('member'); }
+    if (page === 'kanban' && filterMembers.length) { params.set('member', filterMembers.join(',')); } else { params.delete('member'); }
     if (page === 'kanban' && filterDept)   { params.set('kdept',  filterDept);   } else { params.delete('kdept'); }
     if (page === 'history' && historyMonth) { params.set('month', historyMonth); } else { params.delete('month'); }
     if (page === 'history' && historyMonth && historyFilter.owner) { params.set('howner', historyFilter.owner); } else { params.delete('howner'); }
@@ -358,7 +362,7 @@ export default function App() {
     if (page === 'history' && historyMonth && historyFilter.cat)   { params.set('hcat',   historyFilter.cat);   } else { params.delete('hcat'); }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [page, openCardId, dashFilter, adminTab, permTab, filterMember, filterDept, historyMonth, historyFilter]);
+  }, [page, openCardId, dashFilter, adminTab, permTab, filterMembers, filterDept, historyMonth, historyFilter]);
 
   const openCard = cards.find(c => c.id === openCardId)
     ?? historyMonths.flatMap(h => h.cardList).find(c => c.id === openCardId)
@@ -573,8 +577,8 @@ export default function App() {
           page={page}
           onMenuToggle={() => setSidebarOpen(o => !o)}
           members={members}
-          filterMember={filterMember}
-          onFilterMember={setFilterMember}
+          filterMembers={filterMembers}
+          onFilterMember={toggleFilterMember}
           filterDept={filterDept}
           onFilterDept={setFilterDept}
           query={query}
@@ -602,7 +606,7 @@ export default function App() {
             <KanbanBoard
               cards={kanbanCards}
               query={query}
-              filterMember={filterMember}
+              filterMembers={filterMembers}
               filterDept={filterDept}
               onMove={onMove}
               onReorder={updateCardOrder}

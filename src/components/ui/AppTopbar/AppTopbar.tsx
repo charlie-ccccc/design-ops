@@ -22,7 +22,7 @@ export interface AppTopbarProps {
 
   // Kanban
   members?: Member[];
-  filterMember?: string;
+  filterMembers?: string[];
   onFilterMember?: (id: string) => void;
   filterDept?: string;
   onFilterDept?: (dept: string) => void;
@@ -48,7 +48,7 @@ export function AppTopbar({
   page,
   onMenuToggle,
   members = [],
-  filterMember = '',
+  filterMembers = [],
   onFilterMember,
   filterDept = '',
   onFilterDept,
@@ -64,7 +64,7 @@ export function AppTopbar({
   notificationSlot,
 }: AppTopbarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
-  const hasFilter = page === 'kanban' && !!(filterMember || filterDept || query);
+  const hasFilter = page === 'kanban' && !!(filterMembers.length || filterDept || query);
 
   return (
     <>
@@ -101,15 +101,15 @@ export function AppTopbar({
                 {members.map(m => (
                   <button
                     key={m.id}
-                    onClick={() => onFilterMember?.(filterMember === m.id ? '' : m.id)}
+                    onClick={() => onFilterMember?.(m.id)}
                     title={m.name}
                     style={{
                       appearance: 'none', border: 'none', padding: 0, cursor: 'pointer',
                       width: 22, height: 22, borderRadius: '50%', background: 'transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       overflow: 'hidden', flexShrink: 0,
-                      opacity: filterMember && filterMember !== m.id ? 0.3 : 1,
-                      boxShadow: filterMember === m.id
+                      opacity: filterMembers.length > 0 && !filterMembers.includes(m.id) ? 0.3 : 1,
+                      boxShadow: filterMembers.includes(m.id)
                         ? `0 0 0 2px var(--surface), 0 0 0 3.5px ${hue(m.hue)}`
                         : 'none',
                       transition: 'opacity 0.15s, box-shadow 0.15s',
@@ -197,7 +197,7 @@ export function AppTopbar({
               <button className="sb-hamburger tb-search-btn" onClick={() => setSearchOpen(true)}>
                 <Search size={20} />
               </button>
-              <select className="input" style={{ flex: 1 }} value={filterMember} onChange={e => onFilterMember?.(e.target.value)}>
+              <select className="input" style={{ flex: 1 }} value={filterMembers[0] ?? ''} onChange={e => { const v = e.target.value; onFilterMember?.(v || (filterMembers[0] ?? '')); }}>
                 <option value="">全部成員</option>
                 {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>

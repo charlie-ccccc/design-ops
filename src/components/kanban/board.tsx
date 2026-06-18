@@ -83,7 +83,7 @@ interface KanbanBoardProps {
   onOpen: (id: string) => void;
   onAddCard: (status: string) => void;
   query: string;
-  filterMember: string;
+  filterMembers: string[];
   filterDept: string;
   canEdit: boolean;
   memberById?: Record<string, Member>;
@@ -97,7 +97,7 @@ export default function KanbanBoard({
   onOpen,
   onAddCard,
   query,
-  filterMember,
+  filterMembers,
   filterDept,
   canEdit,
   memberById = {},
@@ -134,7 +134,7 @@ export default function KanbanBoard({
   const cardMap = useMemo(() => Object.fromEntries(cards.map(c => [c.id, c])), [cards]);
 
   function passes(c: Card): boolean {
-    if (filterMember && c.owner !== filterMember) return false;
+    if (filterMembers.length > 0 && !filterMembers.includes(c.owner)) return false;
     if (filterDept && c.dept !== filterDept) return false;
     if (query) {
       const q = query.toLowerCase();
