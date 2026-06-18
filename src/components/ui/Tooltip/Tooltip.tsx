@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import './Tooltip.css';
 
@@ -9,38 +9,49 @@ interface InfoTooltipProps {
 }
 
 interface BubbleState {
-  triggerX: number;   // trigger center X in viewport
-  bubbleLeft: number; // clamped bubble left edge
+  triggerX: number;
   y: number;
+  position: 'top' | 'bottom';
 }
 
-const BUBBLE_MAX_W = 240;
-const ARROW_MIN_OFFSET = 14; // min px from bubble edge to arrow center
+const PADDING = 8;
+const ARROW_MIN_OFFSET = 14;
 
 export function InfoTooltip({ content, position = 'top' }: InfoTooltipProps) {
-  const [state, setState] = useState<BubbleState | null>(null);
+  const [bubble, setBubble] = useState<BubbleState | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
+  const bubbleRef = useRef<HTMLSpanElement>(null);
+  const [bubbleLeft, setBubbleLeft] = useState(0);
+  const [arrowOffset, setArrowOffset] = useState(0);
+  const [ready, setReady] = useState(false);
 
   const show = useCallback(() => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
-    const triggerX = r.left + r.width / 2;
-    const estimatedW = Math.min(BUBBLE_MAX_W, content.length * 7 + 24);
-    const raw = triggerX - estimatedW / 2;
-    const bubbleLeft = Math.max(8, Math.min(raw, window.innerWidth - estimatedW - 8));
-    setState({
-      triggerX,
-      bubbleLeft,
+    setReady(false);
+    setBubble({
+      triggerX: r.left + r.width / 2,
       y: position === 'top' ? r.top : r.bottom,
+      position,
     });
-  }, [position, content]);
+  }, [position]);
 
-  const hide = useCallback(() => setState(null), []);
+  const hide = useCallback(() => {
+    setBubble(null);
+    setReady(false);
+  }, []);
 
-  // arrow offset: where the trigger center falls within the bubble
-  const arrowOffset = state
-    ? Math.max(ARROW_MIN_OFFSET, Math.min(state.triggerX - state.bubbleLeft, BUBBLE_MAX_W - ARROW_MIN_OFFSET))
-    : 0;
+  // After bubble renders, measure actual width and clamp
+  useLayoutEffect(() => {
+    if (!bubble || !bubbleRef.current) return;
+    const w = bubbleRef.current.offsetWidth;
+    const raw = bubble.triggerX - w / 2;
+    const clamped = Math.max(PADDING, Math.min(raw, window.innerWidth - w - PADDING));
+    const arrow = Math.max(ARROW_MIN_OFFSET, Math.min(bubble.triggerX - clamped, w - ARROW_MIN_OFFSET));
+    setBubbleLeft(clamped);
+    setArrowOffset(arrow);
+    setReady(true);
+  }, [bubble]);
 
   return (
     <span
@@ -48,16 +59,18 @@ export function InfoTooltip({ content, position = 'top' }: InfoTooltipProps) {
       className="ui-tooltip-wrap"
       onMouseEnter={show}
       onMouseLeave={hide}
-      onClick={e => { e.stopPropagation(); state ? hide() : show(); }}
+      onClick={e => { e.stopPropagation(); bubble ? hide() : show(); }}
     >
       <span className="ui-tooltip-trigger" aria-label="說明">!</span>
-      {state && createPortal(
+      {bubble && createPortal(
         <span
-          className={`ui-tooltip-bubble ui-tooltip-bubble--${position}`}
+          ref={bubbleRef}
+          className={`ui-tooltip-bubble ui-tooltip-bubble--${bubble.position}`}
           style={{
-            left: state.bubbleLeft,
-            top: position === 'top' ? state.y - 8 : state.y + 8,
-            transform: position === 'top' ? 'translateY(-100%)' : undefined,
+            left: bubbleLeft,
+            top: bubble.position === 'top' ? bubble.y - 8 : bubble.y + 8,
+            transform: bubble.position === 'top' ? 'translateY(-100%)' : undefined,
+            opacity: ready ? 1 : 0,
             ['--arrow-offset' as string]: `${arrowOffset}px`,
           }}
         >
