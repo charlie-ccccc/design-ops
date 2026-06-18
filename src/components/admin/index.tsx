@@ -390,8 +390,8 @@ export default function Admin({
                         {DEPT_SHORT[dept] || dept}
                       </div>
                       <div className="v">
-                        {load}h
-                        {actual > 0 && <span style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-muted)', marginLeft: 4 }}>/ {actual}h</span>}
+                        <span style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-muted)' }}>本月承接 </span>{load}h
+                        {actual > 0 && <span style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-muted)', marginLeft: 4 }}>/ 實際工時 {actual}h</span>}
                       </div>
                       <div className="bar"><span style={{ width: `${pct}%`, background: color }} /></div>
                     </div>
