@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { MemberCell } from './MemberCell';
 
 const meta = {
-  title: 'Components/MemberCell',
+  title: 'Components/Identity/MemberCell',
   component: MemberCell,
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof MemberCell>;

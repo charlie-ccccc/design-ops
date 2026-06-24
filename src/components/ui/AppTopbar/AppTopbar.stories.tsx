@@ -5,7 +5,7 @@ import { AppTopbar } from './AppTopbar';
 import { MEMBERS } from '@/lib/data';
 
 const meta = {
-  title: 'Components/AppTopbar',
+  title: 'Components/Shell/AppTopbar',
   component: AppTopbar,
   parameters: { layout: 'fullscreen' },
 } satisfies Meta<typeof AppTopbar>;

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MonthPillNavigator } from './MonthPillNavigator';
 
 const meta = {
-  title: 'Components/MonthPillNavigator',
+  title: 'Components/Navigation/MonthPillNavigator',
   component: MonthPillNavigator,
 } satisfies Meta<typeof MonthPillNavigator>;
 

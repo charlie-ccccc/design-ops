@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { KanbanCard } from './KanbanCard';
 
 const meta = {
-  title: 'Components/KanbanCard',
+  title: 'Components/Kanban/KanbanCard',
   component: KanbanCard,
   argTypes: {
     priority: { control: 'select', options: ['urgent', 'high', 'normal', 'low', 'lowest'] },

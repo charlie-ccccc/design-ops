@@ -5,7 +5,7 @@ import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 
 const meta = {
-  title: 'Components/Modal',
+  title: 'Components/Overlays/Modal',
   component: Modal,
   parameters: { layout: 'fullscreen' },
 } satisfies Meta<typeof Modal>;

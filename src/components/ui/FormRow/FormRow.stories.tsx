@@ -3,7 +3,7 @@ import { FormRow, FormGrid } from './FormRow';
 import { Input } from '../Input/Input';
 
 const meta = {
-  title: 'Components/FormRow',
+  title: 'Components/Forms/FormRow',
   component: FormRow,
 } satisfies Meta<typeof FormRow>;
 

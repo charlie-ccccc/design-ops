@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { DonutCenterLockup } from './DonutCenterLockup';
 
 const meta = {
-  title: 'Components/DonutCenterLockup',
+  title: 'Components/Data Display/DonutCenterLockup',
   component: DonutCenterLockup,
   argTypes: {
     value: { control: 'text' },

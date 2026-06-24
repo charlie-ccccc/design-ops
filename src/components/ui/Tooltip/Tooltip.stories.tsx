@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { InfoTooltip } from './Tooltip';
 
 const meta = {
-  title: 'Components/Tooltip',
+  title: 'Components/Overlays/Tooltip',
   component: InfoTooltip,
 } satisfies Meta<typeof InfoTooltip>;
 

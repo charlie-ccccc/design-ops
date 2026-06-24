@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { BrandMark } from './BrandMark';
 
 const meta = {
-  title: 'Components/BrandMark',
+  title: 'Components/Shell/BrandMark',
   component: BrandMark,
   argTypes: {
     size: { control: 'radio', options: ['sm', 'lg'] },

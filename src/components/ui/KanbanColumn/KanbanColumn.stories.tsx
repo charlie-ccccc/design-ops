@@ -3,7 +3,7 @@ import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from '../KanbanCard/KanbanCard';
 
 const meta = {
-  title: 'Components/KanbanColumn',
+  title: 'Components/Kanban/KanbanColumn',
   component: KanbanColumn,
   argTypes: {
     isOver: { control: 'boolean' },

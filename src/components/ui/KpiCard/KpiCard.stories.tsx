@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { KpiCard } from './KpiCard';
 
 const meta = {
-  title: 'Components/KpiCard',
+  title: 'Components/Data Display/KpiCard',
   component: KpiCard,
   argTypes: {
     deltaDirection: { control: 'select', options: ['neutral', 'up', 'down'] },

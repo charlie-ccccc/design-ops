@@ -3,7 +3,7 @@ import { LayoutDashboard, Kanban, History, Settings, Bell } from 'lucide-react';
 import { SidebarItem, SidebarGroup } from './SidebarItem';
 
 const meta = {
-  title: 'Components/SidebarItem',
+  title: 'Components/Shell/SidebarItem',
   component: SidebarItem,
   argTypes: {
     active: { control: 'boolean' },

@@ -5,7 +5,7 @@ import { MEMBERS } from '@/lib/data';
 import { hue } from '@/lib/utils';
 
 const meta = {
-  title: 'Components/LeaveCalendar',
+  title: 'Components/Data Display/LeaveCalendar',
   component: LeaveCalendar,
 } satisfies Meta<typeof LeaveCalendar>;
 

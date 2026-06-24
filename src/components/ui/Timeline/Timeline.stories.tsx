@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Timeline, TimelineItem } from './Timeline';
 
 const meta = {
-  title: 'Components/Timeline',
+  title: 'Components/Data Display/Timeline',
   component: Timeline,
 } satisfies Meta<typeof Timeline>;
 

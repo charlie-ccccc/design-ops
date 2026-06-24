@@ -3,7 +3,7 @@ import { Panel } from './Panel';
 import { Button } from '../Button/Button';
 
 const meta = {
-  title: 'Components/Panel',
+  title: 'Components/Data Display/Panel',
   component: Panel,
 } satisfies Meta<typeof Panel>;
 

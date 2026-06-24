@@ -6,7 +6,7 @@ import { Timeline } from '../Timeline/Timeline';
 import { DeptPill, Tag } from '../Badge/Badge';
 
 const meta = {
-  title: 'Components/DetailDrawer',
+  title: 'Components/Overlays/DetailDrawer',
   component: DetailDrawer,
   parameters: { layout: 'fullscreen' },
 } satisfies Meta<typeof DetailDrawer>;

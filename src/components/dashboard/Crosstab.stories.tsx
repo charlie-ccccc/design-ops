@@ -3,7 +3,7 @@ import Crosstab from './crosstab';
 import { MEMBERS } from '@/lib/data';
 
 const meta = {
-  title: 'Components/CrosstabTable',
+  title: 'Components/Data Display/CrosstabTable',
   component: Crosstab,
 } satisfies Meta<typeof Crosstab>;
 

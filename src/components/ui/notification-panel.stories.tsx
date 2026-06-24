@@ -4,7 +4,7 @@ import NotificationPanel from './notification-panel';
 import type { AppNotification } from '@/lib/types';
 
 const meta = {
-  title: 'Components/NotificationPanel',
+  title: 'Components/Overlays/NotificationPanel',
   component: NotificationPanel,
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof NotificationPanel>;

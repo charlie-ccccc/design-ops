@@ -5,7 +5,7 @@ import { MEMBERS, STATUSES, DEPT_SHORT } from '@/lib/data';
 import { hue } from '@/lib/utils';
 
 const meta = {
-  title: 'Components/Table',
+  title: 'Components/Data Display/Table',
   component: Table,
 } satisfies Meta<typeof Table>;
 
