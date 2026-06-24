@@ -97,7 +97,7 @@ export default function KanbanBoard({
   onOpen,
   onAddCard,
   query,
-  filterMembers,
+  filterMembers = [],
   filterDept,
   canEdit,
   memberById = {},
