@@ -134,7 +134,11 @@ export default function KanbanBoard({
   const cardMap = useMemo(() => Object.fromEntries(cards.map(c => [c.id, c])), [cards]);
 
   function passes(c: Card): boolean {
-    if (filterMembers.length > 0 && !filterMembers.includes(c.owner)) return false;
+    if (filterMembers.length > 0) {
+      const wantsUnassigned = filterMembers.includes('__unassigned__');
+      const isUnassigned = !c.owner;
+      if (isUnassigned ? !wantsUnassigned : !filterMembers.includes(c.owner)) return false;
+    }
     if (filterDept && c.dept !== filterDept) return false;
     if (query) {
       const q = query.toLowerCase();

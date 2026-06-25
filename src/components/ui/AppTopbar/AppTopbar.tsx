@@ -120,6 +120,25 @@ export function AppTopbar({
                       : <span className="av av-sm" style={{ background: hue(m.hue) }}>{m.initial}</span>}
                   </button>
                 ))}
+                <button
+                  onClick={() => onFilterMember?.('__unassigned__')}
+                  title="未指定成員"
+                  style={{
+                    appearance: 'none', padding: 0, cursor: 'pointer',
+                    width: 22, height: 22, borderRadius: '50%', background: 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                    border: `1.5px dashed ${filterMembers.includes('__unassigned__') ? 'var(--ink)' : 'var(--muted)'}`,
+                    opacity: filterMembers.length > 0 && !filterMembers.includes('__unassigned__') ? 0.3 : 1,
+                    boxShadow: filterMembers.includes('__unassigned__')
+                      ? '0 0 0 2px var(--surface), 0 0 0 3.5px var(--muted)'
+                      : 'none',
+                    transition: 'opacity 0.15s, box-shadow 0.15s',
+                    color: 'var(--muted)', fontSize: 12, fontWeight: 500,
+                  }}
+                >
+                  ?
+                </button>
               </div>
               <div style={{ width: 1, height: 18, background: 'var(--border)', margin: '0 2px' }} />
               <div style={{ position: 'relative' }}>
