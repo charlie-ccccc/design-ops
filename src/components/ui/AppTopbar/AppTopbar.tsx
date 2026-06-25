@@ -134,10 +134,10 @@ export function AppTopbar({
                       ? '0 0 0 2px var(--surface), 0 0 0 3.5px var(--muted)'
                       : 'none',
                     transition: 'opacity 0.15s, box-shadow 0.15s',
-                    color: 'var(--muted)', fontSize: 12, fontWeight: 500,
+                    color: 'var(--muted)', fontSize: 11, fontWeight: 500,
                   }}
                 >
-                  ?
+                  未
                 </button>
               </div>
               <div style={{ width: 1, height: 18, background: 'var(--border)', margin: '0 2px' }} />
